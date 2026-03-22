@@ -21,6 +21,11 @@ npx jest -u            # update snapshots
 - Theme tokens from `constants/theme.ts` — no inline colors/spacing
 - `void` keyword for intentionally unhandled promises
 
+## Workflow
+
+- After completing any change that is tested and passing, commit and push automatically
+- Run `npm run check` before committing to verify nothing is broken
+
 ## Key Files
 
 - `hooks/useWebSocket.ts` — Core protocol logic (most complex file)
