@@ -4,7 +4,7 @@ let _seq = 0;
 
 /** Generate a unique request ID */
 export function nextId(): string {
-  return `rn_${Date.now()}_${_seq++}`;
+  return `rn_${String(Date.now())}_${String(_seq++)}`;
 }
 
 /** Extract plain text from gateway content (string, {type,text}, or array of content blocks) */

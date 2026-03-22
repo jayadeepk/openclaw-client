@@ -36,7 +36,6 @@ export function ChatInput({ onSend, disabled }: Props) {
           maxLength={4096}
           editable={!disabled}
           onSubmitEditing={handleSend}
-          blurOnSubmit={false}
           submitBehavior="submit"
         />
         <TouchableOpacity

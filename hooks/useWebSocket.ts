@@ -217,7 +217,7 @@ export function useWebSocket(
             if (finalContent) {
               void speakText(finalContent);
             }
-          } else if (state === 'error' || state === 'aborted') {
+          } else {
             const existing = streamingRef.current.get(runId);
             if (existing) {
               setMessages((prev) =>

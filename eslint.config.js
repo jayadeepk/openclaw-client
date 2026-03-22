@@ -1,12 +1,13 @@
+const { defineConfig } = require('eslint/config');
 const eslint = require('@eslint/js');
 const tseslint = require('typescript-eslint');
 
-module.exports = tseslint.config(
+module.exports = defineConfig(
   {
     ignores: ['node_modules/', 'coverage/', '**/__snapshots__/', 'babel.config.js', 'jest.config.js'],
   },
   eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.strictTypeChecked,
   {
     languageOptions: {
       parserOptions: {

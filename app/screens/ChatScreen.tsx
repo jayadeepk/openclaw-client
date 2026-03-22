@@ -33,7 +33,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
     if (settings.authToken) {
       connect();
     }
-    return () => disconnect();
+    return () => { disconnect(); };
   }, [settings.gatewayHost, settings.gatewayPort, settings.authToken]);
 
   // Auto-scroll to bottom on new messages
@@ -65,7 +65,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
             </TouchableOpacity>
           )}
           <TouchableOpacity
-            onPress={() => navigation.navigate('Settings')}
+            onPress={() => { navigation.navigate('Settings'); }}
             style={styles.headerBtn}
           >
             <Text style={styles.headerBtnText}>Settings</Text>

@@ -15,7 +15,6 @@ exports[`ChatInput snapshots disabled state 1`] = `
   }
 >
   <TextInput
-    blurOnSubmit={false}
     editable={false}
     maxLength={4096}
     multiline={true}
@@ -111,7 +110,6 @@ exports[`ChatInput snapshots enabled state 1`] = `
   }
 >
   <TextInput
-    blurOnSubmit={false}
     editable={true}
     maxLength={4096}
     multiline={true}

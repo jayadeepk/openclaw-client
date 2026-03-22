@@ -28,7 +28,7 @@ export function useAudioPlayer() {
 
       // Determine file extension from MIME type
       const ext = mimeType.includes('wav') ? 'wav' : mimeType.includes('ogg') ? 'ogg' : 'mp3';
-      const file = new File(Paths.cache, `openclaw_tts_${Date.now()}.${ext}`);
+      const file = new File(Paths.cache, `openclaw_tts_${String(Date.now())}.${ext}`);
 
       // Write the base64 audio to a temporary file
       file.write(base64Audio, { encoding: 'base64' });

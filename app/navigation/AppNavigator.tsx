@@ -60,7 +60,7 @@ export function AppNavigator() {
             <SettingsScreen
               settings={settings}
               onSave={handleSaveSettings}
-              onGoBack={() => props.navigation.goBack()}
+              onGoBack={() => { props.navigation.goBack(); }}
             />
           )}
         </Stack.Screen>
