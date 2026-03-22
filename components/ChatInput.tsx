@@ -14,9 +14,20 @@ interface Props {
   disabled?: boolean;
 }
 
+const MAX_LENGTH = 4096;
+const COUNTER_THRESHOLD = 200;
+
+function getCounterColor(remaining: number): string {
+  if (remaining <= 50) return theme.colors.error;
+  if (remaining <= 100) return '#ffaa33';
+  return theme.colors.textMuted;
+}
+
 /** Text input bar with a send button */
 export function ChatInput({ onSend, disabled }: Props) {
   const [text, setText] = useState('');
+  const remaining = MAX_LENGTH - text.length;
+  const showCounter = text.length > 0 && remaining <= COUNTER_THRESHOLD;
 
   const handleSend = () => {
     const trimmed = text.trim();
@@ -34,21 +45,31 @@ export function ChatInput({ onSend, disabled }: Props) {
 
   return (
       <View style={styles.container}>
-        <TextInput
-          style={styles.input}
-          value={text}
-          onChangeText={setText}
-          placeholder="Message OpenClaw..."
-          placeholderTextColor={theme.colors.textMuted}
-          multiline
-          maxLength={4096}
-          editable={!disabled}
-          onSubmitEditing={handleSend}
-          onKeyPress={handleKeyPress}
-          submitBehavior="submit"
-          accessibilityLabel="Message input"
-          accessibilityHint="Type a message to send to OpenClaw"
-        />
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.input}
+            value={text}
+            onChangeText={setText}
+            placeholder="Message OpenClaw..."
+            placeholderTextColor={theme.colors.textMuted}
+            multiline
+            maxLength={MAX_LENGTH}
+            editable={!disabled}
+            onSubmitEditing={handleSend}
+            onKeyPress={handleKeyPress}
+            submitBehavior="submit"
+            accessibilityLabel="Message input"
+            accessibilityHint="Type a message to send to OpenClaw"
+          />
+          {showCounter && (
+            <Text
+              style={[styles.counter, { color: getCounterColor(remaining) }]}
+              accessibilityLabel={String(remaining) + ' characters remaining'}
+            >
+              {remaining}
+            </Text>
+          )}
+        </View>
         <TouchableOpacity
           style={[styles.sendBtn, (!text.trim() || disabled) && styles.sendBtnDisabled]}
           onPress={handleSend}
@@ -74,8 +95,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: theme.colors.border,
   },
-  input: {
+  inputWrapper: {
     flex: 1,
+    marginRight: theme.spacing.sm,
+  },
+  input: {
     backgroundColor: theme.colors.inputBg,
     borderRadius: theme.borderRadius.lg,
     borderWidth: 1,
@@ -85,7 +109,12 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.fontSize.md,
     maxHeight: 120,
-    marginRight: theme.spacing.sm,
+  },
+  counter: {
+    fontSize: 11,
+    textAlign: 'right',
+    marginTop: 2,
+    marginRight: theme.spacing.xs,
   },
   sendBtn: {
     width: 40,

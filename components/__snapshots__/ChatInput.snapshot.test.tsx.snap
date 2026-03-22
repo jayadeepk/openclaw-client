@@ -14,35 +14,42 @@ exports[`ChatInput snapshots disabled state 1`] = `
     }
   }
 >
-  <TextInput
-    accessibilityHint="Type a message to send to OpenClaw"
-    accessibilityLabel="Message input"
-    editable={false}
-    maxLength={4096}
-    multiline={true}
-    onChangeText={[Function]}
-    onKeyPress={[Function]}
-    onSubmitEditing={[Function]}
-    placeholder="Message OpenClaw..."
-    placeholderTextColor="#55556a"
+  <View
     style={
       {
-        "backgroundColor": "#14141c",
-        "borderColor": "#2a2a3a",
-        "borderRadius": 20,
-        "borderWidth": 1,
-        "color": "#e8e8ef",
         "flex": 1,
-        "fontSize": 15,
         "marginRight": 8,
-        "maxHeight": 120,
-        "paddingHorizontal": 16,
-        "paddingVertical": 10,
       }
     }
-    submitBehavior="submit"
-    value=""
-  />
+  >
+    <TextInput
+      accessibilityHint="Type a message to send to OpenClaw"
+      accessibilityLabel="Message input"
+      editable={false}
+      maxLength={4096}
+      multiline={true}
+      onChangeText={[Function]}
+      onKeyPress={[Function]}
+      onSubmitEditing={[Function]}
+      placeholder="Message OpenClaw..."
+      placeholderTextColor="#55556a"
+      style={
+        {
+          "backgroundColor": "#14141c",
+          "borderColor": "#2a2a3a",
+          "borderRadius": 20,
+          "borderWidth": 1,
+          "color": "#e8e8ef",
+          "fontSize": 15,
+          "maxHeight": 120,
+          "paddingHorizontal": 16,
+          "paddingVertical": 10,
+        }
+      }
+      submitBehavior="submit"
+      value=""
+    />
+  </View>
   <View
     accessibilityLabel="Send message"
     accessibilityRole="button"
@@ -114,35 +121,42 @@ exports[`ChatInput snapshots enabled state 1`] = `
     }
   }
 >
-  <TextInput
-    accessibilityHint="Type a message to send to OpenClaw"
-    accessibilityLabel="Message input"
-    editable={true}
-    maxLength={4096}
-    multiline={true}
-    onChangeText={[Function]}
-    onKeyPress={[Function]}
-    onSubmitEditing={[Function]}
-    placeholder="Message OpenClaw..."
-    placeholderTextColor="#55556a"
+  <View
     style={
       {
-        "backgroundColor": "#14141c",
-        "borderColor": "#2a2a3a",
-        "borderRadius": 20,
-        "borderWidth": 1,
-        "color": "#e8e8ef",
         "flex": 1,
-        "fontSize": 15,
         "marginRight": 8,
-        "maxHeight": 120,
-        "paddingHorizontal": 16,
-        "paddingVertical": 10,
       }
     }
-    submitBehavior="submit"
-    value=""
-  />
+  >
+    <TextInput
+      accessibilityHint="Type a message to send to OpenClaw"
+      accessibilityLabel="Message input"
+      editable={true}
+      maxLength={4096}
+      multiline={true}
+      onChangeText={[Function]}
+      onKeyPress={[Function]}
+      onSubmitEditing={[Function]}
+      placeholder="Message OpenClaw..."
+      placeholderTextColor="#55556a"
+      style={
+        {
+          "backgroundColor": "#14141c",
+          "borderColor": "#2a2a3a",
+          "borderRadius": 20,
+          "borderWidth": 1,
+          "color": "#e8e8ef",
+          "fontSize": 15,
+          "maxHeight": 120,
+          "paddingHorizontal": 16,
+          "paddingVertical": 10,
+        }
+      }
+      submitBehavior="submit"
+      value=""
+    />
+  </View>
   <View
     accessibilityLabel="Send message"
     accessibilityRole="button"

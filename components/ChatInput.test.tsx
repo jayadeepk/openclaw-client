@@ -74,4 +74,52 @@ describe('ChatInput', () => {
     expect(onSend).not.toHaveBeenCalled();
     Platform.OS = original;
   });
+
+  describe('character counter', () => {
+    it('does not show counter for short text', () => {
+      render(<ChatInput onSend={jest.fn()} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      fireEvent.changeText(input, 'hello');
+      expect(screen.queryByLabelText(/characters remaining/)).toBeNull();
+    });
+
+    it('shows counter when within 200 chars of limit', () => {
+      render(<ChatInput onSend={jest.fn()} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      // 4096 - 200 = 3896, so typing 3897 chars should show counter with 199 remaining
+      fireEvent.changeText(input, 'x'.repeat(3897));
+      expect(screen.getByLabelText('199 characters remaining')).toBeTruthy();
+      expect(screen.getByText('199')).toBeTruthy();
+    });
+
+    it('shows counter in warning color at 100 remaining', () => {
+      render(<ChatInput onSend={jest.fn()} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      fireEvent.changeText(input, 'x'.repeat(3996));
+      expect(screen.getByText('100')).toBeTruthy();
+    });
+
+    it('shows counter in error color at 50 remaining', () => {
+      render(<ChatInput onSend={jest.fn()} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      fireEvent.changeText(input, 'x'.repeat(4046));
+      expect(screen.getByText('50')).toBeTruthy();
+    });
+
+    it('shows 0 at max length', () => {
+      render(<ChatInput onSend={jest.fn()} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      fireEvent.changeText(input, 'x'.repeat(4096));
+      expect(screen.getByText('0')).toBeTruthy();
+    });
+
+    it('hides counter after sending', () => {
+      render(<ChatInput onSend={jest.fn()} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      fireEvent.changeText(input, 'x'.repeat(3950));
+      expect(screen.getByLabelText('146 characters remaining')).toBeTruthy();
+      fireEvent.press(screen.getByText('↑'));
+      expect(screen.queryByLabelText(/characters remaining/)).toBeNull();
+    });
+  });
 });
