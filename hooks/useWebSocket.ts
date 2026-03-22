@@ -5,7 +5,6 @@ import {
   ChatEventPayload,
   ChatMessage,
   ChatSendParams,
-  ConnectChallengePayload,
   ConnectParams,
   ConnectionStatus,
   EventFrame,
@@ -106,7 +105,7 @@ export function useWebSocket(
 
       // Fallback: device TTS
       try {
-        Speech.stop();
+        void Speech.stop();
         Speech.speak(toSpeak);
       } catch {
         // TTS is best-effort
@@ -122,7 +121,6 @@ export function useWebSocket(
       switch (frame.event) {
         case 'connect.challenge': {
           // Step 2: respond to the challenge with our connect req
-          const { nonce } = frame.payload as ConnectChallengePayload;
           const s = settingsRef.current;
           const params: ConnectParams = {
             minProtocol: 3,

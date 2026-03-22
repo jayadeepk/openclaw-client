@@ -1,0 +1,193 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChatInput snapshots disabled state 1`] = `
+<View
+  style={
+    {
+      "alignItems": "flex-end",
+      "backgroundColor": "#0a0a0f",
+      "borderTopColor": "#2a2a3a",
+      "borderTopWidth": 1,
+      "flexDirection": "row",
+      "paddingHorizontal": 16,
+      "paddingVertical": 8,
+    }
+  }
+>
+  <TextInput
+    blurOnSubmit={false}
+    editable={false}
+    maxLength={4096}
+    multiline={true}
+    onChangeText={[Function]}
+    onSubmitEditing={[Function]}
+    placeholder="Message OpenClaw..."
+    placeholderTextColor="#55556a"
+    style={
+      {
+        "backgroundColor": "#14141c",
+        "borderColor": "#2a2a3a",
+        "borderRadius": 20,
+        "borderWidth": 1,
+        "color": "#e8e8ef",
+        "flex": 1,
+        "fontSize": 15,
+        "marginRight": 8,
+        "maxHeight": 120,
+        "paddingHorizontal": 16,
+        "paddingVertical": 10,
+      }
+    }
+    submitBehavior="submit"
+    value=""
+  />
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": true,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={false}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "#1e1e2a",
+        "borderRadius": 20,
+        "height": 40,
+        "justifyContent": "center",
+        "opacity": 1,
+        "width": 40,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "#fff",
+          "fontSize": 20,
+          "fontWeight": "700",
+        }
+      }
+    >
+      ↑
+    </Text>
+  </View>
+</View>
+`;
+
+exports[`ChatInput snapshots enabled state 1`] = `
+<View
+  style={
+    {
+      "alignItems": "flex-end",
+      "backgroundColor": "#0a0a0f",
+      "borderTopColor": "#2a2a3a",
+      "borderTopWidth": 1,
+      "flexDirection": "row",
+      "paddingHorizontal": 16,
+      "paddingVertical": 8,
+    }
+  }
+>
+  <TextInput
+    blurOnSubmit={false}
+    editable={true}
+    maxLength={4096}
+    multiline={true}
+    onChangeText={[Function]}
+    onSubmitEditing={[Function]}
+    placeholder="Message OpenClaw..."
+    placeholderTextColor="#55556a"
+    style={
+      {
+        "backgroundColor": "#14141c",
+        "borderColor": "#2a2a3a",
+        "borderRadius": 20,
+        "borderWidth": 1,
+        "color": "#e8e8ef",
+        "flex": 1,
+        "fontSize": 15,
+        "marginRight": 8,
+        "maxHeight": 120,
+        "paddingHorizontal": 16,
+        "paddingVertical": 10,
+      }
+    }
+    submitBehavior="submit"
+    value=""
+  />
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": true,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={false}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "#1e1e2a",
+        "borderRadius": 20,
+        "height": 40,
+        "justifyContent": "center",
+        "opacity": 1,
+        "width": 40,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "#fff",
+          "fontSize": 20,
+          "fontWeight": "700",
+        }
+      }
+    >
+      ↑
+    </Text>
+  </View>
+</View>
+`;

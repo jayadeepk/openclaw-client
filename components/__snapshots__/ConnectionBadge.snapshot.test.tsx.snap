@@ -1,0 +1,231 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ConnectionBadge snapshots authenticating status 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#14141c",
+      "borderRadius": 12,
+      "flexDirection": "row",
+      "paddingHorizontal": 10,
+      "paddingVertical": 4,
+    }
+  }
+>
+  <View
+    style={
+      [
+        {
+          "borderRadius": 4,
+          "height": 8,
+          "marginRight": 6,
+          "width": 8,
+        },
+        {
+          "backgroundColor": "#ff8c00",
+        },
+      ]
+    }
+  />
+  <Text
+    style={
+      [
+        {
+          "fontSize": 13,
+          "fontWeight": "500",
+        },
+        {
+          "color": "#ff8c00",
+        },
+      ]
+    }
+  >
+    Authenticating...
+  </Text>
+</View>
+`;
+
+exports[`ConnectionBadge snapshots connected status 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#14141c",
+      "borderRadius": 12,
+      "flexDirection": "row",
+      "paddingHorizontal": 10,
+      "paddingVertical": 4,
+    }
+  }
+>
+  <View
+    style={
+      [
+        {
+          "borderRadius": 4,
+          "height": 8,
+          "marginRight": 6,
+          "width": 8,
+        },
+        {
+          "backgroundColor": "#00d4aa",
+        },
+      ]
+    }
+  />
+  <Text
+    style={
+      [
+        {
+          "fontSize": 13,
+          "fontWeight": "500",
+        },
+        {
+          "color": "#00d4aa",
+        },
+      ]
+    }
+  >
+    Connected
+  </Text>
+</View>
+`;
+
+exports[`ConnectionBadge snapshots connecting status 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#14141c",
+      "borderRadius": 12,
+      "flexDirection": "row",
+      "paddingHorizontal": 10,
+      "paddingVertical": 4,
+    }
+  }
+>
+  <View
+    style={
+      [
+        {
+          "borderRadius": 4,
+          "height": 8,
+          "marginRight": 6,
+          "width": 8,
+        },
+        {
+          "backgroundColor": "#ffaa00",
+        },
+      ]
+    }
+  />
+  <Text
+    style={
+      [
+        {
+          "fontSize": 13,
+          "fontWeight": "500",
+        },
+        {
+          "color": "#ffaa00",
+        },
+      ]
+    }
+  >
+    Connecting...
+  </Text>
+</View>
+`;
+
+exports[`ConnectionBadge snapshots disconnected status 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#14141c",
+      "borderRadius": 12,
+      "flexDirection": "row",
+      "paddingHorizontal": 10,
+      "paddingVertical": 4,
+    }
+  }
+>
+  <View
+    style={
+      [
+        {
+          "borderRadius": 4,
+          "height": 8,
+          "marginRight": 6,
+          "width": 8,
+        },
+        {
+          "backgroundColor": "#55556a",
+        },
+      ]
+    }
+  />
+  <Text
+    style={
+      [
+        {
+          "fontSize": 13,
+          "fontWeight": "500",
+        },
+        {
+          "color": "#55556a",
+        },
+      ]
+    }
+  >
+    Disconnected
+  </Text>
+</View>
+`;
+
+exports[`ConnectionBadge snapshots error status 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#14141c",
+      "borderRadius": 12,
+      "flexDirection": "row",
+      "paddingHorizontal": 10,
+      "paddingVertical": 4,
+    }
+  }
+>
+  <View
+    style={
+      [
+        {
+          "borderRadius": 4,
+          "height": 8,
+          "marginRight": 6,
+          "width": 8,
+        },
+        {
+          "backgroundColor": "#ff4466",
+        },
+      ]
+    }
+  />
+  <Text
+    style={
+      [
+        {
+          "fontSize": 13,
+          "fontWeight": "500",
+        },
+        {
+          "color": "#ff4466",
+        },
+      ]
+    }
+  >
+    Connection Error
+  </Text>
+</View>
+`;

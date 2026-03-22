@@ -25,7 +25,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
   const { playAudio } = useAudioPlayer();
   const { messages, status, sendMessage, connect, disconnect, clearMessages } = useWebSocket(
     settings,
-    (base64Audio, format) => { playAudio(base64Audio, format); },
+    (base64Audio, format) => { void playAudio(base64Audio, format); },
   );
 
   // Connect when settings change (e.g. after saving new gateway URL)

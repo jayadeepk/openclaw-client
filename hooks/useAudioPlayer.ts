@@ -40,10 +40,10 @@ export function useAudioPlayer() {
       // Clean up when playback finishes
       sound.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded && status.didJustFinish) {
-          sound.unloadAsync();
+          void sound.unloadAsync();
           soundRef.current = null;
           // Remove temp file
-          try { file.delete(); } catch {}
+          try { file.delete(); } catch { /* best-effort cleanup */ }
         }
       });
     } catch (err) {

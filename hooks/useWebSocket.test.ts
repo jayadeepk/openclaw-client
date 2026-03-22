@@ -349,7 +349,7 @@ describe('useWebSocket - chat streaming', () => {
 
 describe('useWebSocket - TTS', () => {
   it('triggers TTS request on final message', async () => {
-    const { hook, ws } = await connectFull();
+    const { ws } = await connectFull();
     act(() => {
       ws.serverSend({
         type: 'event',
@@ -363,7 +363,7 @@ describe('useWebSocket - TTS', () => {
   });
 
   it('falls back to device Speech when gateway TTS fails', async () => {
-    const { hook, ws } = await connectFull();
+    const { ws } = await connectFull();
     act(() => {
       ws.serverSend({
         type: 'event',
@@ -383,7 +383,7 @@ describe('useWebSocket - TTS', () => {
   });
 
   it('strips emojis from mixed text for TTS', async () => {
-    const { hook, ws } = await connectFull();
+    const { ws } = await connectFull();
     act(() => {
       ws.serverSend({
         type: 'event',
@@ -396,7 +396,7 @@ describe('useWebSocket - TTS', () => {
   });
 
   it('keeps emoji-only messages for TTS', async () => {
-    const { hook, ws } = await connectFull();
+    const { ws } = await connectFull();
     act(() => {
       ws.serverSend({
         type: 'event',
@@ -406,6 +406,147 @@ describe('useWebSocket - TTS', () => {
     });
     const ttsReq = getSentFrames(ws).find((f: any) => f.method === 'tts.convert');
     expect(ttsReq.params.text).toBe('🎉🎊');
+  });
+});
+
+// ─── TTS success path ────────────────────────────────────────────────────────
+
+describe('useWebSocket - TTS success path', () => {
+  it('calls onAudioReceived when gateway TTS succeeds', async () => {
+    const onAudio = jest.fn();
+    const hook = renderHook(() => useWebSocket(defaultSettings, onAudio));
+    act(() => {
+      hook.result.current.connect();
+    });
+    const ws = getLastWs();
+    act(() => {
+      sendChallenge(ws);
+    });
+    const connectReq = getLastSentFrame(ws);
+    act(() => {
+      sendHelloOk(ws, connectReq.id);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // Trigger final message → speakText → tts.convert
+    act(() => {
+      ws.serverSend({
+        type: 'event',
+        event: 'chat',
+        payload: { runId: 'run1', sessionKey: 'main', seq: 1, state: 'final', message: { role: 'assistant', content: 'Hello' } },
+      });
+    });
+
+    const ttsReq = getSentFrames(ws).find((f: any) => f.method === 'tts.convert');
+    act(() => {
+      ws.serverSend({
+        type: 'res',
+        id: ttsReq.id,
+        ok: true,
+        payload: { audioBase64: 'base64audio', outputFormat: 'audio/mp3' },
+      });
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(onAudio).toHaveBeenCalledWith('base64audio', 'audio/mp3');
+    expect(Speech.speak).not.toHaveBeenCalled();
+  });
+
+  it('uses default format audio/mp3 when outputFormat missing', async () => {
+    const onAudio = jest.fn();
+    const hook = renderHook(() => useWebSocket(defaultSettings, onAudio));
+    act(() => {
+      hook.result.current.connect();
+    });
+    const ws = getLastWs();
+    act(() => {
+      sendChallenge(ws);
+    });
+    const connectReq = getLastSentFrame(ws);
+    act(() => {
+      sendHelloOk(ws, connectReq.id);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    act(() => {
+      ws.serverSend({
+        type: 'event',
+        event: 'chat',
+        payload: { runId: 'run1', sessionKey: 'main', seq: 1, state: 'final', message: { role: 'assistant', content: 'Hi' } },
+      });
+    });
+
+    const ttsReq = getSentFrames(ws).find((f: any) => f.method === 'tts.convert');
+    act(() => {
+      ws.serverSend({
+        type: 'res',
+        id: ttsReq.id,
+        ok: true,
+        payload: { audioBase64: 'data' },
+      });
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(onAudio).toHaveBeenCalledWith('data', 'audio/mp3');
+  });
+});
+
+// ─── Edge cases / branch coverage ───────────────────────────────────────────
+
+describe('useWebSocket - edge cases', () => {
+  it('error event with no streaming entry is ignored', async () => {
+    const { hook, ws } = await connectFull();
+    const msgsBefore = hook.result.current.messages.length;
+    act(() => {
+      ws.serverSend({
+        type: 'event',
+        event: 'chat',
+        payload: { runId: 'unknown-run', sessionKey: 'main', seq: 1, state: 'error', message: { role: 'assistant', content: 'err' } },
+      });
+    });
+    expect(hook.result.current.messages.length).toBe(msgsBefore);
+  });
+
+  it('chat event with empty content is ignored', async () => {
+    const { hook, ws } = await connectFull();
+    const msgsBefore = hook.result.current.messages.length;
+    act(() => {
+      ws.serverSend({
+        type: 'event',
+        event: 'chat',
+        payload: { runId: 'run1', sessionKey: 'main', seq: 1, state: 'delta', message: { role: 'assistant', content: '' } },
+      });
+    });
+    expect(hook.result.current.messages.length).toBe(msgsBefore);
+  });
+
+  it('chat event with no message is ignored', async () => {
+    const { hook, ws } = await connectFull();
+    const msgsBefore = hook.result.current.messages.length;
+    act(() => {
+      ws.serverSend({
+        type: 'event',
+        event: 'chat',
+        payload: { runId: 'run1', sessionKey: 'main', seq: 1, state: 'delta' },
+      });
+    });
+    expect(hook.result.current.messages.length).toBe(msgsBefore);
+  });
+
+  it('ignores unknown event types', async () => {
+    const { hook, ws } = await connectFull();
+    act(() => {
+      ws.serverSend({ type: 'event', event: 'some.unknown.event', payload: {} });
+    });
+    expect(hook.result.current.status).toBe('connected');
   });
 });
 

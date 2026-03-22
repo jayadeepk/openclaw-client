@@ -1,0 +1,571 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SettingsScreen snapshots renders with default settings 1`] = `
+<View
+  style={
+    [
+      {
+        "backgroundColor": "#0a0a0f",
+        "flex": 1,
+      },
+      {
+        "paddingTop": 0,
+      },
+    ]
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "borderBottomColor": "#2a2a3a",
+        "borderBottomWidth": 1,
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "paddingHorizontal": 16,
+        "paddingVertical": 8,
+      }
+    }
+  >
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "opacity": 1,
+          "paddingRight": 8,
+          "paddingVertical": 6,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#6c63ff",
+            "fontSize": 15,
+            "fontWeight": "500",
+          }
+        }
+      >
+        ← Back
+      </Text>
+    </View>
+    <Text
+      style={
+        {
+          "color": "#e8e8ef",
+          "fontSize": 18,
+          "fontWeight": "700",
+        }
+      }
+    >
+      Settings
+    </Text>
+    <View
+      style={
+        {
+          "width": 60,
+        }
+      }
+    />
+  </View>
+  <RCTScrollView
+    contentContainerStyle={
+      {
+        "padding": 24,
+      }
+    }
+  >
+    <View>
+      <Text
+        style={
+          {
+            "color": "#8888a0",
+            "fontSize": 13,
+            "fontWeight": "600",
+            "letterSpacing": 0.5,
+            "marginBottom": 4,
+            "marginTop": 16,
+            "textTransform": "uppercase",
+          }
+        }
+      >
+        Gateway Host
+      </Text>
+      <TextInput
+        autoCapitalize="none"
+        autoCorrect={false}
+        onChangeText={[Function]}
+        placeholder="e.g. 192.168.1.100"
+        placeholderTextColor="#55556a"
+        style={
+          {
+            "backgroundColor": "#14141c",
+            "borderColor": "#2a2a3a",
+            "borderRadius": 12,
+            "borderWidth": 1,
+            "color": "#e8e8ef",
+            "fontSize": 15,
+            "paddingHorizontal": 16,
+            "paddingVertical": 12,
+          }
+        }
+        value="192.168.1.100"
+      />
+      <Text
+        style={
+          {
+            "color": "#8888a0",
+            "fontSize": 13,
+            "fontWeight": "600",
+            "letterSpacing": 0.5,
+            "marginBottom": 4,
+            "marginTop": 16,
+            "textTransform": "uppercase",
+          }
+        }
+      >
+        Gateway Port
+      </Text>
+      <TextInput
+        keyboardType="numeric"
+        onChangeText={[Function]}
+        placeholder="18789"
+        placeholderTextColor="#55556a"
+        style={
+          {
+            "backgroundColor": "#14141c",
+            "borderColor": "#2a2a3a",
+            "borderRadius": 12,
+            "borderWidth": 1,
+            "color": "#e8e8ef",
+            "fontSize": 15,
+            "paddingHorizontal": 16,
+            "paddingVertical": 12,
+          }
+        }
+        value="18789"
+      />
+      <Text
+        style={
+          {
+            "color": "#8888a0",
+            "fontSize": 13,
+            "fontWeight": "600",
+            "letterSpacing": 0.5,
+            "marginBottom": 4,
+            "marginTop": 16,
+            "textTransform": "uppercase",
+          }
+        }
+      >
+        Auth Token
+      </Text>
+      <TextInput
+        autoCapitalize="none"
+        autoCorrect={false}
+        onChangeText={[Function]}
+        placeholder="Enter your auth token"
+        placeholderTextColor="#55556a"
+        secureTextEntry={true}
+        style={
+          {
+            "backgroundColor": "#14141c",
+            "borderColor": "#2a2a3a",
+            "borderRadius": 12,
+            "borderWidth": 1,
+            "color": "#e8e8ef",
+            "fontSize": 15,
+            "paddingHorizontal": 16,
+            "paddingVertical": 12,
+          }
+        }
+        value="tok"
+      />
+      <Text
+        style={
+          {
+            "color": "#55556a",
+            "fontSize": 13,
+            "fontStyle": "italic",
+            "marginTop": 8,
+          }
+        }
+      >
+        The WebSocket will connect to ws://
+        192.168.1.100
+        :
+        18789
+      </Text>
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "alignItems": "center",
+            "backgroundColor": "#6c63ff",
+            "borderRadius": 12,
+            "marginTop": 32,
+            "opacity": 1,
+            "paddingVertical": 16,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#fff",
+              "fontSize": 15,
+              "fontWeight": "700",
+            }
+          }
+        >
+          Save & Connect
+        </Text>
+      </View>
+    </View>
+  </RCTScrollView>
+  <View
+    style={
+      {
+        "height": 0,
+      }
+    }
+  />
+</View>
+`;
+
+exports[`SettingsScreen snapshots renders with empty settings 1`] = `
+<View
+  style={
+    [
+      {
+        "backgroundColor": "#0a0a0f",
+        "flex": 1,
+      },
+      {
+        "paddingTop": 0,
+      },
+    ]
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "borderBottomColor": "#2a2a3a",
+        "borderBottomWidth": 1,
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "paddingHorizontal": 16,
+        "paddingVertical": 8,
+      }
+    }
+  >
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "opacity": 1,
+          "paddingRight": 8,
+          "paddingVertical": 6,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#6c63ff",
+            "fontSize": 15,
+            "fontWeight": "500",
+          }
+        }
+      >
+        ← Back
+      </Text>
+    </View>
+    <Text
+      style={
+        {
+          "color": "#e8e8ef",
+          "fontSize": 18,
+          "fontWeight": "700",
+        }
+      }
+    >
+      Settings
+    </Text>
+    <View
+      style={
+        {
+          "width": 60,
+        }
+      }
+    />
+  </View>
+  <RCTScrollView
+    contentContainerStyle={
+      {
+        "padding": 24,
+      }
+    }
+  >
+    <View>
+      <Text
+        style={
+          {
+            "color": "#8888a0",
+            "fontSize": 13,
+            "fontWeight": "600",
+            "letterSpacing": 0.5,
+            "marginBottom": 4,
+            "marginTop": 16,
+            "textTransform": "uppercase",
+          }
+        }
+      >
+        Gateway Host
+      </Text>
+      <TextInput
+        autoCapitalize="none"
+        autoCorrect={false}
+        onChangeText={[Function]}
+        placeholder="e.g. 192.168.1.100"
+        placeholderTextColor="#55556a"
+        style={
+          {
+            "backgroundColor": "#14141c",
+            "borderColor": "#2a2a3a",
+            "borderRadius": 12,
+            "borderWidth": 1,
+            "color": "#e8e8ef",
+            "fontSize": 15,
+            "paddingHorizontal": 16,
+            "paddingVertical": 12,
+          }
+        }
+        value=""
+      />
+      <Text
+        style={
+          {
+            "color": "#8888a0",
+            "fontSize": 13,
+            "fontWeight": "600",
+            "letterSpacing": 0.5,
+            "marginBottom": 4,
+            "marginTop": 16,
+            "textTransform": "uppercase",
+          }
+        }
+      >
+        Gateway Port
+      </Text>
+      <TextInput
+        keyboardType="numeric"
+        onChangeText={[Function]}
+        placeholder="18789"
+        placeholderTextColor="#55556a"
+        style={
+          {
+            "backgroundColor": "#14141c",
+            "borderColor": "#2a2a3a",
+            "borderRadius": 12,
+            "borderWidth": 1,
+            "color": "#e8e8ef",
+            "fontSize": 15,
+            "paddingHorizontal": 16,
+            "paddingVertical": 12,
+          }
+        }
+        value=""
+      />
+      <Text
+        style={
+          {
+            "color": "#8888a0",
+            "fontSize": 13,
+            "fontWeight": "600",
+            "letterSpacing": 0.5,
+            "marginBottom": 4,
+            "marginTop": 16,
+            "textTransform": "uppercase",
+          }
+        }
+      >
+        Auth Token
+      </Text>
+      <TextInput
+        autoCapitalize="none"
+        autoCorrect={false}
+        onChangeText={[Function]}
+        placeholder="Enter your auth token"
+        placeholderTextColor="#55556a"
+        secureTextEntry={true}
+        style={
+          {
+            "backgroundColor": "#14141c",
+            "borderColor": "#2a2a3a",
+            "borderRadius": 12,
+            "borderWidth": 1,
+            "color": "#e8e8ef",
+            "fontSize": 15,
+            "paddingHorizontal": 16,
+            "paddingVertical": 12,
+          }
+        }
+        value=""
+      />
+      <Text
+        style={
+          {
+            "color": "#55556a",
+            "fontSize": 13,
+            "fontStyle": "italic",
+            "marginTop": 8,
+          }
+        }
+      >
+        The WebSocket will connect to ws://
+        ...
+        :
+        ...
+      </Text>
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "alignItems": "center",
+            "backgroundColor": "#6c63ff",
+            "borderRadius": 12,
+            "marginTop": 32,
+            "opacity": 1,
+            "paddingVertical": 16,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#fff",
+              "fontSize": 15,
+              "fontWeight": "700",
+            }
+          }
+        >
+          Save & Connect
+        </Text>
+      </View>
+    </View>
+  </RCTScrollView>
+  <View
+    style={
+      {
+        "height": 0,
+      }
+    }
+  />
+</View>
+`;

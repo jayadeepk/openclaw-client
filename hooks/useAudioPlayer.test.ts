@@ -5,7 +5,7 @@ import { useAudioPlayer } from './useAudioPlayer';
 
 const mockCreateAsync = Audio.Sound.createAsync as jest.Mock;
 const mockSetAudioMode = Audio.setAudioModeAsync as jest.Mock;
-const MockFile = File as jest.Mock;
+const MockFile = File as unknown as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -128,5 +128,64 @@ describe('useAudioPlayer', () => {
       await result.current.stopAudio();
     });
     // Should not throw
+  });
+
+  it('cleans up sound and temp file when playback finishes', async () => {
+    const mockSound = {
+      unloadAsync: jest.fn().mockResolvedValue(undefined),
+      stopAsync: jest.fn().mockResolvedValue(undefined),
+      setOnPlaybackStatusUpdate: jest.fn(),
+    };
+    mockCreateAsync.mockResolvedValue({ sound: mockSound });
+
+    const { result } = renderHook(() => useAudioPlayer());
+    await act(async () => {
+      await result.current.playAudio('data', 'audio/mp3');
+    });
+
+    // Capture and invoke the playback status callback
+    const callback = mockSound.setOnPlaybackStatusUpdate.mock.calls[0][0];
+    await act(async () => {
+      callback({ isLoaded: true, didJustFinish: true });
+    });
+
+    expect(mockSound.unloadAsync).toHaveBeenCalled();
+    const fileInstance = MockFile.mock.results[0].value;
+    expect(fileInstance.delete).toHaveBeenCalled();
+  });
+
+  it('does not clean up on non-finished playback status', async () => {
+    const mockSound = {
+      unloadAsync: jest.fn().mockResolvedValue(undefined),
+      stopAsync: jest.fn().mockResolvedValue(undefined),
+      setOnPlaybackStatusUpdate: jest.fn(),
+    };
+    mockCreateAsync.mockResolvedValue({ sound: mockSound });
+
+    const { result } = renderHook(() => useAudioPlayer());
+    await act(async () => {
+      await result.current.playAudio('data', 'audio/mp3');
+    });
+
+    const callback = mockSound.setOnPlaybackStatusUpdate.mock.calls[0][0];
+    mockSound.unloadAsync.mockClear();
+    await act(async () => {
+      callback({ isLoaded: true, didJustFinish: false });
+    });
+
+    expect(mockSound.unloadAsync).not.toHaveBeenCalled();
+  });
+
+  it('handles playAudio error gracefully', async () => {
+    mockSetAudioMode.mockRejectedValueOnce(new Error('audio mode error'));
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const { result } = renderHook(() => useAudioPlayer());
+    await act(async () => {
+      await result.current.playAudio('data', 'audio/mp3');
+    });
+
+    expect(warnSpy).toHaveBeenCalledWith('Audio playback failed:', expect.any(Error));
+    warnSpy.mockRestore();
   });
 });

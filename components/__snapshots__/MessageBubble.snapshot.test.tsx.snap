@@ -1,0 +1,294 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MessageBubble snapshots assistant message 1`] = `
+<View
+  style={
+    [
+      {
+        "flexDirection": "row",
+        "justifyContent": "flex-start",
+        "marginVertical": 4,
+        "paddingHorizontal": 16,
+      },
+      false,
+    ]
+  }
+>
+  <View
+    style={
+      [
+        {
+          "backgroundColor": "#1e1e2a",
+          "borderRadius": 20,
+          "maxWidth": "80%",
+          "paddingHorizontal": 16,
+          "paddingVertical": 10,
+        },
+        false,
+        false,
+      ]
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "#00d4aa",
+          "fontSize": 13,
+          "fontWeight": "600",
+          "marginBottom": 2,
+        }
+      }
+    >
+      OpenClaw
+    </Text>
+    <Text
+      style={
+        [
+          {
+            "color": "#e8e8ef",
+            "fontSize": 15,
+            "lineHeight": 22,
+          },
+          false,
+        ]
+      }
+    >
+      Hi! How can I help?
+    </Text>
+    <Text
+      style={
+        {
+          "alignSelf": "flex-end",
+          "color": "#55556a",
+          "fontSize": 11,
+          "marginTop": 4,
+        }
+      }
+    >
+      08:00 PM
+    </Text>
+  </View>
+</View>
+`;
+
+exports[`MessageBubble snapshots streaming message 1`] = `
+<View
+  style={
+    [
+      {
+        "flexDirection": "row",
+        "justifyContent": "flex-start",
+        "marginVertical": 4,
+        "paddingHorizontal": 16,
+      },
+      false,
+    ]
+  }
+>
+  <View
+    style={
+      [
+        {
+          "backgroundColor": "#1e1e2a",
+          "borderRadius": 20,
+          "maxWidth": "80%",
+          "paddingHorizontal": 16,
+          "paddingVertical": 10,
+        },
+        false,
+        false,
+      ]
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "#00d4aa",
+          "fontSize": 13,
+          "fontWeight": "600",
+          "marginBottom": 2,
+        }
+      }
+    >
+      OpenClaw
+    </Text>
+    <Text
+      style={
+        [
+          {
+            "color": "#e8e8ef",
+            "fontSize": 15,
+            "lineHeight": 22,
+          },
+          false,
+        ]
+      }
+    >
+      Thinking...
+      <Text
+        style={
+          {
+            "color": "#00d4aa",
+            "fontWeight": "100",
+          }
+        }
+      >
+        ▌
+      </Text>
+    </Text>
+    <Text
+      style={
+        {
+          "alignSelf": "flex-end",
+          "color": "#55556a",
+          "fontSize": 11,
+          "marginTop": 4,
+        }
+      }
+    >
+      08:00 PM
+    </Text>
+  </View>
+</View>
+`;
+
+exports[`MessageBubble snapshots system message 1`] = `
+<View
+  style={
+    [
+      {
+        "flexDirection": "row",
+        "justifyContent": "flex-start",
+        "marginVertical": 4,
+        "paddingHorizontal": 16,
+      },
+      false,
+    ]
+  }
+>
+  <View
+    style={
+      [
+        {
+          "backgroundColor": "#1e1e2a",
+          "borderRadius": 20,
+          "maxWidth": "80%",
+          "paddingHorizontal": 16,
+          "paddingVertical": 10,
+        },
+        false,
+        {
+          "backgroundColor": "transparent",
+          "borderColor": "#ff4466",
+          "borderWidth": 1,
+        },
+      ]
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "#00d4aa",
+          "fontSize": 13,
+          "fontWeight": "600",
+          "marginBottom": 2,
+        }
+      }
+    >
+      System
+    </Text>
+    <Text
+      style={
+        [
+          {
+            "color": "#e8e8ef",
+            "fontSize": 15,
+            "lineHeight": 22,
+          },
+          {
+            "color": "#ff4466",
+            "fontStyle": "italic",
+          },
+        ]
+      }
+    >
+      Connection lost
+    </Text>
+    <Text
+      style={
+        {
+          "alignSelf": "flex-end",
+          "color": "#55556a",
+          "fontSize": 11,
+          "marginTop": 4,
+        }
+      }
+    >
+      08:00 PM
+    </Text>
+  </View>
+</View>
+`;
+
+exports[`MessageBubble snapshots user message 1`] = `
+<View
+  style={
+    [
+      {
+        "flexDirection": "row",
+        "justifyContent": "flex-start",
+        "marginVertical": 4,
+        "paddingHorizontal": 16,
+      },
+      {
+        "justifyContent": "flex-end",
+      },
+    ]
+  }
+>
+  <View
+    style={
+      [
+        {
+          "backgroundColor": "#1e1e2a",
+          "borderRadius": 20,
+          "maxWidth": "80%",
+          "paddingHorizontal": 16,
+          "paddingVertical": 10,
+        },
+        {
+          "backgroundColor": "#6c63ff",
+        },
+        false,
+      ]
+    }
+  >
+    <Text
+      style={
+        [
+          {
+            "color": "#e8e8ef",
+            "fontSize": 15,
+            "lineHeight": 22,
+          },
+          false,
+        ]
+      }
+    >
+      Hello there!
+    </Text>
+    <Text
+      style={
+        {
+          "alignSelf": "flex-end",
+          "color": "#55556a",
+          "fontSize": 11,
+          "marginTop": 4,
+        }
+      }
+    >
+      08:00 PM
+    </Text>
+  </View>
+</View>
+`;

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { ChatScreen } from '../screens/ChatScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
@@ -22,15 +22,15 @@ export function AppNavigator() {
 
   // Load persisted settings on mount
   useEffect(() => {
-    loadSettings().then((s) => {
+    void loadSettings().then((s) => {
       setSettings(s);
       setLoaded(true);
     });
   }, []);
 
-  const handleSaveSettings = useCallback(async (newSettings: AppSettings) => {
+  const handleSaveSettings = useCallback((newSettings: AppSettings) => {
     setSettings(newSettings);
-    await saveSettings(newSettings);
+    void saveSettings(newSettings);
   }, []);
 
   if (!loaded) return null; // Wait for settings before rendering
@@ -51,10 +51,12 @@ export function AppNavigator() {
     >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Chat">
-          {(props) => <ChatScreen navigation={props.navigation} settings={settings} />}
+          {(props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => (
+            <ChatScreen navigation={props.navigation} settings={settings} />
+          )}
         </Stack.Screen>
         <Stack.Screen name="Settings">
-          {(props) => (
+          {(props: NativeStackScreenProps<RootStackParamList, 'Settings'>) => (
             <SettingsScreen
               settings={settings}
               onSave={handleSaveSettings}
