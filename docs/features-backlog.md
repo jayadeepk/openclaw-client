@@ -1,4 +1,3 @@
-- Message search
 - Character counter near input limit
 - Light theme toggle
 - Conversation management (similar to /new in Telegram for OpenClaw)
