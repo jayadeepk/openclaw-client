@@ -19,3 +19,7 @@
   - Play queued clips in order automatically once the current clip finishes
   - The stop FAB (from the audio stop button feature) should stop current playback and clear the entire queue
   - FAB should remain visible while there are queued clips, even between clips
+- Fix: audio stop button does not stop playback (2026-03-23)
+  - The stop FAB is visible correctly but tapping it does not stop the currently playing audio
+  - Investigate `useAudioPlayer` — ensure `stopAudio` is wired up and actually called on the active sound instance
+  - After fix, pressing the stop FAB must immediately halt playback and hide the FAB
