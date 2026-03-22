@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Platform,
   StyleSheet,
@@ -7,7 +7,8 @@ import {
   View,
   Text,
 } from 'react-native';
-import { theme } from '../constants/theme';
+import { AppTheme } from '../constants/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface Props {
   onSend: (text: string) => void;
@@ -17,14 +18,17 @@ interface Props {
 const MAX_LENGTH = 4096;
 const COUNTER_THRESHOLD = 200;
 
-function getCounterColor(remaining: number): string {
-  if (remaining <= 50) return theme.colors.error;
+function getCounterColor(remaining: number, errorColor: string, mutedColor: string): string {
+  if (remaining <= 50) return errorColor;
   if (remaining <= 100) return '#ffaa33';
-  return theme.colors.textMuted;
+  return mutedColor;
 }
 
 /** Text input bar with a send button */
 export function ChatInput({ onSend, disabled }: Props) {
+  const { theme } = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   const [text, setText] = useState('');
   const remaining = MAX_LENGTH - text.length;
   const showCounter = text.length > 0 && remaining <= COUNTER_THRESHOLD;
@@ -63,7 +67,7 @@ export function ChatInput({ onSend, disabled }: Props) {
           />
           {showCounter && (
             <Text
-              style={[styles.counter, { color: getCounterColor(remaining) }]}
+              style={[styles.counter, { color: getCounterColor(remaining, theme.colors.error, theme.colors.textMuted) }]}
               accessibilityLabel={String(remaining) + ' characters remaining'}
             >
               {remaining}
@@ -85,51 +89,53 @@ export function ChatInput({ onSend, disabled }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    backgroundColor: theme.colors.background,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
-  },
-  inputWrapper: {
-    flex: 1,
-    marginRight: theme.spacing.sm,
-  },
-  input: {
-    backgroundColor: theme.colors.inputBg,
-    borderRadius: theme.borderRadius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm + 2,
-    color: theme.colors.text,
-    fontSize: theme.fontSize.md,
-    maxHeight: 120,
-  },
-  counter: {
-    fontSize: 11,
-    textAlign: 'right',
-    marginTop: 2,
-    marginRight: theme.spacing.xs,
-  },
-  sendBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: theme.colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sendBtnDisabled: {
-    backgroundColor: theme.colors.surfaceLight,
-  },
-  sendIcon: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: '700',
-  },
-});
+function createStyles(t: AppTheme) {
+  return StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      paddingHorizontal: t.spacing.md,
+      paddingVertical: t.spacing.sm,
+      backgroundColor: t.colors.background,
+      borderTopWidth: 1,
+      borderTopColor: t.colors.border,
+    },
+    inputWrapper: {
+      flex: 1,
+      marginRight: t.spacing.sm,
+    },
+    input: {
+      backgroundColor: t.colors.inputBg,
+      borderRadius: t.borderRadius.lg,
+      borderWidth: 1,
+      borderColor: t.colors.border,
+      paddingHorizontal: t.spacing.md,
+      paddingVertical: t.spacing.sm + 2,
+      color: t.colors.text,
+      fontSize: t.fontSize.md,
+      maxHeight: 120,
+    },
+    counter: {
+      fontSize: 11,
+      textAlign: 'right',
+      marginTop: 2,
+      marginRight: t.spacing.xs,
+    },
+    sendBtn: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: t.colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    sendBtnDisabled: {
+      backgroundColor: t.colors.surfaceLight,
+    },
+    sendIcon: {
+      color: '#fff',
+      fontSize: 20,
+      fontWeight: '700',
+    },
+  });
+}

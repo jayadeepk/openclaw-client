@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ConnectionStatus } from '../types';
-import { theme } from '../constants/theme';
+import { AppTheme } from '../constants/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface Props {
   status: ConnectionStatus;
@@ -9,20 +10,26 @@ interface Props {
   isOnline?: boolean;
 }
 
-const STATUS_CONFIG: Record<ConnectionStatus, { label: string; color: string }> = {
-  connected: { label: 'Connected', color: theme.colors.accent },
-  connecting: { label: 'Connecting...', color: '#ffaa00' },
-  authenticating: { label: 'Authenticating...', color: '#ff8c00' },
-  reconnecting: { label: 'Reconnecting', color: '#ffaa00' },
-  disconnected: { label: 'Disconnected', color: theme.colors.textMuted },
-  error: { label: 'Connection Error', color: theme.colors.error },
-};
+function getStatusConfig(t: AppTheme): Record<ConnectionStatus, { label: string; color: string }> {
+  return {
+    connected: { label: 'Connected', color: t.colors.accent },
+    connecting: { label: 'Connecting...', color: '#ffaa00' },
+    authenticating: { label: 'Authenticating...', color: '#ff8c00' },
+    reconnecting: { label: 'Reconnecting', color: '#ffaa00' },
+    disconnected: { label: 'Disconnected', color: t.colors.textMuted },
+    error: { label: 'Connection Error', color: t.colors.error },
+  };
+}
 
 /** Small pill-shaped badge showing WebSocket connection status */
 export function ConnectionBadge({ status, reconnectIn, isOnline = true }: Props) {
+  const { theme } = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+  const statusConfig = useMemo(() => getStatusConfig(theme), [theme]);
+
   const offlineLabel = 'Offline';
   const offlineColor = theme.colors.error;
-  const config = STATUS_CONFIG[status];
+  const config = statusConfig[status];
 
   let label: string;
   let color: string;
@@ -45,23 +52,25 @@ export function ConnectionBadge({ status, reconnectIn, isOnline = true }: Props)
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    backgroundColor: theme.colors.surface,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 6,
-  },
-  label: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: '500',
-  },
-});
+function createStyles(t: AppTheme) {
+  return StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 12,
+      backgroundColor: t.colors.surface,
+    },
+    dot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      marginRight: 6,
+    },
+    label: {
+      fontSize: t.fontSize.sm,
+      fontWeight: '500',
+    },
+  });
+}

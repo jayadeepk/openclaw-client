@@ -1,20 +1,26 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { theme } from '../constants/theme';
+import { AppTheme } from '../constants/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface MarkdownTextProps {
   children: string;
   baseStyle?: object;
 }
 
+type MarkdownStyles = ReturnType<typeof createStyles>;
+
 /** Lightweight markdown renderer for assistant messages */
 export function MarkdownText({ children, baseStyle }: MarkdownTextProps) {
+  const { theme } = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   const blocks = parseBlocks(children);
 
   return (
     <View>
-      {blocks.map((block, i) => renderBlock(block, i, baseStyle))}
+      {blocks.map((block, i) => renderBlock(block, i, styles, baseStyle))}
     </View>
   );
 }
@@ -109,12 +115,12 @@ function parseBlocks(src: string): Block[] {
 
 // ─── Block rendering ─────────────────────────────────────────────────────────
 
-function renderBlock(block: Block, key: number, baseStyle?: object): React.ReactNode {
+function renderBlock(block: Block, key: number, styles: MarkdownStyles, baseStyle?: object): React.ReactNode {
   switch (block.type) {
     case 'paragraph':
       return (
         <Text key={key} style={[styles.paragraph, baseStyle]}>
-          {renderInline(block.text)}
+          {renderInline(block.text, styles)}
         </Text>
       );
 
@@ -129,7 +135,7 @@ function renderBlock(block: Block, key: number, baseStyle?: object): React.React
             block.level <= 2 && styles.headingLarge,
           ]}
         >
-          {renderInline(block.text)}
+          {renderInline(block.text, styles)}
         </Text>
       );
 
@@ -145,7 +151,7 @@ function renderBlock(block: Block, key: number, baseStyle?: object): React.React
                 {block.ordered ? String(idx + 1) + '.' : '\u2022'}
               </Text>
               <Text style={[styles.paragraph, styles.listItemText, baseStyle]}>
-                {renderInline(item)}
+                {renderInline(item, styles)}
               </Text>
             </View>
           ))}
@@ -159,6 +165,9 @@ function renderBlock(block: Block, key: number, baseStyle?: object): React.React
 const COPIED_DISPLAY_MS = 1500;
 
 function CodeBlock({ lang, text }: { lang: string; text: string }) {
+  const { theme } = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   const [copied, setCopied] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -210,7 +219,7 @@ function CodeBlock({ lang, text }: { lang: string; text: string }) {
 
 // ─── Inline parsing ──────────────────────────────────────────────────────────
 
-function renderInline(text: string): React.ReactNode[] {
+function renderInline(text: string, styles: MarkdownStyles): React.ReactNode[] {
   // Pattern: code(`), bold+italic(***), bold(**), italic(*/_), link
   const regex = /(`[^`]+`|\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|(?<!\w)\*[^*]+\*(?!\w)|(?<!\w)_[^_]+_(?!\w)|\[[^\]]+\]\([^)]+\))/;
   const parts: React.ReactNode[] = [];
@@ -278,110 +287,112 @@ function renderInline(text: string): React.ReactNode[] {
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
-  paragraph: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.text,
-    lineHeight: 22,
-    marginBottom: theme.spacing.xs,
-  },
-  heading: {
-    fontWeight: '700',
-    marginTop: theme.spacing.xs,
-    marginBottom: theme.spacing.xs,
-  },
-  headingLarge: {
-    fontSize: theme.fontSize.lg,
-    lineHeight: 26,
-  },
-  bold: {
-    fontWeight: '700',
-  },
-  italic: {
-    fontStyle: 'italic',
-  },
-  boldItalic: {
-    fontWeight: '700',
-    fontStyle: 'italic',
-  },
-  inlineCode: {
-    fontFamily: 'monospace',
-    backgroundColor: theme.colors.surface,
-    color: theme.colors.accent,
-    fontSize: theme.fontSize.sm,
-    paddingHorizontal: 4,
-    borderRadius: 3,
-  },
-  codeBlock: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.sm,
-    padding: theme.spacing.sm,
-    marginVertical: theme.spacing.xs,
-  },
-  codeHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.xs,
-  },
-  codeLang: {
-    fontSize: 11,
-    color: theme.colors.textMuted,
-    textTransform: 'uppercase',
-    fontWeight: '600',
-  },
-  copyBtn: {
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 2,
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: theme.colors.surfaceLight,
-  },
-  copyBtnText: {
-    fontSize: 11,
-    color: theme.colors.textSecondary,
-    fontWeight: '500',
-  },
-  codeBlockText: {
-    fontFamily: 'monospace',
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.text,
-    lineHeight: 20,
-  },
-  copiedOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(0, 212, 170, 0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  copiedText: {
-    color: theme.colors.accent,
-    fontWeight: '700',
-    fontSize: theme.fontSize.md,
-  },
-  list: {
-    marginBottom: theme.spacing.xs,
-  },
-  listItem: {
-    flexDirection: 'row',
-    marginBottom: 2,
-  },
-  listBullet: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    width: 20,
-    lineHeight: 22,
-  },
-  listItemText: {
-    flex: 1,
-    marginBottom: 0,
-  },
-  link: {
-    color: theme.colors.primary,
-    textDecorationLine: 'underline',
-  },
-});
+function createStyles(t: AppTheme) {
+  return StyleSheet.create({
+    paragraph: {
+      fontSize: t.fontSize.md,
+      color: t.colors.text,
+      lineHeight: 22,
+      marginBottom: t.spacing.xs,
+    },
+    heading: {
+      fontWeight: '700',
+      marginTop: t.spacing.xs,
+      marginBottom: t.spacing.xs,
+    },
+    headingLarge: {
+      fontSize: t.fontSize.lg,
+      lineHeight: 26,
+    },
+    bold: {
+      fontWeight: '700',
+    },
+    italic: {
+      fontStyle: 'italic',
+    },
+    boldItalic: {
+      fontWeight: '700',
+      fontStyle: 'italic',
+    },
+    inlineCode: {
+      fontFamily: 'monospace',
+      backgroundColor: t.colors.surface,
+      color: t.colors.accent,
+      fontSize: t.fontSize.sm,
+      paddingHorizontal: 4,
+      borderRadius: 3,
+    },
+    codeBlock: {
+      backgroundColor: t.colors.surface,
+      borderRadius: t.borderRadius.sm,
+      padding: t.spacing.sm,
+      marginVertical: t.spacing.xs,
+    },
+    codeHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: t.spacing.xs,
+    },
+    codeLang: {
+      fontSize: 11,
+      color: t.colors.textMuted,
+      textTransform: 'uppercase',
+      fontWeight: '600',
+    },
+    copyBtn: {
+      paddingHorizontal: t.spacing.sm,
+      paddingVertical: 2,
+      borderRadius: t.borderRadius.sm,
+      backgroundColor: t.colors.surfaceLight,
+    },
+    copyBtnText: {
+      fontSize: 11,
+      color: t.colors.textSecondary,
+      fontWeight: '500',
+    },
+    codeBlockText: {
+      fontFamily: 'monospace',
+      fontSize: t.fontSize.sm,
+      color: t.colors.text,
+      lineHeight: 20,
+    },
+    copiedOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      borderRadius: t.borderRadius.sm,
+      backgroundColor: 'rgba(0, 212, 170, 0.15)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    copiedText: {
+      color: t.colors.accent,
+      fontWeight: '700',
+      fontSize: t.fontSize.md,
+    },
+    list: {
+      marginBottom: t.spacing.xs,
+    },
+    listItem: {
+      flexDirection: 'row',
+      marginBottom: 2,
+    },
+    listBullet: {
+      fontSize: t.fontSize.md,
+      color: t.colors.textSecondary,
+      width: 20,
+      lineHeight: 22,
+    },
+    listItemText: {
+      flex: 1,
+      marginBottom: 0,
+    },
+    link: {
+      color: t.colors.primary,
+      textDecorationLine: 'underline',
+    },
+  });
+}

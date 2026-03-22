@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Animated, Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import { theme } from '../constants/theme';
+import { AppTheme } from '../constants/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 const FAB_SIZE = 40;
 const ARROW_SIZE = 18;
@@ -13,6 +14,9 @@ interface ScrollToBottomFABProps {
 
 /** Floating action button that scrolls the chat list to the bottom */
 export function ScrollToBottomFAB({ visible, onPress }: ScrollToBottomFABProps) {
+  const { theme } = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   const opacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -40,26 +44,28 @@ export function ScrollToBottomFAB({ visible, onPress }: ScrollToBottomFABProps) 
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    right: theme.spacing.md,
-    bottom: 80,
-    zIndex: 10,
-  },
-  button: {
-    width: FAB_SIZE,
-    height: FAB_SIZE,
-    borderRadius: FAB_SIZE / 2,
-    backgroundColor: theme.colors.surfaceLight,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  arrow: {
-    fontSize: ARROW_SIZE,
-    color: theme.colors.text,
-    lineHeight: ARROW_SIZE + 2,
-  },
-});
+function createStyles(t: AppTheme) {
+  return StyleSheet.create({
+    container: {
+      position: 'absolute',
+      right: t.spacing.md,
+      bottom: 80,
+      zIndex: 10,
+    },
+    button: {
+      width: FAB_SIZE,
+      height: FAB_SIZE,
+      borderRadius: FAB_SIZE / 2,
+      backgroundColor: t.colors.surfaceLight,
+      borderWidth: 1,
+      borderColor: t.colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    arrow: {
+      fontSize: ARROW_SIZE,
+      color: t.colors.text,
+      lineHeight: ARROW_SIZE + 2,
+    },
+  });
+}

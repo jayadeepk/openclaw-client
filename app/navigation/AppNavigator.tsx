@@ -6,7 +6,7 @@ import { ChatScreen } from '../screens/ChatScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { AppSettings } from '../../types';
 import { DEFAULT_SETTINGS, loadSettings, saveSettings } from '../../utils/storage';
-import { theme } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export type RootStackParamList = {
   Chat: undefined;
@@ -17,6 +17,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 /** Root navigator — manages settings state and passes it to screens */
 export function AppNavigator() {
+  const { theme } = useTheme();
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [loaded, setLoaded] = useState(false);
 
@@ -38,7 +39,7 @@ export function AppNavigator() {
   return (
     <NavigationContainer
       theme={{
-        dark: true,
+        dark: theme.mode === 'dark',
         colors: {
           primary: theme.colors.primary,
           background: theme.colors.background,

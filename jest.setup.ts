@@ -52,3 +52,12 @@ jest.mock('react-native-safe-area-context', () => ({
 jest.mock('@react-native-community/netinfo', () => ({
   addEventListener: jest.fn(() => jest.fn()),
 }));
+
+jest.mock('./contexts/ThemeContext', () => {
+  const themeMod = require('./constants/theme') as { buildTheme: (m: string) => unknown };
+  const darkTheme = themeMod.buildTheme('dark');
+  return {
+    useTheme: () => ({ theme: darkTheme, toggleTheme: jest.fn() }),
+    ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
+  };
+});

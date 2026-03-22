@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Modal, Pressable, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { ChatMessage } from '../types';
-import { theme } from '../constants/theme';
+import { AppTheme } from '../constants/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface MessageActionsMenuProps {
   message: ChatMessage | null;
@@ -20,6 +21,9 @@ interface ActionItem {
 
 /** Context menu shown on long-press of a message bubble */
 export function MessageActionsMenu({ message, visible, onClose, onRetry, onDelete }: MessageActionsMenuProps) {
+  const { theme } = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   if (!message) return null;
 
   const canRetry = (message.role === 'user') || (message.role === 'system' && !!message.retryText);
@@ -106,45 +110,47 @@ export function MessageActionsMenu({ message, visible, onClose, onRetry, onDelet
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing.xl,
-  },
-  menu: {
-    width: '100%',
-    maxWidth: 300,
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.md,
-    overflow: 'hidden',
-  },
-  preview: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textMuted,
-    padding: theme.spacing.md,
-    lineHeight: 18,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: theme.colors.border,
-  },
-  actionRow: {
-    paddingVertical: theme.spacing.sm + 4,
-    paddingHorizontal: theme.spacing.md,
-  },
-  actionText: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.text,
-  },
-  actionTextDestructive: {
-    color: theme.colors.error,
-  },
-  cancelText: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-  },
-});
+function createStyles(t: AppTheme) {
+  return StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: t.spacing.xl,
+    },
+    menu: {
+      width: '100%',
+      maxWidth: 300,
+      backgroundColor: t.colors.surface,
+      borderRadius: t.borderRadius.md,
+      overflow: 'hidden',
+    },
+    preview: {
+      fontSize: t.fontSize.sm,
+      color: t.colors.textMuted,
+      padding: t.spacing.md,
+      lineHeight: 18,
+    },
+    divider: {
+      height: 1,
+      backgroundColor: t.colors.border,
+    },
+    actionRow: {
+      paddingVertical: t.spacing.sm + 4,
+      paddingHorizontal: t.spacing.md,
+    },
+    actionText: {
+      fontSize: t.fontSize.md,
+      color: t.colors.text,
+    },
+    actionTextDestructive: {
+      color: t.colors.error,
+    },
+    cancelText: {
+      fontSize: t.fontSize.md,
+      color: t.colors.textSecondary,
+      textAlign: 'center',
+    },
+  });
+}

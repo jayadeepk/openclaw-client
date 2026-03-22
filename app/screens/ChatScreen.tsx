@@ -14,9 +14,10 @@ import { SearchBar } from '../../components/SearchBar';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
+import { useTheme } from '../../contexts/ThemeContext';
 import { AppSettings, ChatMessage } from '../../types';
 import { ChatListItem, insertDateSeparators } from '../../utils/chatHelpers';
-import { theme } from '../../constants/theme';
+import { AppTheme } from '../../constants/theme';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { loadMessages, saveMessages, clearPersistedMessages } from '../../utils/storage';
 
@@ -29,6 +30,8 @@ interface ChatScreenProps {
 
 export function ChatScreen({ navigation, settings }: ChatScreenProps) {
   const insets = useSafeAreaInsets();
+  const { theme, toggleTheme } = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const flatListRef = useRef<FlatList<ChatListItem>>(null);
   const { playAudio } = useAudioPlayer();
   const [initialMessages, setInitialMessages] = useState<ChatMessage[] | undefined>(undefined);
@@ -169,7 +172,6 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
     if (status === 'connected') return;
     setRefreshing(true);
     connect();
-    // Clear the spinner after a short delay — connection state will show in the badge
     setTimeout(() => { setRefreshing(false); }, 1000);
   }, [status, connect]);
 
@@ -182,6 +184,9 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
           <ConnectionBadge status={status} reconnectIn={reconnectIn} isOnline={isOnline} />
         </View>
         <View style={styles.headerActions}>
+          <TouchableOpacity onPress={toggleTheme} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Toggle theme">
+            <Text style={styles.headerBtnText}>{theme.mode === 'dark' ? 'Light' : 'Dark'}</Text>
+          </TouchableOpacity>
           {messages.length > 0 && (
             <TouchableOpacity onPress={() => { setSearchOpen(true); }} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Search messages">
               <Text style={styles.headerBtnText}>Search</Text>
@@ -268,64 +273,66 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-  },
-  title: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: '700',
-    color: theme.colors.text,
-    marginBottom: 4,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  headerBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: theme.colors.surfaceLight,
-  },
-  headerBtnText: {
-    color: theme.colors.textSecondary,
-    fontSize: theme.fontSize.sm,
-    fontWeight: '500',
-  },
-  messageList: {
-    paddingVertical: theme.spacing.sm,
-  },
-  emptyState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: theme.spacing.xl,
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: theme.spacing.md,
-  },
-  emptyTitle: {
-    fontSize: theme.fontSize.xl,
-    fontWeight: '700',
-    color: theme.colors.text,
-    marginBottom: theme.spacing.sm,
-  },
-  emptySubtitle: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-});
+function createStyles(t: AppTheme) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: t.colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: t.spacing.md,
+      paddingVertical: t.spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: t.colors.border,
+    },
+    title: {
+      fontSize: t.fontSize.xl,
+      fontWeight: '700',
+      color: t.colors.text,
+      marginBottom: 4,
+    },
+    headerActions: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    headerBtn: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: t.borderRadius.sm,
+      backgroundColor: t.colors.surfaceLight,
+    },
+    headerBtnText: {
+      color: t.colors.textSecondary,
+      fontSize: t.fontSize.sm,
+      fontWeight: '500',
+    },
+    messageList: {
+      paddingVertical: t.spacing.sm,
+    },
+    emptyState: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: t.spacing.xl,
+    },
+    emptyIcon: {
+      fontSize: 48,
+      marginBottom: t.spacing.md,
+    },
+    emptyTitle: {
+      fontSize: t.fontSize.xl,
+      fontWeight: '700',
+      color: t.colors.text,
+      marginBottom: t.spacing.sm,
+    },
+    emptySubtitle: {
+      fontSize: t.fontSize.md,
+      color: t.colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+  });
+}

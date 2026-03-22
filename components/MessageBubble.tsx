@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ChatMessage } from '../types';
-import { theme } from '../constants/theme';
+import { AppTheme } from '../constants/theme';
+import { useTheme } from '../contexts/ThemeContext';
 import { MarkdownText } from './MarkdownText';
 
 interface Props {
@@ -48,6 +49,9 @@ const highlightStyle = {
 
 /** Renders a single chat message bubble, styled by role */
 export function MessageBubble({ message, onRetry, onLongPress, searchQuery }: Props) {
+  const { theme } = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
   const canRetry = isSystem && !!message.retryText && !!onRetry;
@@ -125,67 +129,69 @@ export function MessageBubble({ message, onRetry, onLongPress, searchQuery }: Pr
   );
 }
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    marginVertical: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.md,
-  },
-  rowUser: {
-    justifyContent: 'flex-end',
-  },
-  bubble: {
-    maxWidth: '80%',
-    backgroundColor: theme.colors.assistantBubble,
-    borderRadius: theme.borderRadius.lg,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm + 2,
-  },
-  bubbleUser: {
-    backgroundColor: theme.colors.userBubble,
-  },
-  bubbleSystem: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: theme.colors.error,
-  },
-  bubbleMatch: {
-    borderWidth: 1,
-    borderColor: theme.colors.primary,
-  },
-  roleLabel: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.accent,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  text: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.text,
-    lineHeight: 22,
-  },
-  textSystem: {
-    color: theme.colors.error,
-    fontStyle: 'italic',
-  },
-  timestamp: {
-    fontSize: 11,
-    color: theme.colors.textMuted,
-    alignSelf: 'flex-end',
-    marginTop: 4,
-  },
-  timestampUser: {
-    color: 'rgba(255, 255, 255, 0.65)',
-  },
-  retryHint: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textMuted,
-    fontStyle: 'italic',
-    marginTop: 2,
-  },
-  cursor: {
-    color: theme.colors.accent,
-    fontWeight: '100',
-  },
-});
+function createStyles(t: AppTheme) {
+  return StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      marginVertical: t.spacing.xs,
+      paddingHorizontal: t.spacing.md,
+    },
+    rowUser: {
+      justifyContent: 'flex-end',
+    },
+    bubble: {
+      maxWidth: '80%',
+      backgroundColor: t.colors.assistantBubble,
+      borderRadius: t.borderRadius.lg,
+      paddingHorizontal: t.spacing.md,
+      paddingVertical: t.spacing.sm + 2,
+    },
+    bubbleUser: {
+      backgroundColor: t.colors.userBubble,
+    },
+    bubbleSystem: {
+      backgroundColor: 'transparent',
+      borderWidth: 1,
+      borderColor: t.colors.error,
+    },
+    bubbleMatch: {
+      borderWidth: 1,
+      borderColor: t.colors.primary,
+    },
+    roleLabel: {
+      fontSize: t.fontSize.sm,
+      color: t.colors.accent,
+      fontWeight: '600',
+      marginBottom: 2,
+    },
+    text: {
+      fontSize: t.fontSize.md,
+      color: t.colors.text,
+      lineHeight: 22,
+    },
+    textSystem: {
+      color: t.colors.error,
+      fontStyle: 'italic',
+    },
+    timestamp: {
+      fontSize: 11,
+      color: t.colors.textMuted,
+      alignSelf: 'flex-end',
+      marginTop: 4,
+    },
+    timestampUser: {
+      color: 'rgba(255, 255, 255, 0.65)',
+    },
+    retryHint: {
+      fontSize: t.fontSize.sm,
+      color: t.colors.textMuted,
+      fontStyle: 'italic',
+      marginTop: 2,
+    },
+    cursor: {
+      color: t.colors.accent,
+      fontWeight: '100',
+    },
+  });
+}
