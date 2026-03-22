@@ -29,7 +29,7 @@ jobs:
         run: npx eslint .
 
       - name: Test
-        run: npx jest --coverage --coverageReporters=json-summary --coverageReporters=text
+        run: npx jest --coverage --coverageReporters=json-summary --coverageReporters=text --json --outputFile=test-results.json
 
       - name: Upload coverage report
         if: always()
@@ -43,17 +43,26 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           PCT=$(node -e "const s = require('./coverage/coverage-summary.json'); console.log(s.total.lines.pct)")
-          COLOR=$(node -e "const p = $PCT; console.log(p >= 95 ? 'brightgreen' : p >= 80 ? 'yellow' : 'red')")
+          COV_COLOR=$(node -e "const p = $PCT; console.log(p >= 95 ? 'brightgreen' : p >= 80 ? 'yellow' : 'red')")
+          PASSED=$(node -e "const r = require('./test-results.json'); console.log(r.numPassedTests)")
+          TOTAL=$(node -e "const r = require('./test-results.json'); console.log(r.numTotalTests)")
+          FAILED=$(node -e "const r = require('./test-results.json'); console.log(r.numFailedTests)")
+          if [ "$FAILED" = "0" ]; then
+            TEST_MSG="${PASSED} passed"
+            TEST_COLOR="brightgreen"
+          else
+            TEST_MSG="${PASSED} passed, ${FAILED} failed"
+            TEST_COLOR="red"
+          fi
           mkdir -p badge
-          cat > badge/coverage.json <<BADGE
-          {"schemaVersion":1,"label":"coverage","message":"${PCT}%","color":"${COLOR}"}
-          BADGE
+          echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${PCT}%\",\"color\":\"${COV_COLOR}\"}" > badge/coverage.json
+          echo "{\"schemaVersion\":1,\"label\":\"tests\",\"message\":\"${TEST_MSG}\",\"color\":\"${TEST_COLOR}\"}" > badge/tests.json
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin gh-pages || true
           git checkout --orphan gh-pages-tmp
           git rm -rf . > /dev/null 2>&1 || true
-          cp -r badge/* .
-          git add coverage.json
-          git commit -m "Update coverage badge: ${PCT}%"
+          cp badge/* .
+          git add coverage.json tests.json
+          git commit -m "Update badges: ${PASSED}/${TOTAL} tests, ${PCT}% coverage"
           git push origin HEAD:gh-pages --force

@@ -1,6 +1,7 @@
 # OpenClaw Client
 
 [![CI](https://github.com/jayadeepk/openclaw-client/actions/workflows/ci.yml/badge.svg)](https://github.com/jayadeepk/openclaw-client/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/endpoint?url=https://jayadeepk.github.io/openclaw-client/tests.json)](https://github.com/jayadeepk/openclaw-client/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/endpoint?url=https://jayadeepk.github.io/openclaw-client/coverage.json)](https://github.com/jayadeepk/openclaw-client/actions/workflows/ci.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Expo SDK](https://img.shields.io/badge/Expo_SDK-54-000020?logo=expo&logoColor=white)](https://expo.dev/)
