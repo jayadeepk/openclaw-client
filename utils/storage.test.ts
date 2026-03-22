@@ -26,15 +26,21 @@ describe('loadSettings', () => {
   });
 
   it('returns defaults on AsyncStorage error', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
     mockGetItem.mockRejectedValue(new Error('storage error'));
     const result = await loadSettings();
     expect(result).toEqual(DEFAULT_SETTINGS);
+    expect(warnSpy).toHaveBeenCalledWith('Failed to load settings:', expect.any(Error));
+    warnSpy.mockRestore();
   });
 
   it('returns defaults on corrupt JSON', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
     mockGetItem.mockResolvedValue('not valid json{');
     const result = await loadSettings();
     expect(result).toEqual(DEFAULT_SETTINGS);
+    expect(warnSpy).toHaveBeenCalledWith('Failed to load settings:', expect.any(SyntaxError));
+    warnSpy.mockRestore();
   });
 });
 
@@ -46,8 +52,11 @@ describe('saveSettings', () => {
   });
 
   it('swallows AsyncStorage errors', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
     mockSetItem.mockRejectedValue(new Error('write error'));
     await expect(saveSettings(DEFAULT_SETTINGS)).resolves.toBeUndefined();
+    expect(warnSpy).toHaveBeenCalledWith('Failed to save settings:', expect.any(Error));
+    warnSpy.mockRestore();
   });
 });
 
