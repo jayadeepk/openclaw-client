@@ -8,13 +8,50 @@ interface Props {
   message: ChatMessage;
   onRetry?: (msgId: string) => void;
   onLongPress?: (message: ChatMessage) => void;
+  searchQuery?: string;
 }
 
+/** Highlight matching substrings within text */
+function highlightText(text: string, query: string): React.ReactNode {
+  if (!query) return text;
+  const lowerText = text.toLowerCase();
+  const lowerQuery = query.toLowerCase();
+  const parts: React.ReactNode[] = [];
+  let lastIdx = 0;
+  let matchIdx = lowerText.indexOf(lowerQuery);
+  let keyIdx = 0;
+
+  while (matchIdx !== -1) {
+    if (matchIdx > lastIdx) {
+      parts.push(text.slice(lastIdx, matchIdx));
+    }
+    parts.push(
+      <Text key={keyIdx++} style={highlightStyle}>
+        {text.slice(matchIdx, matchIdx + query.length)}
+      </Text>,
+    );
+    lastIdx = matchIdx + query.length;
+    matchIdx = lowerText.indexOf(lowerQuery, lastIdx);
+  }
+
+  if (lastIdx < text.length) {
+    parts.push(text.slice(lastIdx));
+  }
+
+  return parts.length > 0 ? parts : text;
+}
+
+const highlightStyle = {
+  backgroundColor: 'rgba(108, 99, 255, 0.35)',
+  borderRadius: 2,
+} as const;
+
 /** Renders a single chat message bubble, styled by role */
-export function MessageBubble({ message, onRetry, onLongPress }: Props) {
+export function MessageBubble({ message, onRetry, onLongPress, searchQuery }: Props) {
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
   const canRetry = isSystem && !!message.retryText && !!onRetry;
+  const hasMatch = !!searchQuery && message.content.toLowerCase().includes(searchQuery.toLowerCase());
 
   const handleLongPress = () => {
     onLongPress?.(message);
@@ -26,6 +63,7 @@ export function MessageBubble({ message, onRetry, onLongPress }: Props) {
         styles.bubble,
         isUser && styles.bubbleUser,
         isSystem && styles.bubbleSystem,
+        hasMatch && styles.bubbleMatch,
       ]}
     >
       {!isUser && (
@@ -35,7 +73,7 @@ export function MessageBubble({ message, onRetry, onLongPress }: Props) {
       )}
       {isUser || isSystem ? (
         <Text style={[styles.text, isSystem && styles.textSystem]}>
-          {message.content}
+          {searchQuery ? highlightText(message.content, searchQuery) : message.content}
           {message.streaming ? <Text style={styles.cursor}>▌</Text> : null}
         </Text>
       ) : (
@@ -111,6 +149,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: theme.colors.error,
+  },
+  bubbleMatch: {
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
   },
   roleLabel: {
     fontSize: theme.fontSize.sm,

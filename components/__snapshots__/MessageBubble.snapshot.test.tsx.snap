@@ -62,6 +62,7 @@ exports[`MessageBubble snapshots assistant message 1`] = `
           },
           false,
           false,
+          false,
         ]
       }
     >
@@ -180,6 +181,7 @@ exports[`MessageBubble snapshots streaming message 1`] = `
             "paddingHorizontal": 16,
             "paddingVertical": 10,
           },
+          false,
           false,
           false,
         ]
@@ -316,6 +318,7 @@ exports[`MessageBubble snapshots system message 1`] = `
             "borderColor": "#ff4466",
             "borderWidth": 1,
           },
+          false,
         ]
       }
     >
@@ -433,6 +436,7 @@ exports[`MessageBubble snapshots user message 1`] = `
           {
             "backgroundColor": "#6c63ff",
           },
+          false,
           false,
         ]
       }

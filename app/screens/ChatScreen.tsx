@@ -10,6 +10,7 @@ import { ConnectionBadge } from '../../components/ConnectionBadge';
 import { TypingIndicator } from '../../components/TypingIndicator';
 import { ScrollToBottomFAB } from '../../components/ScrollToBottomFAB';
 import { MessageActionsMenu } from '../../components/MessageActionsMenu';
+import { SearchBar } from '../../components/SearchBar';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
@@ -92,14 +93,61 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
 
   const listItems = useMemo(() => insertDateSeparators(messages), [messages]);
 
+  // ─── Search ──────────────────────────────────────────────────────────
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchIndex, setSearchIndex] = useState(0);
+
+  const searchMatches = useMemo(() => {
+    if (!searchQuery) return [];
+    const q = searchQuery.toLowerCase();
+    return messages.filter((m) => m.content.toLowerCase().includes(q));
+  }, [messages, searchQuery]);
+
+  useEffect(() => {
+    setSearchIndex(0);
+  }, [searchQuery]);
+
+  const scrollToMatch = useCallback((idx: number) => {
+    if (idx < 0 || idx >= searchMatches.length) return;
+    const match = searchMatches[idx];
+    const listIdx = listItems.findIndex((item) => item.id === match.id);
+    if (listIdx >= 0) {
+      flatListRef.current?.scrollToIndex({ index: listIdx, animated: true, viewPosition: 0.5 });
+    }
+  }, [searchMatches, listItems]);
+
+  const handleSearchPrev = useCallback(() => {
+    if (searchMatches.length === 0) return;
+    const next = (searchIndex - 1 + searchMatches.length) % searchMatches.length;
+    setSearchIndex(next);
+    scrollToMatch(next);
+  }, [searchIndex, searchMatches.length, scrollToMatch]);
+
+  const handleSearchNext = useCallback(() => {
+    if (searchMatches.length === 0) return;
+    const next = (searchIndex + 1) % searchMatches.length;
+    setSearchIndex(next);
+    scrollToMatch(next);
+  }, [searchIndex, searchMatches.length, scrollToMatch]);
+
+  const handleSearchClose = useCallback(() => {
+    setSearchOpen(false);
+    setSearchQuery('');
+  }, []);
+
+  const handleSearchQueryChange = useCallback((q: string) => {
+    setSearchQuery(q);
+  }, []);
+
   const renderItem = useCallback(
     ({ item }: { item: ChatListItem }) => {
       if ('type' in item) {
         return <DateSeparator label={item.label} />;
       }
-      return <MessageBubble message={item} onRetry={retryMessage} onLongPress={handleMessageLongPress} />;
+      return <MessageBubble message={item} onRetry={retryMessage} onLongPress={handleMessageLongPress} searchQuery={searchOpen ? searchQuery : undefined} />;
     },
-    [retryMessage, handleMessageLongPress],
+    [retryMessage, handleMessageLongPress, searchOpen, searchQuery],
   );
 
   const keyExtractor = useCallback((item: ChatListItem) => item.id, []);
@@ -135,6 +183,11 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
         </View>
         <View style={styles.headerActions}>
           {messages.length > 0 && (
+            <TouchableOpacity onPress={() => { setSearchOpen(true); }} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Search messages">
+              <Text style={styles.headerBtnText}>Search</Text>
+            </TouchableOpacity>
+          )}
+          {messages.length > 0 && (
             <TouchableOpacity onPress={() => { clearMessages(); void clearPersistedMessages(); }} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Clear messages">
               <Text style={styles.headerBtnText}>Clear</Text>
             </TouchableOpacity>
@@ -149,6 +202,18 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
           </TouchableOpacity>
         </View>
       </View>
+
+      {searchOpen && (
+        <SearchBar
+          query={searchQuery}
+          onChangeQuery={handleSearchQueryChange}
+          matchCount={searchMatches.length}
+          currentIndex={searchIndex}
+          onPrev={handleSearchPrev}
+          onNext={handleSearchNext}
+          onClose={handleSearchClose}
+        />
+      )}
 
       {/* Messages */}
       {messages.length === 0 ? (
