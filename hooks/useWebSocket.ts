@@ -59,8 +59,11 @@ function makeSystemMsg(content: string): ChatMessage {
  * Manages the WebSocket connection to the OpenClaw gateway using the real
  * protocol: challenge/connect handshake, req/res correlation, chat streaming.
  */
+type OnAudioReceived = (base64Audio: string, format: string) => void;
+
 export function useWebSocket(
   settings: AppSettings,
+  onAudioReceived?: OnAudioReceived,
 ): UseWebSocketReturn {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
@@ -69,6 +72,8 @@ export function useWebSocket(
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
+  const onAudioRef = useRef(onAudioReceived);
+  onAudioRef.current = onAudioReceived;
 
 
   // Pending req/res map: id → resolve function
@@ -99,19 +104,39 @@ export function useWebSocket(
     [sendFrame],
   );
 
-  // ── Speak assistant text using device TTS ────────────────────────────────
+  // ── Speak assistant text via Edge TTS, fallback to device TTS ───────────
 
-  const speakText = useCallback((text: string) => {
-    try {
-      Speech.stop();
-      // If the message is only emojis (no real text), speak it as-is
+  const speakText = useCallback(
+    async (text: string) => {
+      // Strip emojis unless the message is emoji-only
       const withoutEmoji = text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').replace(/\s{2,}/g, ' ').trim();
       const toSpeak = withoutEmoji || text.trim();
-      if (toSpeak) Speech.speak(toSpeak);
-    } catch {
-      // TTS is best-effort
-    }
-  }, []);
+      if (!toSpeak) return;
+
+      try {
+        const res = await sendReq<{ audioBase64?: string; outputFormat?: string }>('tts.convert', {
+          text: toSpeak,
+          includeBase64: true,
+        });
+        if (res.ok && res.payload?.audioBase64) {
+          const format = res.payload.outputFormat ?? 'audio/mp3';
+          onAudioRef.current?.(res.payload.audioBase64, format);
+          return;
+        }
+      } catch {
+        // Fall through to device TTS
+      }
+
+      // Fallback: device TTS
+      try {
+        Speech.stop();
+        Speech.speak(toSpeak);
+      } catch {
+        // TTS is best-effort
+      }
+    },
+    [sendReq],
+  );
 
   // ── Handle incoming event frames ─────────────────────────────────────────
 
