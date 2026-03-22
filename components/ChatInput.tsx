@@ -43,6 +43,7 @@ export function ChatInput({ onSend, disabled }: Props) {
           editable={!disabled}
           onSubmitEditing={handleSend}
           blurOnSubmit={false}
+          submitBehavior="submit"
         />
         <TouchableOpacity
           style={[styles.sendBtn, (!text.trim() || disabled) && styles.sendBtnDisabled]}
