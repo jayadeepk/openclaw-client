@@ -1,4 +1,3 @@
-- Code block copy button
 - Message actions (long-press menu: copy, retry, delete, share)
 - Message search
 - Character counter near input limit
