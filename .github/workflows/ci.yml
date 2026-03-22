@@ -29,7 +29,7 @@ jobs:
         run: npx eslint .
 
       - name: Test
-        run: npx jest --coverage --coverageReporters=json-summary --coverageReporters=text --json --outputFile=test-results.json
+        run: npx jest --coverage --coverageReporters=json-summary --coverageReporters=text --coverageReporters=lcov --json --outputFile=test-results.json
 
       - name: Upload coverage report
         if: always()
@@ -63,6 +63,7 @@ jobs:
           git checkout --orphan gh-pages-tmp
           git rm -rf . > /dev/null 2>&1 || true
           cp badge/* .
-          git add coverage.json tests.json
+          cp -r "$GITHUB_WORKSPACE/coverage/lcov-report" ./coverage
+          git add coverage.json tests.json coverage/
           git commit -m "Update badges: ${PASSED}/${TOTAL} tests, ${PCT}% coverage"
           git push origin HEAD:gh-pages --force
