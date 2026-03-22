@@ -4,7 +4,7 @@ const tseslint = require('typescript-eslint');
 
 module.exports = defineConfig(
   {
-    ignores: ['node_modules/', 'coverage/', '**/__snapshots__/', 'babel.config.js', 'jest.config.js'],
+    ignores: ['node_modules/', 'coverage/', '**/__snapshots__/', 'babel.config.js', 'jest.config.js', 'scripts/'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
