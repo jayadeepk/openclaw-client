@@ -7,3 +7,4 @@
 - Light theme toggle (2026-03-23)
 - Conversation management (2026-03-23)
 - Export conversation (2026-03-23)
+- Swipe-to-reply / message quoting (2026-03-23)
