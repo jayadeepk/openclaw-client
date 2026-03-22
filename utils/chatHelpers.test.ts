@@ -1,4 +1,4 @@
-import { nextId, extractText, makeUserMsg, makeSystemMsg, formatDayLabel, insertDateSeparators, DateSeparatorItem } from './chatHelpers';
+import { nextId, extractText, makeUserMsg, makeSystemMsg, formatDayLabel, insertDateSeparators, DateSeparatorItem, formatConversationExport } from './chatHelpers';
 import { ChatMessage } from '../types';
 
 describe('nextId', () => {
@@ -89,6 +89,55 @@ describe('formatDayLabel', () => {
     // Should contain "Mar" and "19"
     expect(label).toContain('Mar');
     expect(label).toContain('19');
+  });
+});
+
+describe('formatConversationExport', () => {
+  const ts = new Date(2026, 2, 23, 14, 30, 0).getTime();
+
+  const msgs: ChatMessage[] = [
+    { id: '1', role: 'user', content: 'Hello', timestamp: ts },
+    { id: '2', role: 'assistant', content: 'Hi there!', timestamp: ts + 1000 },
+    { id: '3', role: 'system', content: 'Error occurred', timestamp: ts + 2000 },
+    { id: '4', role: 'user', content: 'Thanks', timestamp: ts + 3000 },
+  ];
+
+  it('formats messages with role labels and timestamps', () => {
+    const result = formatConversationExport(msgs);
+    expect(result).toContain('[14:30] You:');
+    expect(result).toContain('Hello');
+    expect(result).toContain('[14:30] OpenClaw:');
+    expect(result).toContain('Hi there!');
+    expect(result).toContain('Thanks');
+  });
+
+  it('skips system messages', () => {
+    const result = formatConversationExport(msgs);
+    expect(result).not.toContain('Error occurred');
+    expect(result).not.toContain('System');
+  });
+
+  it('includes title when provided', () => {
+    const result = formatConversationExport(msgs, 'My Chat');
+    expect(result).toMatch(/^My Chat\n=+\n/);
+  });
+
+  it('works without title', () => {
+    const result = formatConversationExport(msgs);
+    expect(result).toMatch(/^\[/);
+  });
+
+  it('returns empty string for empty messages', () => {
+    const result = formatConversationExport([]);
+    expect(result).toBe('');
+  });
+
+  it('returns empty string when only system messages', () => {
+    const systemOnly: ChatMessage[] = [
+      { id: '1', role: 'system', content: 'Error', timestamp: ts },
+    ];
+    const result = formatConversationExport(systemOnly);
+    expect(result).toBe('');
   });
 });
 

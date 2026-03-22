@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, NativeScrollEvent, NativeSyntheticEvent, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, NativeScrollEvent, NativeSyntheticEvent, RefreshControl, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -18,7 +18,7 @@ import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { useConversations } from '../../hooks/useConversations';
 import { useTheme } from '../../contexts/ThemeContext';
 import { AppSettings, ChatMessage } from '../../types';
-import { ChatListItem, insertDateSeparators } from '../../utils/chatHelpers';
+import { ChatListItem, insertDateSeparators, formatConversationExport } from '../../utils/chatHelpers';
 import { AppTheme } from '../../constants/theme';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { loadConversationMessages } from '../../utils/storage';
@@ -116,6 +116,12 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
     touchActiveConversation();
     autoTitle(text);
   }, [wsSendMessage, touchActiveConversation, autoTitle]);
+
+  const handleExport = useCallback(() => {
+    if (messages.length === 0) return;
+    const text = formatConversationExport(messages, activeConversation?.title);
+    void Share.share({ message: text });
+  }, [messages, activeConversation?.title]);
 
   const isOnline = useNetworkStatus();
 
@@ -250,6 +256,11 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
           {messages.length > 0 && (
             <TouchableOpacity onPress={() => { setSearchOpen(true); }} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Search messages">
               <Text style={styles.headerBtnText}>Search</Text>
+            </TouchableOpacity>
+          )}
+          {messages.length > 0 && (
+            <TouchableOpacity onPress={handleExport} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Export conversation">
+              <Text style={styles.headerBtnText}>Export</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity onPress={toggleTheme} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Toggle theme">
