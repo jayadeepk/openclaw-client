@@ -22,4 +22,14 @@ describe('ConnectionBadge', () => {
     render(<ConnectionBadge status="reconnecting" reconnectIn={5} />);
     expect(screen.getByText('Reconnecting in 5s...')).toBeTruthy();
   });
+
+  it('shows Offline when isOnline is false', () => {
+    render(<ConnectionBadge status="disconnected" isOnline={false} />);
+    expect(screen.getByText('Offline')).toBeTruthy();
+  });
+
+  it('offline overrides other statuses', () => {
+    render(<ConnectionBadge status="reconnecting" reconnectIn={3} isOnline={false} />);
+    expect(screen.getByText('Offline')).toBeTruthy();
+  });
 });

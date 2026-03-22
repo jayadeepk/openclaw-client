@@ -10,6 +10,7 @@ import { ConnectionBadge } from '../../components/ConnectionBadge';
 import { TypingIndicator } from '../../components/TypingIndicator';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
+import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { AppSettings, ChatMessage } from '../../types';
 import { ChatListItem, insertDateSeparators } from '../../utils/chatHelpers';
 import { theme } from '../../constants/theme';
@@ -53,6 +54,8 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
     }
   }, [loaded, messages]);
 
+  const isOnline = useNetworkStatus();
+
   // Connect when settings change (e.g. after saving new gateway URL)
   useEffect(() => {
     if (settings.authToken) {
@@ -60,6 +63,13 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
     }
     return () => { disconnect(); };
   }, [settings.gatewayHost, settings.gatewayPort, settings.authToken]);
+
+  // Reconnect when network comes back online
+  useEffect(() => {
+    if (isOnline && settings.authToken && status === 'disconnected') {
+      connect();
+    }
+  }, [isOnline, settings.authToken, status, connect]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -97,7 +107,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       <View style={styles.header}>
         <View>
           <Text style={styles.title}>OpenClaw</Text>
-          <ConnectionBadge status={status} reconnectIn={reconnectIn} />
+          <ConnectionBadge status={status} reconnectIn={reconnectIn} isOnline={isOnline} />
         </View>
         <View style={styles.headerActions}>
           {messages.length > 0 && (

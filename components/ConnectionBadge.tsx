@@ -6,6 +6,7 @@ import { theme } from '../constants/theme';
 interface Props {
   status: ConnectionStatus;
   reconnectIn?: number;
+  isOnline?: boolean;
 }
 
 const STATUS_CONFIG: Record<ConnectionStatus, { label: string; color: string }> = {
@@ -18,16 +19,28 @@ const STATUS_CONFIG: Record<ConnectionStatus, { label: string; color: string }> 
 };
 
 /** Small pill-shaped badge showing WebSocket connection status */
-export function ConnectionBadge({ status, reconnectIn }: Props) {
+export function ConnectionBadge({ status, reconnectIn, isOnline = true }: Props) {
+  const offlineLabel = 'Offline';
+  const offlineColor = theme.colors.error;
   const config = STATUS_CONFIG[status];
-  const label = status === 'reconnecting' && reconnectIn
-    ? `Reconnecting in ${String(reconnectIn)}s...`
-    : config.label;
+
+  let label: string;
+  let color: string;
+  if (!isOnline) {
+    label = offlineLabel;
+    color = offlineColor;
+  } else if (status === 'reconnecting' && reconnectIn) {
+    label = `Reconnecting in ${String(reconnectIn)}s...`;
+    color = config.color;
+  } else {
+    label = config.label;
+    color = config.color;
+  }
 
   return (
     <View style={styles.container} accessibilityRole="text" accessibilityLabel={`Connection status: ${label}`}>
-      <View style={[styles.dot, { backgroundColor: config.color }]} />
-      <Text style={[styles.label, { color: config.color }]}>{label}</Text>
+      <View style={[styles.dot, { backgroundColor: color }]} />
+      <Text style={[styles.label, { color }]}>{label}</Text>
     </View>
   );
 }
