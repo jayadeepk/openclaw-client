@@ -20,6 +20,11 @@ import { nextId, extractText, makeUserMsg, makeSystemMsg } from '../utils/chatHe
 
 type PendingResolver = (res: ResFrame) => void;
 
+export interface UseWebSocketOptions {
+  initialMessages?: ChatMessage[];
+  onAudioReceived?: OnAudioReceived;
+}
+
 export interface UseWebSocketReturn {
   messages: ChatMessage[];
   status: ConnectionStatus;
@@ -41,9 +46,14 @@ type OnAudioReceived = (base64Audio: string, format: string) => void;
 
 export function useWebSocket(
   settings: AppSettings,
-  onAudioReceived?: OnAudioReceived,
+  options?: OnAudioReceived | UseWebSocketOptions,
 ): UseWebSocketReturn {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  // Support legacy signature: useWebSocket(settings, onAudioCallback)
+  const opts: UseWebSocketOptions = typeof options === 'function'
+    ? { onAudioReceived: options }
+    : options ?? {};
+
+  const [messages, setMessages] = useState<ChatMessage[]>(opts.initialMessages ?? []);
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
   const [reconnectIn, setReconnectIn] = useState(0);
 
@@ -53,8 +63,8 @@ export function useWebSocket(
   const reconnectAttempt = useRef(0);
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
-  const onAudioRef = useRef(onAudioReceived);
-  onAudioRef.current = onAudioReceived;
+  const onAudioRef = useRef(opts.onAudioReceived);
+  onAudioRef.current = opts.onAudioReceived;
 
 
   // Pending req/res map: id → resolve function

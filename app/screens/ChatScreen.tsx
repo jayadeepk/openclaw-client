@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,6 +11,7 @@ import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { AppSettings, ChatMessage } from '../../types';
 import { theme } from '../../constants/theme';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { loadMessages, saveMessages, clearPersistedMessages } from '../../utils/storage';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
 
@@ -23,10 +24,31 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList<ChatMessage>>(null);
   const { playAudio } = useAudioPlayer();
+  const [initialMessages, setInitialMessages] = useState<ChatMessage[] | undefined>(undefined);
+  const [loaded, setLoaded] = useState(false);
+
+  // Load persisted messages on mount
+  useEffect(() => {
+    void loadMessages().then((msgs) => {
+      setInitialMessages(msgs);
+      setLoaded(true);
+    });
+  }, []);
+
   const { messages, status, reconnectIn, sendMessage, connect, disconnect, clearMessages } = useWebSocket(
     settings,
-    (base64Audio, format) => { void playAudio(base64Audio, format); },
+    {
+      initialMessages,
+      onAudioReceived: (base64Audio, format) => { void playAudio(base64Audio, format); },
+    },
   );
+
+  // Persist messages when they change
+  useEffect(() => {
+    if (loaded && messages.length > 0) {
+      void saveMessages(messages);
+    }
+  }, [loaded, messages]);
 
   // Connect when settings change (e.g. after saving new gateway URL)
   useEffect(() => {
@@ -60,7 +82,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
         </View>
         <View style={styles.headerActions}>
           {messages.length > 0 && (
-            <TouchableOpacity onPress={clearMessages} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Clear messages">
+            <TouchableOpacity onPress={() => { clearMessages(); void clearPersistedMessages(); }} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Clear messages">
               <Text style={styles.headerBtnText}>Clear</Text>
             </TouchableOpacity>
           )}
