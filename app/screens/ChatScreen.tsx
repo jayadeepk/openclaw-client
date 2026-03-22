@@ -16,6 +16,7 @@ import { useWebSocket } from '../../hooks/useWebSocket';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { useConversations } from '../../hooks/useConversations';
+import { useNotifications } from '../../hooks/useNotifications';
 import { useTheme } from '../../contexts/ThemeContext';
 import { AppSettings, ChatMessage } from '../../types';
 import { ChatListItem, insertDateSeparators, formatConversationExport } from '../../utils/chatHelpers';
@@ -36,6 +37,16 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
   const styles = useMemo(() => createStyles(theme), [theme]);
   const flatListRef = useRef<FlatList<ChatListItem>>(null);
   const { playAudio } = useAudioPlayer();
+  const { isBackground, sendNotification } = useNotifications();
+  const isBackgroundRef = useRef(false);
+  isBackgroundRef.current = isBackground;
+
+  const handleFinalMessage = useCallback((content: string) => {
+    if (isBackgroundRef.current) {
+      const preview = content.length > 100 ? content.slice(0, 100) + '...' : content;
+      sendNotification('OpenClaw', preview);
+    }
+  }, [sendNotification]);
 
   const {
     conversations,
@@ -68,6 +79,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       initialMessages,
       sessionKey: activeConversation?.id ?? 'main',
       onAudioReceived: (base64Audio, format) => { void playAudio(base64Audio, format); },
+      onFinalMessage: handleFinalMessage,
     },
   );
 

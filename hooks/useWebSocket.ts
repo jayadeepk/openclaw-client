@@ -24,6 +24,7 @@ type PendingResolver = (res: ResFrame) => void;
 export interface UseWebSocketOptions {
   initialMessages?: ChatMessage[];
   onAudioReceived?: OnAudioReceived;
+  onFinalMessage?: (content: string) => void;
   sessionKey?: string;
 }
 
@@ -75,6 +76,8 @@ export function useWebSocket(
   settingsRef.current = settings;
   const onAudioRef = useRef(opts.onAudioReceived);
   onAudioRef.current = opts.onAudioReceived;
+  const onFinalMessageRef = useRef(opts.onFinalMessage);
+  onFinalMessageRef.current = opts.onFinalMessage;
   const sessionKeyRef = useRef(opts.sessionKey ?? 'main');
   sessionKeyRef.current = opts.sessionKey ?? 'main';
 
@@ -242,10 +245,11 @@ export function useWebSocket(
                 },
               ]);
             }
-            // Haptic + TTS for the final assistant message
+            // Haptic + TTS + notification for the final assistant message
             if (finalContent) {
               lightTap();
               void speakText(finalContent);
+              onFinalMessageRef.current?.(finalContent);
             }
           } else {
             const existing = streamingRef.current.get(runId);
