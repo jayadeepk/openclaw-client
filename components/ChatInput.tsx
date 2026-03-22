@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  Platform,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -24,6 +25,13 @@ export function ChatInput({ onSend, disabled }: Props) {
     setText('');
   };
 
+  const handleKeyPress = (e: { nativeEvent: { key: string } }) => {
+    if (Platform.OS === 'web' && e.nativeEvent.key === 'Enter' && !(e as unknown as KeyboardEvent).shiftKey) {
+      (e as unknown as KeyboardEvent).preventDefault();
+      handleSend();
+    }
+  };
+
   return (
       <View style={styles.container}>
         <TextInput
@@ -36,6 +44,7 @@ export function ChatInput({ onSend, disabled }: Props) {
           maxLength={4096}
           editable={!disabled}
           onSubmitEditing={handleSend}
+          onKeyPress={handleKeyPress}
           submitBehavior="submit"
           accessibilityLabel="Message input"
           accessibilityHint="Type a message to send to OpenClaw"

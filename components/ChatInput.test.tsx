@@ -1,4 +1,5 @@
 import React from 'react';
+import { Platform } from 'react-native';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { ChatInput } from './ChatInput';
 
@@ -48,5 +49,29 @@ describe('ChatInput', () => {
     render(<ChatInput onSend={jest.fn()} disabled />);
     const input = screen.getByPlaceholderText('Message OpenClaw...');
     expect(input.props.editable).toBe(false);
+  });
+
+  it('sends on Enter key press on web', () => {
+    const original = Platform.OS;
+    Platform.OS = 'web';
+    const onSend = jest.fn();
+    render(<ChatInput onSend={onSend} />);
+    const input = screen.getByPlaceholderText('Message OpenClaw...');
+    fireEvent.changeText(input, 'hello');
+    fireEvent(input, 'keyPress', { nativeEvent: { key: 'Enter' }, preventDefault: jest.fn() });
+    expect(onSend).toHaveBeenCalledWith('hello');
+    Platform.OS = original;
+  });
+
+  it('does not send on Shift+Enter on web', () => {
+    const original = Platform.OS;
+    Platform.OS = 'web';
+    const onSend = jest.fn();
+    render(<ChatInput onSend={onSend} />);
+    const input = screen.getByPlaceholderText('Message OpenClaw...');
+    fireEvent.changeText(input, 'hello');
+    fireEvent(input, 'keyPress', { nativeEvent: { key: 'Enter' }, shiftKey: true, preventDefault: jest.fn() });
+    expect(onSend).not.toHaveBeenCalled();
+    Platform.OS = original;
   });
 });
