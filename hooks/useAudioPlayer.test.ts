@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { renderHook, act } from '@testing-library/react-native';
 import { Audio } from 'expo-av';
 import { File } from 'expo-file-system';
@@ -9,6 +10,7 @@ const MockFile = File as unknown as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
+  Platform.OS = 'ios';
   const mockSound = {
     unloadAsync: jest.fn().mockResolvedValue(undefined),
     stopAsync: jest.fn().mockResolvedValue(undefined),
@@ -187,5 +189,73 @@ describe('useAudioPlayer', () => {
 
     expect(warnSpy).toHaveBeenCalledWith('Audio playback failed:', expect.any(Error));
     warnSpy.mockRestore();
+  });
+
+  describe('web platform', () => {
+    let mockPlay: jest.Mock;
+    let mockPause: jest.Mock;
+
+    beforeEach(() => {
+      Platform.OS = 'web';
+      mockPlay = jest.fn().mockResolvedValue(undefined);
+      mockPause = jest.fn();
+      (window as unknown as Record<string, unknown>).Audio = jest.fn().mockImplementation(() => ({
+        play: mockPlay,
+        pause: mockPause,
+        onended: null,
+      }));
+    });
+
+    afterEach(() => {
+      delete (window as unknown as Record<string, unknown>).Audio;
+    });
+
+    it('plays audio via HTMLAudioElement with data URI on web', async () => {
+      const { result } = renderHook(() => useAudioPlayer());
+      await act(async () => {
+        await result.current.playAudio('base64data', 'audio/mp3');
+      });
+      expect(window.Audio).toHaveBeenCalledWith('data:audio/mpeg;base64,base64data');
+      expect(mockPlay).toHaveBeenCalled();
+    });
+
+    it('normalizes gateway format strings to MIME types', async () => {
+      const { result } = renderHook(() => useAudioPlayer());
+      await act(async () => {
+        await result.current.playAudio('data', 'audio-24khz-48kbitrate-mono-mp3');
+      });
+      expect(window.Audio).toHaveBeenCalledWith('data:audio/mpeg;base64,data');
+    });
+
+    it('pauses previous web audio before playing new one', async () => {
+      const { result } = renderHook(() => useAudioPlayer());
+      await act(async () => {
+        await result.current.playAudio('first', 'audio/mp3');
+      });
+      await act(async () => {
+        await result.current.playAudio('second', 'audio/mp3');
+      });
+      expect(mockPause).toHaveBeenCalled();
+    });
+
+    it('stopAudio pauses web audio', async () => {
+      const { result } = renderHook(() => useAudioPlayer());
+      await act(async () => {
+        await result.current.playAudio('data', 'audio/mp3');
+      });
+      await act(async () => {
+        await result.current.stopAudio();
+      });
+      expect(mockPause).toHaveBeenCalled();
+    });
+
+    it('does not use expo-av on web', async () => {
+      const { result } = renderHook(() => useAudioPlayer());
+      await act(async () => {
+        await result.current.playAudio('data', 'audio/mp3');
+      });
+      expect(mockSetAudioMode).not.toHaveBeenCalled();
+      expect(mockCreateAsync).not.toHaveBeenCalled();
+    });
   });
 });
