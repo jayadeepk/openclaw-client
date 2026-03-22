@@ -1,7 +1,7 @@
 # OpenClaw Client
 
 [![CI](https://github.com/jayadeepk/openclaw-client/actions/workflows/ci.yml/badge.svg)](https://github.com/jayadeepk/openclaw-client/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/endpoint?url=https%3A%2F%2Fjayadeepk.github.io%2Fopenclaw-client%2Ftests.json)](https://github.com/jayadeepk/openclaw-client/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/endpoint?url=https%3A%2F%2Fjayadeepk.github.io%2Fopenclaw-client%2Ftests.json)](https://jayadeepk.github.io/openclaw-client/tests/)
 [![Coverage](https://img.shields.io/endpoint?url=https://jayadeepk.github.io/openclaw-client/coverage.json)](https://jayadeepk.github.io/openclaw-client/coverage/lcov-report/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Expo SDK](https://img.shields.io/badge/Expo_SDK-54-000020?logo=expo&logoColor=white)](https://expo.dev/)
