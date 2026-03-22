@@ -1,8 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { AppSettings, ChatMessage } from '../types';
 
 const SETTINGS_KEY = '@openclaw/settings';
 const MESSAGES_KEY = '@openclaw/messages';
+const AUTH_TOKEN_KEY = 'openclaw_auth_token';
 const MAX_PERSISTED_MESSAGES = 100;
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -11,23 +13,34 @@ export const DEFAULT_SETTINGS: AppSettings = {
   authToken: '',
 };
 
-/** Load persisted settings, falling back to defaults */
+/** Load persisted settings, falling back to defaults.
+ *  Auth token is stored in SecureStore (Keychain/Keystore). */
 export async function loadSettings(): Promise<AppSettings> {
   try {
-    const raw = await AsyncStorage.getItem(SETTINGS_KEY);
-    if (raw) {
-      return { ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<AppSettings>) };
-    }
+    const [raw, authToken] = await Promise.all([
+      AsyncStorage.getItem(SETTINGS_KEY),
+      SecureStore.getItemAsync(AUTH_TOKEN_KEY),
+    ]);
+    const base = raw
+      ? { ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<AppSettings>) }
+      : { ...DEFAULT_SETTINGS };
+    return { ...base, authToken: authToken ?? '' };
   } catch (err) {
     console.warn('Failed to load settings:', err);
   }
   return { ...DEFAULT_SETTINGS };
 }
 
-/** Persist settings to AsyncStorage */
+/** Persist settings. Auth token goes to SecureStore; the rest to AsyncStorage. */
 export async function saveSettings(settings: AppSettings): Promise<void> {
   try {
-    await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    const { authToken, ...rest } = settings;
+    await Promise.all([
+      AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(rest)),
+      authToken
+        ? SecureStore.setItemAsync(AUTH_TOKEN_KEY, authToken)
+        : SecureStore.deleteItemAsync(AUTH_TOKEN_KEY),
+    ]);
   } catch (err) {
     console.warn('Failed to save settings:', err);
   }

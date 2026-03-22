@@ -29,6 +29,31 @@ Every assistant response is automatically converted to speech and played back �
 - [Expo CLI](https://docs.expo.dev/get-started/installation/)
 - An OpenClaw gateway instance
 
+## Settings
+
+The app connects to an OpenClaw gateway over WebSocket. Open the Settings screen to configure:
+
+| Field | Description | Default |
+|-------|-------------|---------|
+| Host | IP or hostname of the gateway | `localhost` |
+| Port | Gateway port | `18789` |
+| Auth Token | Shared secret for authentication | — |
+
+To retrieve the auth token from your gateway machine:
+
+```bash
+# Shows redacted token — useful to confirm one is set
+openclaw config get gateway.auth.token
+
+# Copy the actual token value to clipboard (avoids displaying in terminal)
+# macOS
+cat ~/.openclaw/openclaw.json | grep token | awk -F'"' '{print $4}' | pbcopy
+# Linux
+cat ~/.openclaw/openclaw.json | grep token | awk -F'"' '{print $4}' | xclip -selection clipboard
+```
+
+The token is stored in `~/.openclaw/openclaw.json` and is auto-generated during the OpenClaw onboarding wizard. Authentication is optional when the gateway binds to localhost, but required for LAN or remote connections.
+
 ## Getting Started
 
 ```bash

@@ -1,10 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { loadSettings, saveSettings, buildWsUrl, DEFAULT_SETTINGS, loadMessages, saveMessages, clearPersistedMessages } from './storage';
 import { ChatMessage } from '../types';
 
 const mockGetItem = AsyncStorage.getItem as jest.Mock;
 const mockSetItem = AsyncStorage.setItem as jest.Mock;
 const mockRemoveItem = AsyncStorage.removeItem as jest.Mock;
+const mockSecureGetItem = SecureStore.getItemAsync as jest.Mock;
+const mockSecureSetItem = SecureStore.setItemAsync as jest.Mock;
+const mockSecureDeleteItem = SecureStore.deleteItemAsync as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -13,18 +17,27 @@ beforeEach(() => {
 describe('loadSettings', () => {
   it('returns defaults when nothing is stored', async () => {
     mockGetItem.mockResolvedValue(null);
+    mockSecureGetItem.mockResolvedValue(null);
     const result = await loadSettings();
     expect(result).toEqual(DEFAULT_SETTINGS);
   });
 
-  it('merges stored values with defaults', async () => {
+  it('merges stored values with defaults and loads token from SecureStore', async () => {
     mockGetItem.mockResolvedValue(JSON.stringify({ gatewayHost: '10.0.0.1' }));
+    mockSecureGetItem.mockResolvedValue('secret-tok');
     const result = await loadSettings();
     expect(result).toEqual({
       gatewayHost: '10.0.0.1',
       gatewayPort: '18789',
-      authToken: '',
+      authToken: 'secret-tok',
     });
+  });
+
+  it('returns empty authToken when SecureStore has no token', async () => {
+    mockGetItem.mockResolvedValue(JSON.stringify({ gatewayHost: '10.0.0.1' }));
+    mockSecureGetItem.mockResolvedValue(null);
+    const result = await loadSettings();
+    expect(result.authToken).toBe('');
   });
 
   it('returns defaults on AsyncStorage error', async () => {
@@ -47,13 +60,23 @@ describe('loadSettings', () => {
 });
 
 describe('saveSettings', () => {
-  it('persists JSON to the correct key', async () => {
+  it('persists settings to AsyncStorage and token to SecureStore', async () => {
     const settings = { gatewayHost: '10.0.0.1', gatewayPort: '9999', authToken: 'tok' };
     await saveSettings(settings);
-    expect(mockSetItem).toHaveBeenCalledWith('@openclaw/settings', JSON.stringify(settings));
+    expect(mockSetItem).toHaveBeenCalledWith(
+      '@openclaw/settings',
+      JSON.stringify({ gatewayHost: '10.0.0.1', gatewayPort: '9999' }),
+    );
+    expect(mockSecureSetItem).toHaveBeenCalledWith('openclaw_auth_token', 'tok');
   });
 
-  it('swallows AsyncStorage errors', async () => {
+  it('deletes token from SecureStore when authToken is empty', async () => {
+    await saveSettings({ ...DEFAULT_SETTINGS, authToken: '' });
+    expect(mockSecureDeleteItem).toHaveBeenCalledWith('openclaw_auth_token');
+    expect(mockSecureSetItem).not.toHaveBeenCalled();
+  });
+
+  it('swallows errors', async () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
     mockSetItem.mockRejectedValue(new Error('write error'));
     await expect(saveSettings(DEFAULT_SETTINGS)).resolves.toBeUndefined();
