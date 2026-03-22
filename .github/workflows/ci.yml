@@ -57,13 +57,15 @@ jobs:
           mkdir -p badge
           echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${PCT}%\",\"color\":\"${COV_COLOR}\"}" > badge/coverage.json
           echo "{\"schemaVersion\":1,\"label\":\"tests\",\"message\":\"${TEST_MSG}\",\"color\":\"${TEST_COLOR}\"}" > badge/tests.json
+          cp -r coverage/lcov-report /tmp/lcov-report
+          cp badge/* /tmp/
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin gh-pages || true
           git checkout --orphan gh-pages-tmp
           git rm -rf . > /dev/null 2>&1 || true
-          cp badge/* .
-          cp -r "$GITHUB_WORKSPACE/coverage/lcov-report" ./coverage
+          cp /tmp/coverage.json /tmp/tests.json .
+          cp -r /tmp/lcov-report ./coverage
           git add coverage.json tests.json coverage/
           git commit -m "Update badges: ${PASSED}/${TOTAL} tests, ${PCT}% coverage"
           git push origin HEAD:gh-pages --force
