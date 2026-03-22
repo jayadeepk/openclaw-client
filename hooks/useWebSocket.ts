@@ -31,6 +31,8 @@ export interface UseWebSocketReturn {
   status: ConnectionStatus;
   /** Seconds until next reconnect attempt (0 when not reconnecting) */
   reconnectIn: number;
+  /** True while waiting for the assistant's first response after sending */
+  isTyping: boolean;
   sendMessage: (text: string) => void;
   connect: () => void;
   disconnect: () => void;
@@ -57,6 +59,7 @@ export function useWebSocket(
   const [messages, setMessages] = useState<ChatMessage[]>(opts.initialMessages ?? []);
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
   const [reconnectIn, setReconnectIn] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
 
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -168,6 +171,7 @@ export function useWebSocket(
         }
 
         case 'chat': {
+          setIsTyping(false);
           const payload = frame.payload as ChatEventPayload;
           const { runId, state, message } = payload;
 
@@ -360,6 +364,7 @@ export function useWebSocket(
       if (status !== 'connected') return;
 
       lightTap();
+      setIsTyping(true);
       // Optimistically add user message to UI
       setMessages((prev) => [...prev, makeUserMsg(text)]);
 
@@ -372,6 +377,7 @@ export function useWebSocket(
 
       void sendReq('chat.send', params).then((res) => {
         if (!res.ok) {
+          setIsTyping(false);
           setMessages((prev) => [
             ...prev,
             makeSystemMsg(`Send failed: ${res.error?.message ?? 'unknown error'}`),
@@ -395,5 +401,5 @@ export function useWebSocket(
     streamingRef.current.clear();
   }, []);
 
-  return { messages, status, reconnectIn, sendMessage, connect, disconnect, clearMessages };
+  return { messages, status, reconnectIn, isTyping, sendMessage, connect, disconnect, clearMessages };
 }

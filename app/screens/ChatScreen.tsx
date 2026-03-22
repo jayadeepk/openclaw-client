@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MessageBubble } from '../../components/MessageBubble';
 import { ChatInput } from '../../components/ChatInput';
 import { ConnectionBadge } from '../../components/ConnectionBadge';
+import { TypingIndicator } from '../../components/TypingIndicator';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { AppSettings, ChatMessage } from '../../types';
@@ -35,7 +36,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
     });
   }, []);
 
-  const { messages, status, reconnectIn, sendMessage, connect, disconnect, clearMessages } = useWebSocket(
+  const { messages, status, reconnectIn, isTyping, sendMessage, connect, disconnect, clearMessages } = useWebSocket(
     settings,
     {
       initialMessages,
@@ -118,6 +119,8 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
           showsVerticalScrollIndicator={false}
         />
       )}
+
+      {isTyping && <TypingIndicator />}
 
       {/* Input */}
       <ChatInput onSend={sendMessage} disabled={status !== 'connected'} />
