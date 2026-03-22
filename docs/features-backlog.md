@@ -1,4 +1,3 @@
-- Conversation management (similar to /new in Telegram for OpenClaw)
 - Export conversation
 - Swipe-to-reply / message quoting
 - Notification support
