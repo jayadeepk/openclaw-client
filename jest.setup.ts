@@ -11,27 +11,21 @@ jest.mock('expo-secure-store', () => ({
   deleteItemAsync: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('expo-audio', () => ({
+  createAudioPlayer: jest.fn(() => ({
+    play: jest.fn(),
+    pause: jest.fn(),
+    remove: jest.fn(),
+  })),
+  setAudioModeAsync: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock('expo-speech', () => ({
   speak: jest.fn(),
   stop: jest.fn(),
   isSpeakingAsync: jest.fn().mockResolvedValue(false),
 }));
 
-jest.mock('expo-av', () => {
-  const mockSound = {
-    unloadAsync: jest.fn().mockResolvedValue(undefined),
-    stopAsync: jest.fn().mockResolvedValue(undefined),
-    setOnPlaybackStatusUpdate: jest.fn(),
-  };
-  return {
-    Audio: {
-      Sound: {
-        createAsync: jest.fn().mockResolvedValue({ sound: mockSound }),
-      },
-      setAudioModeAsync: jest.fn().mockResolvedValue(undefined),
-    },
-  };
-});
 
 jest.mock('expo-file-system', () => {
   const mockFile = {

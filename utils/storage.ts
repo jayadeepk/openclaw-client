@@ -1,11 +1,36 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 import { AppSettings, ChatMessage } from '../types';
 
 const SETTINGS_KEY = '@openclaw/settings';
 const MESSAGES_KEY = '@openclaw/messages';
 const AUTH_TOKEN_KEY = 'openclaw_auth_token';
 const MAX_PERSISTED_MESSAGES = 100;
+
+// SecureStore is not available on web — fall back to localStorage
+const tokenStore = {
+  async get(): Promise<string | null> {
+    if (Platform.OS === 'web') {
+      return localStorage.getItem(AUTH_TOKEN_KEY);
+    }
+    return SecureStore.getItemAsync(AUTH_TOKEN_KEY);
+  },
+  async set(value: string): Promise<void> {
+    if (Platform.OS === 'web') {
+      localStorage.setItem(AUTH_TOKEN_KEY, value);
+      return;
+    }
+    await SecureStore.setItemAsync(AUTH_TOKEN_KEY, value);
+  },
+  async remove(): Promise<void> {
+    if (Platform.OS === 'web') {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      return;
+    }
+    await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
+  },
+};
 
 export const DEFAULT_SETTINGS: AppSettings = {
   gatewayHost: 'localhost',
@@ -19,7 +44,7 @@ export async function loadSettings(): Promise<AppSettings> {
   try {
     const [raw, authToken] = await Promise.all([
       AsyncStorage.getItem(SETTINGS_KEY),
-      SecureStore.getItemAsync(AUTH_TOKEN_KEY),
+      tokenStore.get(),
     ]);
     const base = raw
       ? { ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<AppSettings>) }
@@ -38,8 +63,8 @@ export async function saveSettings(settings: AppSettings): Promise<void> {
     await Promise.all([
       AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(rest)),
       authToken
-        ? SecureStore.setItemAsync(AUTH_TOKEN_KEY, authToken)
-        : SecureStore.deleteItemAsync(AUTH_TOKEN_KEY),
+        ? tokenStore.set(authToken)
+        : tokenStore.remove(),
     ]);
   } catch (err) {
     console.warn('Failed to save settings:', err);

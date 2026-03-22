@@ -1,7 +1,8 @@
 import { useCallback, useRef } from 'react';
 import { Platform } from 'react-native';
-import { Audio } from 'expo-av';
+import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { File, Paths } from 'expo-file-system';
+import type { AudioPlayer } from 'expo-audio';
 
 /** Normalize gateway format strings (e.g. "audio-24khz-48kbitrate-mono-mp3") to browser MIME types */
 function toMimeType(format: string): string {
@@ -14,11 +15,11 @@ function toMimeType(format: string): string {
 
 /**
  * Provides a function to play base64-encoded audio received from the gateway.
- * Native: writes a temp file via expo-file-system, plays with expo-av.
+ * Native: writes a temp file via expo-file-system, plays with expo-audio.
  * Web: uses an HTMLAudioElement with a data URI.
  */
 export function useAudioPlayer() {
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const playerRef = useRef<AudioPlayer | null>(null);
   const webAudioRef = useRef<HTMLAudioElement | null>(null);
 
   /** Play base64 audio on web using a data URI */
@@ -28,27 +29,24 @@ export function useAudioPlayer() {
       webAudioRef.current = null;
     }
     const browserMime = toMimeType(mimeType);
-     
     const el = new window.Audio(`data:${browserMime};base64,${base64Audio}`);
     webAudioRef.current = el;
     el.onended = () => { webAudioRef.current = null; };
     void el.play().catch((e: unknown) => { console.warn('Web audio playback failed:', e); });
   }, []);
 
-  /** Play base64 audio on native using expo-av + temp file */
+  /** Play base64 audio on native using expo-audio + temp file */
   const playAudioNative = useCallback(async (base64Audio: string, mimeType: string) => {
-    // Stop previous sound if still playing
-    if (soundRef.current) {
-      await soundRef.current.unloadAsync();
-      soundRef.current = null;
+    // Stop previous player
+    if (playerRef.current) {
+      playerRef.current.remove();
+      playerRef.current = null;
     }
 
     // Configure audio mode for playback
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: false,
-      shouldDuckAndroid: true,
+    await setAudioModeAsync({
+      playsInSilentMode: true,
+      interruptionMode: 'duckOthers',
     });
 
     // Determine file extension from MIME type
@@ -58,19 +56,10 @@ export function useAudioPlayer() {
     // Write the base64 audio to a temporary file
     file.write(base64Audio, { encoding: 'base64' });
 
-    // Load and play
-    const { sound } = await Audio.Sound.createAsync({ uri: file.uri }, { shouldPlay: true });
-    soundRef.current = sound;
-
-    // Clean up when playback finishes
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.isLoaded && status.didJustFinish) {
-        void sound.unloadAsync();
-        soundRef.current = null;
-        // Remove temp file
-        try { file.delete(); } catch { /* best-effort cleanup */ }
-      }
-    });
+    // Create player and play
+    const player = createAudioPlayer({ uri: file.uri });
+    playerRef.current = player;
+    player.play();
   }, []);
 
   /** Play base64 audio data. Automatically stops any currently playing audio. */
@@ -87,17 +76,16 @@ export function useAudioPlayer() {
   }, [playAudioWeb, playAudioNative]);
 
   /** Stop any currently playing audio */
-  const stopAudio = useCallback(async () => {
+  const stopAudio = useCallback(() => {
     if (Platform.OS === 'web') {
       if (webAudioRef.current) {
         webAudioRef.current.pause();
         webAudioRef.current = null;
       }
     } else {
-      if (soundRef.current) {
-        await soundRef.current.stopAsync();
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
+      if (playerRef.current) {
+        playerRef.current.remove();
+        playerRef.current = null;
       }
     }
   }, []);

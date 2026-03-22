@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 import { loadSettings, saveSettings, buildWsUrl, DEFAULT_SETTINGS, loadMessages, saveMessages, clearPersistedMessages } from './storage';
 import { ChatMessage } from '../types';
 
@@ -12,6 +13,7 @@ const mockSecureDeleteItem = SecureStore.deleteItemAsync as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
+  Platform.OS = 'ios';
 });
 
 describe('loadSettings', () => {
@@ -172,5 +174,43 @@ describe('buildWsUrl', () => {
 
   it('handles localhost defaults', () => {
     expect(buildWsUrl(DEFAULT_SETTINGS)).toBe('ws://localhost:18789');
+  });
+});
+
+describe('web platform token storage', () => {
+  let mockLocalStorage: Record<string, string> = {};
+
+  beforeEach(() => {
+    Platform.OS = 'web';
+    mockLocalStorage = {};
+    Object.defineProperty(window, 'localStorage', {
+      value: {
+        getItem: jest.fn((key: string) => mockLocalStorage[key] ?? null),
+        setItem: jest.fn((key: string, val: string) => { mockLocalStorage[key] = val; }),
+        removeItem: jest.fn((key: string) => { mockLocalStorage = Object.fromEntries(Object.entries(mockLocalStorage).filter(([k]) => k !== key)); }),
+      },
+      writable: true,
+    });
+  });
+
+  it('loads token from localStorage on web', async () => {
+    mockGetItem.mockResolvedValue(JSON.stringify({ gatewayHost: '10.0.0.1' }));
+    mockLocalStorage['openclaw_auth_token'] = 'web-token';
+    const result = await loadSettings();
+    expect(result.authToken).toBe('web-token');
+    expect(mockSecureGetItem).not.toHaveBeenCalled();
+  });
+
+  it('saves token to localStorage on web', async () => {
+    await saveSettings({ gatewayHost: '10.0.0.1', gatewayPort: '9999', authToken: 'web-tok' });
+    expect(mockLocalStorage['openclaw_auth_token']).toBe('web-tok');
+    expect(mockSecureSetItem).not.toHaveBeenCalled();
+  });
+
+  it('removes token from localStorage when empty on web', async () => {
+    mockLocalStorage['openclaw_auth_token'] = 'old-token';
+    await saveSettings({ ...DEFAULT_SETTINGS, authToken: '' });
+    expect(mockLocalStorage['openclaw_auth_token']).toBeUndefined();
+    expect(mockSecureDeleteItem).not.toHaveBeenCalled();
   });
 });
