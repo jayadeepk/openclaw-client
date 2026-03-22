@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -82,6 +82,15 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
 
   const keyExtractor = useCallback((item: ChatListItem) => item.id, []);
 
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(() => {
+    if (status === 'connected') return;
+    setRefreshing(true);
+    connect();
+    // Clear the spinner after a short delay — connection state will show in the badge
+    setTimeout(() => { setRefreshing(false); }, 1000);
+  }, [status, connect]);
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
@@ -109,7 +118,12 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
 
       {/* Messages */}
       {messages.length === 0 ? (
-        <View style={styles.emptyState}>
+        <ScrollView
+          contentContainerStyle={styles.emptyState}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={theme.colors.textMuted} />
+          }
+        >
           <Text style={styles.emptyIcon}>🐾</Text>
           <Text style={styles.emptyTitle}>OpenClaw Client</Text>
           <Text style={styles.emptySubtitle}>
@@ -117,7 +131,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
               ? 'Connected. Send a message to start.'
               : 'Go to Settings to configure your gateway connection.'}
           </Text>
-        </View>
+        </ScrollView>
       ) : (
         <FlatList
           ref={flatListRef}
@@ -126,6 +140,9 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
           keyExtractor={keyExtractor}
           contentContainerStyle={styles.messageList}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={theme.colors.textMuted} />
+          }
         />
       )}
 
