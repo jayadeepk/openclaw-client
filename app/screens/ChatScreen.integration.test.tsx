@@ -178,6 +178,7 @@ describe('ChatScreen integration', () => {
   });
 
   it('pull-to-refresh triggers reconnect when disconnected', async () => {
+    jest.useFakeTimers();
     const { UNSAFE_getByType } = render(<ChatScreen navigation={mockNavigation} settings={settings} />);
     const ws = getLastWs();
 
@@ -196,6 +197,12 @@ describe('ChatScreen integration', () => {
     await act(async () => {
       refreshControl.props.onRefresh();
     });
+
+    // Advance past the 1s setTimeout that clears the refreshing spinner
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+    jest.useRealTimers();
 
     // A new WebSocket should have been created (reconnect attempt)
     expect(MockWebSocket.instances.length).toBeGreaterThan(1);
