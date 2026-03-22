@@ -15,6 +15,7 @@ import {
 } from '../types';
 import { buildWsUrl } from '../utils/storage';
 import { nextId, extractText, makeUserMsg, makeSystemMsg } from '../utils/chatHelpers';
+import { lightTap } from '../utils/haptics';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -229,8 +230,9 @@ export function useWebSocket(
                 },
               ]);
             }
-            // Request TTS for the final assistant message
+            // Haptic + TTS for the final assistant message
             if (finalContent) {
+              lightTap();
               void speakText(finalContent);
             }
           } else {
@@ -357,6 +359,7 @@ export function useWebSocket(
     (text: string) => {
       if (status !== 'connected') return;
 
+      lightTap();
       // Optimistically add user message to UI
       setMessages((prev) => [...prev, makeUserMsg(text)]);
 
