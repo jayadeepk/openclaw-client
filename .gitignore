@@ -12,3 +12,4 @@ web-build/
 coverage/
 .env
 *.swp
+.claude/scheduled_tasks.lock
