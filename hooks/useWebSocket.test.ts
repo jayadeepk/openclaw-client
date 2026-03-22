@@ -658,6 +658,58 @@ describe('useWebSocket - disconnect and reconnect', () => {
   });
 });
 
+// ─── Retry Message ──────────────────────────────────────────────────────
+
+describe('useWebSocket - retryMessage', () => {
+  it('retries a failed message by removing error and resending', async () => {
+    const { hook, ws } = await connectFull();
+
+    // Send a message that will fail
+    act(() => {
+      hook.result.current.sendMessage('hello');
+    });
+    const sendFrame = getSentFrames(ws).find((f: any) => f.method === 'chat.send');
+    act(() => {
+      ws.serverSend({
+        type: 'res',
+        id: sendFrame.id,
+        ok: false,
+        error: { code: 'ERR', message: 'Send failed' },
+      });
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // Find the error message
+    const errorMsg = hook.result.current.messages.find((m) => m.role === 'system' && m.content.includes('Send failed'));
+    expect(errorMsg).toBeDefined();
+    const errorId = errorMsg?.id ?? '';
+    expect(errorMsg?.retryText).toBe('hello');
+
+    // Retry
+    act(() => {
+      hook.result.current.retryMessage(errorId);
+    });
+
+    // Error message should be removed, and a new user message + chat.send should exist
+    expect(hook.result.current.messages.find((m) => m.id === errorId)).toBeUndefined();
+    const retryUserMsg = hook.result.current.messages.filter((m) => m.role === 'user');
+    expect(retryUserMsg.length).toBe(2); // original + retry
+    const retrySendFrame = getSentFrames(ws).filter((f: any) => f.method === 'chat.send');
+    expect(retrySendFrame.length).toBe(2);
+  });
+
+  it('is a no-op for non-existent error message id', async () => {
+    const { hook } = await connectFull();
+    const msgsBefore = hook.result.current.messages.length;
+    act(() => {
+      hook.result.current.retryMessage('nonexistent-id');
+    });
+    expect(hook.result.current.messages.length).toBe(msgsBefore);
+  });
+});
+
 // ─── Event Handling ──────────────────────────────────────────────────────────
 
 describe('useWebSocket - event handling', () => {

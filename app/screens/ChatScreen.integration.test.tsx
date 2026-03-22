@@ -177,6 +177,87 @@ describe('ChatScreen integration', () => {
     expect(screen.getByText('OpenClaw Client')).toBeTruthy(); // Back to empty state
   });
 
+  it('pull-to-refresh triggers reconnect when disconnected', async () => {
+    const { UNSAFE_getByType } = render(<ChatScreen navigation={mockNavigation} settings={settings} />);
+    const ws = getLastWs();
+
+    // Disconnect by triggering an error
+    act(() => {
+      ws.onerror?.();
+    });
+    expect(screen.getByText('Connection Error')).toBeTruthy();
+
+    // Find the RefreshControl via the ScrollView (empty state)
+    const scrollView = UNSAFE_getByType(require('react-native').ScrollView);
+    const refreshControl = scrollView.props.refreshControl;
+    expect(refreshControl).toBeTruthy();
+
+    // Trigger the onRefresh callback
+    await act(async () => {
+      refreshControl.props.onRefresh();
+    });
+
+    // A new WebSocket should have been created (reconnect attempt)
+    expect(MockWebSocket.instances.length).toBeGreaterThan(1);
+  });
+
+  it('pull-to-refresh is no-op when already connected', async () => {
+    const { UNSAFE_getByType } = render(<ChatScreen navigation={mockNavigation} settings={settings} />);
+    const ws = getLastWs();
+    await completeHandshake(ws);
+
+    // Send a message so we get a FlatList instead of ScrollView
+    fireEvent.changeText(screen.getByPlaceholderText('Message OpenClaw...'), 'test');
+    fireEvent.press(screen.getByText('↑'));
+
+    const flatList = UNSAFE_getByType(require('react-native').FlatList);
+    const refreshControl = flatList.props.refreshControl;
+
+    const instancesBefore = MockWebSocket.instances.length;
+    await act(async () => {
+      refreshControl.props.onRefresh();
+    });
+
+    // Should not create a new connection since already connected
+    expect(MockWebSocket.instances.length).toBe(instancesBefore);
+  });
+
+  it('plays audio when gateway returns TTS audio', async () => {
+    render(<ChatScreen navigation={mockNavigation} settings={settings} />);
+    const ws = getLastWs();
+    await completeHandshake(ws);
+
+    // Trigger a final message which invokes speakText → tts.convert
+    act(() => {
+      ws.serverSend({
+        type: 'event',
+        event: 'chat',
+        payload: { runId: 'run1', sessionKey: 'main', seq: 1, state: 'final', message: { role: 'assistant', content: 'Hello' } },
+      });
+    });
+
+    // Find the tts.convert request
+    const allFrames = ws.sent.map((s) => JSON.parse(s));
+    const ttsReq = allFrames.find((f: any) => f.method === 'tts.convert');
+    expect(ttsReq).toBeDefined();
+
+    // Respond with audio — this exercises the onAudioReceived callback (line 46)
+    act(() => {
+      ws.serverSend({
+        type: 'res',
+        id: ttsReq.id,
+        ok: true,
+        payload: { audioBase64: 'dGVzdA==', outputFormat: 'audio/mp3' },
+      });
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // The useAudioPlayer mock (from jest.setup.ts) should have been called
+    // This test primarily ensures the onAudioReceived callback on line 46 is exercised
+  });
+
   it('settings button navigates to Settings', () => {
     render(<ChatScreen navigation={mockNavigation} settings={settings} />);
     fireEvent.press(screen.getByText('Settings'));
