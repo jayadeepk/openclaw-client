@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, NativeScrollEvent, NativeSyntheticEvent, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -8,6 +8,7 @@ import { DateSeparator } from '../../components/DateSeparator';
 import { ChatInput } from '../../components/ChatInput';
 import { ConnectionBadge } from '../../components/ConnectionBadge';
 import { TypingIndicator } from '../../components/TypingIndicator';
+import { ScrollToBottomFAB } from '../../components/ScrollToBottomFAB';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
@@ -92,6 +93,18 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
 
   const keyExtractor = useCallback((item: ChatListItem) => item.id, []);
 
+  const [isAtBottom, setIsAtBottom] = useState(true);
+
+  const handleScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset, layoutMeasurement, contentSize } = e.nativeEvent;
+    const distanceFromBottom = contentSize.height - layoutMeasurement.height - contentOffset.y;
+    setIsAtBottom(distanceFromBottom < 100);
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    flatListRef.current?.scrollToEnd({ animated: true });
+  }, []);
+
   const [refreshing, setRefreshing] = useState(false);
   const handleRefresh = useCallback(() => {
     if (status === 'connected') return;
@@ -150,10 +163,16 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
           keyExtractor={keyExtractor}
           contentContainerStyle={styles.messageList}
           showsVerticalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={theme.colors.textMuted} />
           }
         />
+      )}
+
+      {messages.length > 0 && (
+        <ScrollToBottomFAB visible={!isAtBottom} onPress={scrollToBottom} />
       )}
 
       {isTyping && <TypingIndicator />}
