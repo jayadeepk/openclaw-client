@@ -9,3 +9,8 @@
 - Export conversation (2026-03-23)
 - Swipe-to-reply / message quoting (2026-03-23)
 - Notification support (2026-03-23)
+- Audio stop button FAB (2026-03-23)
+  - When audio is currently playing, show a floating stop button (FAB) on screen
+  - Tapping it stops the audio playback immediately and clears the audio queue
+  - FAB should be visually distinct (e.g. stop icon or "■") and positioned so it doesn't overlap the scroll-to-bottom FAB
+  - FAB disappears automatically when audio finishes playing and the queue is empty

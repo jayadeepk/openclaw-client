@@ -1,0 +1,5 @@
+- Audio playback queue
+  - If audio is already playing when a new audio clip arrives, enqueue it instead of dropping or interrupting
+  - Play queued clips in order automatically once the current clip finishes
+  - The stop FAB (from the audio stop button feature) should stop current playback and clear the entire queue
+  - FAB should remain visible while there are queued clips, even between clips
