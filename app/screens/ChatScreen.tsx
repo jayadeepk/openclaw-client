@@ -60,13 +60,15 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
         </View>
         <View style={styles.headerActions}>
           {messages.length > 0 && (
-            <TouchableOpacity onPress={clearMessages} style={styles.headerBtn}>
+            <TouchableOpacity onPress={clearMessages} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Clear messages">
               <Text style={styles.headerBtnText}>Clear</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity
             onPress={() => { navigation.navigate('Settings'); }}
             style={styles.headerBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Open settings"
           >
             <Text style={styles.headerBtnText}>Settings</Text>
           </TouchableOpacity>

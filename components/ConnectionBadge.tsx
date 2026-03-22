@@ -20,7 +20,7 @@ export function ConnectionBadge({ status }: Props) {
   const config = STATUS_CONFIG[status];
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityRole="text" accessibilityLabel={`Connection status: ${config.label}`}>
       <View style={[styles.dot, { backgroundColor: config.color }]} />
       <Text style={[styles.label, { color: config.color }]}>{config.label}</Text>
     </View>

@@ -37,12 +37,17 @@ export function ChatInput({ onSend, disabled }: Props) {
           editable={!disabled}
           onSubmitEditing={handleSend}
           submitBehavior="submit"
+          accessibilityLabel="Message input"
+          accessibilityHint="Type a message to send to OpenClaw"
         />
         <TouchableOpacity
           style={[styles.sendBtn, (!text.trim() || disabled) && styles.sendBtnDisabled]}
           onPress={handleSend}
           disabled={!text.trim() || disabled}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Send message"
+          accessibilityState={{ disabled: !text.trim() || disabled }}
         >
           <Text style={styles.sendIcon}>↑</Text>
         </TouchableOpacity>

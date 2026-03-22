@@ -42,7 +42,7 @@ export function SettingsScreen({ settings, onSave, onGoBack }: SettingsScreenPro
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={onGoBack} style={styles.backBtn}>
+        <TouchableOpacity onPress={onGoBack} style={styles.backBtn} accessibilityRole="button" accessibilityLabel="Go back">
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Settings</Text>
@@ -60,6 +60,7 @@ export function SettingsScreen({ settings, onSave, onGoBack }: SettingsScreenPro
           placeholderTextColor={theme.colors.textMuted}
           autoCapitalize="none"
           autoCorrect={false}
+          accessibilityLabel="Gateway host"
         />
 
         {/* Gateway Port */}
@@ -71,6 +72,7 @@ export function SettingsScreen({ settings, onSave, onGoBack }: SettingsScreenPro
           placeholder="18789"
           placeholderTextColor={theme.colors.textMuted}
           keyboardType="numeric"
+          accessibilityLabel="Gateway port"
         />
 
         {/* Auth Token */}
@@ -84,6 +86,7 @@ export function SettingsScreen({ settings, onSave, onGoBack }: SettingsScreenPro
           autoCapitalize="none"
           autoCorrect={false}
           secureTextEntry
+          accessibilityLabel="Auth token"
         />
 
         <Text style={styles.hint}>
@@ -91,7 +94,7 @@ export function SettingsScreen({ settings, onSave, onGoBack }: SettingsScreenPro
         </Text>
 
         {/* Save Button */}
-        <TouchableOpacity style={styles.saveBtn} onPress={handleSave} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.saveBtn} onPress={handleSave} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Save and connect">
           <Text style={styles.saveBtnText}>Save & Connect</Text>
         </TouchableOpacity>
       </ScrollView>

@@ -2,6 +2,8 @@
 
 exports[`ConnectionBadge snapshots authenticating status 1`] = `
 <View
+  accessibilityLabel="Connection status: Authenticating..."
+  accessibilityRole="text"
   style={
     {
       "alignItems": "center",
@@ -48,6 +50,8 @@ exports[`ConnectionBadge snapshots authenticating status 1`] = `
 
 exports[`ConnectionBadge snapshots connected status 1`] = `
 <View
+  accessibilityLabel="Connection status: Connected"
+  accessibilityRole="text"
   style={
     {
       "alignItems": "center",
@@ -94,6 +98,8 @@ exports[`ConnectionBadge snapshots connected status 1`] = `
 
 exports[`ConnectionBadge snapshots connecting status 1`] = `
 <View
+  accessibilityLabel="Connection status: Connecting..."
+  accessibilityRole="text"
   style={
     {
       "alignItems": "center",
@@ -140,6 +146,8 @@ exports[`ConnectionBadge snapshots connecting status 1`] = `
 
 exports[`ConnectionBadge snapshots disconnected status 1`] = `
 <View
+  accessibilityLabel="Connection status: Disconnected"
+  accessibilityRole="text"
   style={
     {
       "alignItems": "center",
@@ -186,6 +194,8 @@ exports[`ConnectionBadge snapshots disconnected status 1`] = `
 
 exports[`ConnectionBadge snapshots error status 1`] = `
 <View
+  accessibilityLabel="Connection status: Connection Error"
+  accessibilityRole="text"
   style={
     {
       "alignItems": "center",

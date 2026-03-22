@@ -28,6 +28,8 @@ exports[`SettingsScreen snapshots renders with default settings 1`] = `
     }
   >
     <View
+      accessibilityLabel="Go back"
+      accessibilityRole="button"
       accessibilityState={
         {
           "busy": undefined,
@@ -118,6 +120,7 @@ exports[`SettingsScreen snapshots renders with default settings 1`] = `
         Gateway Host
       </Text>
       <TextInput
+        accessibilityLabel="Gateway host"
         autoCapitalize="none"
         autoCorrect={false}
         onChangeText={[Function]}
@@ -153,6 +156,7 @@ exports[`SettingsScreen snapshots renders with default settings 1`] = `
         Gateway Port
       </Text>
       <TextInput
+        accessibilityLabel="Gateway port"
         keyboardType="numeric"
         onChangeText={[Function]}
         placeholder="18789"
@@ -187,6 +191,7 @@ exports[`SettingsScreen snapshots renders with default settings 1`] = `
         Auth Token
       </Text>
       <TextInput
+        accessibilityLabel="Auth token"
         autoCapitalize="none"
         autoCorrect={false}
         onChangeText={[Function]}
@@ -223,6 +228,8 @@ exports[`SettingsScreen snapshots renders with default settings 1`] = `
         18789
       </Text>
       <View
+        accessibilityLabel="Save and connect"
+        accessibilityRole="button"
         accessibilityState={
           {
             "busy": undefined,
@@ -313,6 +320,8 @@ exports[`SettingsScreen snapshots renders with empty settings 1`] = `
     }
   >
     <View
+      accessibilityLabel="Go back"
+      accessibilityRole="button"
       accessibilityState={
         {
           "busy": undefined,
@@ -403,6 +412,7 @@ exports[`SettingsScreen snapshots renders with empty settings 1`] = `
         Gateway Host
       </Text>
       <TextInput
+        accessibilityLabel="Gateway host"
         autoCapitalize="none"
         autoCorrect={false}
         onChangeText={[Function]}
@@ -438,6 +448,7 @@ exports[`SettingsScreen snapshots renders with empty settings 1`] = `
         Gateway Port
       </Text>
       <TextInput
+        accessibilityLabel="Gateway port"
         keyboardType="numeric"
         onChangeText={[Function]}
         placeholder="18789"
@@ -472,6 +483,7 @@ exports[`SettingsScreen snapshots renders with empty settings 1`] = `
         Auth Token
       </Text>
       <TextInput
+        accessibilityLabel="Auth token"
         autoCapitalize="none"
         autoCorrect={false}
         onChangeText={[Function]}
@@ -508,6 +520,8 @@ exports[`SettingsScreen snapshots renders with empty settings 1`] = `
         ...
       </Text>
       <View
+        accessibilityLabel="Save and connect"
+        accessibilityRole="button"
         accessibilityState={
           {
             "busy": undefined,
