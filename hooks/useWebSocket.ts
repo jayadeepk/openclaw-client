@@ -104,7 +104,9 @@ export function useWebSocket(
   const speakText = useCallback((text: string) => {
     try {
       Speech.stop();
-      Speech.speak(text);
+      // Strip emojis and other symbol characters before speaking
+      const cleaned = text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').replace(/\s{2,}/g, ' ').trim();
+      if (cleaned) Speech.speak(cleaned);
     } catch {
       // TTS is best-effort
     }
