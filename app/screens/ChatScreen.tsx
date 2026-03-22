@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, NativeScrollEvent, NativeSyntheticEvent, RefreshControl, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Modal, NativeScrollEvent, NativeSyntheticEvent, RefreshControl, ScrollView, Share, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,6 +9,7 @@ import { ChatInput } from '../../components/ChatInput';
 import { ConnectionBadge } from '../../components/ConnectionBadge';
 import { TypingIndicator } from '../../components/TypingIndicator';
 import { ScrollToBottomFAB } from '../../components/ScrollToBottomFAB';
+import { AudioStopFAB } from '../../components/AudioStopFAB';
 import { MessageActionsMenu } from '../../components/MessageActionsMenu';
 import { SearchBar } from '../../components/SearchBar';
 import { ConversationDrawer } from '../../components/ConversationDrawer';
@@ -36,7 +37,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
   const { theme, toggleTheme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const flatListRef = useRef<FlatList<ChatListItem>>(null);
-  const { playAudio } = useAudioPlayer();
+  const { playAudio, stopAudio, isPlaying } = useAudioPlayer();
   const { isBackground, sendNotification } = useNotifications();
   const isBackgroundRef = useRef(false);
   isBackgroundRef.current = isBackground;
@@ -267,6 +268,8 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
     flatListRef.current?.scrollToEnd({ animated: true });
   }, []);
 
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const [refreshing, setRefreshing] = useState(false);
   const handleRefresh = useCallback(() => {
     if (status === 'connected') return;
@@ -284,34 +287,77 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
           <ConnectionBadge status={status} reconnectIn={reconnectIn} isOnline={isOnline} />
         </View>
         <View style={styles.headerActions}>
-          <TouchableOpacity onPress={() => { setDrawerOpen(true); }} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Open conversations">
-            <Text style={styles.headerBtnText}>Chats</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleNewConversation} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="New conversation">
-            <Text style={styles.headerBtnText}>New</Text>
-          </TouchableOpacity>
-          {messages.length > 0 && (
-            <TouchableOpacity onPress={() => { setSearchOpen(true); }} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Search messages">
-              <Text style={styles.headerBtnText}>Search</Text>
-            </TouchableOpacity>
-          )}
-          {messages.length > 0 && (
-            <TouchableOpacity onPress={handleExport} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Export conversation">
-              <Text style={styles.headerBtnText}>Export</Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity onPress={toggleTheme} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Toggle theme">
-            <Text style={styles.headerBtnText}>{theme.mode === 'dark' ? 'Light' : 'Dark'}</Text>
-          </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => { navigation.navigate('Settings'); }}
+            onPress={() => { setMenuOpen(true); }}
             style={styles.headerBtn}
             accessibilityRole="button"
-            accessibilityLabel="Open settings"
+            accessibilityLabel="More options"
           >
-            <Text style={styles.headerBtnText}>Settings</Text>
+            <Text style={styles.headerBtnText}>⋮</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Dropdown menu */}
+        <Modal
+          visible={menuOpen}
+          transparent
+          animationType="fade"
+          onRequestClose={() => { setMenuOpen(false); }}
+        >
+          <TouchableWithoutFeedback onPress={() => { setMenuOpen(false); }}>
+            <View style={styles.menuOverlay}>
+              <TouchableWithoutFeedback>
+                <View style={styles.menuDropdown}>
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => { setMenuOpen(false); setDrawerOpen(true); }}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.menuItemText}>💬  Chats</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => { setMenuOpen(false); handleNewConversation(); }}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.menuItemText}>✏️  New conversation</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.menuItem, messages.length === 0 && styles.menuItemDisabled]}
+                    onPress={() => { if (messages.length > 0) { setMenuOpen(false); setSearchOpen(true); } }}
+                    accessibilityRole="button"
+                    disabled={messages.length === 0}
+                  >
+                    <Text style={[styles.menuItemText, messages.length === 0 && styles.menuItemTextDisabled]}>🔍  Search messages</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.menuItem, messages.length === 0 && styles.menuItemDisabled]}
+                    onPress={() => { if (messages.length > 0) { setMenuOpen(false); handleExport(); } }}
+                    accessibilityRole="button"
+                    disabled={messages.length === 0}
+                  >
+                    <Text style={[styles.menuItemText, messages.length === 0 && styles.menuItemTextDisabled]}>📤  Export conversation</Text>
+                  </TouchableOpacity>
+                  <View style={styles.menuDivider} />
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => { setMenuOpen(false); toggleTheme(); }}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.menuItemText}>{theme.mode === 'dark' ? '☀️  Light mode' : '🌙  Dark mode'}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => { setMenuOpen(false); navigation.navigate('Settings'); }}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.menuItemText}>⚙️  Settings</Text>
+                  </TouchableOpacity>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
       </View>
 
       {searchOpen && (
@@ -361,6 +407,8 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       {messages.length > 0 && (
         <ScrollToBottomFAB visible={!isAtBottom} onPress={scrollToBottom} />
       )}
+
+      <AudioStopFAB visible={isPlaying} onPress={stopAudio} />
 
       {isTyping && <TypingIndicator />}
 
@@ -422,8 +470,45 @@ function createStyles(t: AppTheme) {
     },
     headerBtnText: {
       color: t.colors.textSecondary,
-      fontSize: t.fontSize.sm,
-      fontWeight: '500',
+      fontSize: t.fontSize.lg,
+      fontWeight: '700',
+    },
+    menuOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.25)',
+    },
+    menuDropdown: {
+      position: 'absolute',
+      top: 60,
+      right: t.spacing.md,
+      backgroundColor: t.colors.surface,
+      borderRadius: t.borderRadius.md,
+      paddingVertical: 4,
+      minWidth: 220,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+    menuItem: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+    },
+    menuItemDisabled: {
+      opacity: 0.35,
+    },
+    menuItemText: {
+      fontSize: t.fontSize.md,
+      color: t.colors.text,
+    },
+    menuItemTextDisabled: {
+      color: t.colors.textMuted,
+    },
+    menuDivider: {
+      height: 1,
+      backgroundColor: t.colors.border,
+      marginVertical: 4,
     },
     messageList: {
       paddingVertical: t.spacing.sm,

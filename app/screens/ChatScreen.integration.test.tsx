@@ -171,8 +171,9 @@ describe('ChatScreen integration', () => {
     fireEvent.press(screen.getByText('↑'));
     expect(screen.getByText('test')).toBeTruthy();
 
-    // Start new conversation
-    fireEvent.press(screen.getByText('New'));
+    // Open menu and start new conversation
+    fireEvent.press(screen.getByLabelText('More options'));
+    fireEvent.press(screen.getByText('✏️  New conversation'));
     expect(screen.queryByText('test')).toBeNull();
     expect(screen.getByText('OpenClaw Client')).toBeTruthy(); // Back to empty state
   });
@@ -267,7 +268,8 @@ describe('ChatScreen integration', () => {
 
   it('settings button navigates to Settings', () => {
     render(<ChatScreen navigation={mockNavigation} settings={settings} />);
-    fireEvent.press(screen.getByText('Settings'));
+    fireEvent.press(screen.getByLabelText('More options'));
+    fireEvent.press(screen.getByText('⚙️  Settings'));
     expect(mockNavigation.navigate).toHaveBeenCalledWith('Settings');
   });
 

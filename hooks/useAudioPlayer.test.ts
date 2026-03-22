@@ -119,6 +119,27 @@ describe('useAudioPlayer', () => {
     // Should not throw
   });
 
+  it('isPlaying is true after playAudio', async () => {
+    const { result } = renderHook(() => useAudioPlayer());
+    expect(result.current.isPlaying).toBe(false);
+    await act(async () => {
+      await result.current.playAudio('data', 'audio/mp3');
+    });
+    expect(result.current.isPlaying).toBe(true);
+  });
+
+  it('isPlaying is false after stopAudio', async () => {
+    const { result } = renderHook(() => useAudioPlayer());
+    await act(async () => {
+      await result.current.playAudio('data', 'audio/mp3');
+    });
+    expect(result.current.isPlaying).toBe(true);
+    await act(async () => {
+      result.current.stopAudio();
+    });
+    expect(result.current.isPlaying).toBe(false);
+  });
+
   it('handles playAudio error gracefully', async () => {
     mockSetAudioMode.mockRejectedValueOnce(new Error('audio mode error'));
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});

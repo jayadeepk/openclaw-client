@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { File, Paths } from 'expo-file-system';
@@ -21,6 +21,7 @@ function toMimeType(format: string): string {
 export function useAudioPlayer() {
   const playerRef = useRef<AudioPlayer | null>(null);
   const webAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   /** Play base64 audio on web using a data URI */
   const playAudioWeb = useCallback((base64Audio: string, mimeType: string) => {
@@ -31,8 +32,9 @@ export function useAudioPlayer() {
     const browserMime = toMimeType(mimeType);
     const el = new window.Audio(`data:${browserMime};base64,${base64Audio}`);
     webAudioRef.current = el;
-    el.onended = () => { webAudioRef.current = null; };
-    void el.play().catch((e: unknown) => { console.warn('Web audio playback failed:', e); });
+    setIsPlaying(true);
+    el.onended = () => { webAudioRef.current = null; setIsPlaying(false); };
+    void el.play().catch((e: unknown) => { console.warn('Web audio playback failed:', e); setIsPlaying(false); });
   }, []);
 
   /** Play base64 audio on native using expo-audio + temp file */
@@ -59,6 +61,7 @@ export function useAudioPlayer() {
     // Create player and play
     const player = createAudioPlayer({ uri: file.uri });
     playerRef.current = player;
+    setIsPlaying(true);
     player.play();
   }, []);
 
@@ -88,7 +91,8 @@ export function useAudioPlayer() {
         playerRef.current = null;
       }
     }
+    setIsPlaying(false);
   }, []);
 
-  return { playAudio, stopAudio };
+  return { playAudio, stopAudio, isPlaying };
 }
