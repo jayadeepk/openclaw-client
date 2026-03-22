@@ -1,5 +1,6 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Animated, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { theme } from '../constants/theme';
 
 interface MarkdownTextProps {
@@ -133,11 +134,7 @@ function renderBlock(block: Block, key: number, baseStyle?: object): React.React
       );
 
     case 'code':
-      return (
-        <View key={key} style={styles.codeBlock}>
-          <Text style={styles.codeBlockText}>{block.text}</Text>
-        </View>
-      );
+      return <CodeBlock key={key} lang={block.lang} text={block.text} />;
 
     case 'list':
       return (
@@ -155,6 +152,60 @@ function renderBlock(block: Block, key: number, baseStyle?: object): React.React
         </View>
       );
   }
+}
+
+// ─── Code block with copy button ─────────────────────────────────────────────
+
+const COPIED_DISPLAY_MS = 1500;
+
+function CodeBlock({ lang, text }: { lang: string; text: string }) {
+  const [copied, setCopied] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!copied) return;
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 150,
+      useNativeDriver: Platform.OS !== 'web',
+    }).start();
+    const timer = setTimeout(() => {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: Platform.OS !== 'web',
+      }).start(() => { setCopied(false); });
+    }, COPIED_DISPLAY_MS);
+    return () => { clearTimeout(timer); };
+  }, [copied, fadeAnim]);
+
+  const handleCopy = useCallback(() => {
+    void Clipboard.setStringAsync(text);
+    setCopied(true);
+  }, [text]);
+
+  return (
+    <View style={styles.codeBlock}>
+      <View style={styles.codeHeader}>
+        {lang ? <Text style={styles.codeLang}>{lang}</Text> : <View />}
+        <TouchableOpacity
+          onPress={handleCopy}
+          style={styles.copyBtn}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Copy code"
+        >
+          <Text style={styles.copyBtnText}>{copied ? 'Copied!' : 'Copy'}</Text>
+        </TouchableOpacity>
+      </View>
+      <Text style={styles.codeBlockText}>{text}</Text>
+      {copied && (
+        <Animated.View style={[styles.copiedOverlay, { opacity: fadeAnim }]}>
+          <Text style={styles.copiedText}>Copied!</Text>
+        </Animated.View>
+      )}
+    </View>
+  );
 }
 
 // ─── Inline parsing ──────────────────────────────────────────────────────────
@@ -267,11 +318,50 @@ const styles = StyleSheet.create({
     padding: theme.spacing.sm,
     marginVertical: theme.spacing.xs,
   },
+  codeHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing.xs,
+  },
+  codeLang: {
+    fontSize: 11,
+    color: theme.colors.textMuted,
+    textTransform: 'uppercase',
+    fontWeight: '600',
+  },
+  copyBtn: {
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: 2,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.surfaceLight,
+  },
+  copyBtnText: {
+    fontSize: 11,
+    color: theme.colors.textSecondary,
+    fontWeight: '500',
+  },
   codeBlockText: {
     fontFamily: 'monospace',
     fontSize: theme.fontSize.sm,
     color: theme.colors.text,
     lineHeight: 20,
+  },
+  copiedOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: 'rgba(0, 212, 170, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  copiedText: {
+    color: theme.colors.accent,
+    fontWeight: '700',
+    fontSize: theme.fontSize.md,
   },
   list: {
     marginBottom: theme.spacing.xs,

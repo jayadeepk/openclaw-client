@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react-native';
+import { render, screen, fireEvent } from '@testing-library/react-native';
+import * as Clipboard from 'expo-clipboard';
 import { MarkdownText } from './MarkdownText';
 
 describe('MarkdownText', () => {
@@ -66,5 +67,34 @@ describe('MarkdownText', () => {
     expect(screen.getByText('bold')).toBeTruthy();
     expect(screen.getByText('list item')).toBeTruthy();
     expect(screen.getByText('code')).toBeTruthy();
+  });
+
+  describe('code block copy button', () => {
+    it('renders a Copy button on code blocks', () => {
+      const md = '```js\nconst x = 1;\n```';
+      render(<MarkdownText>{md}</MarkdownText>);
+      expect(screen.getByLabelText('Copy code')).toBeTruthy();
+      expect(screen.getByText('Copy')).toBeTruthy();
+    });
+
+    it('shows language label when specified', () => {
+      const md = '```typescript\nconst x = 1;\n```';
+      render(<MarkdownText>{md}</MarkdownText>);
+      expect(screen.getByText('typescript')).toBeTruthy();
+    });
+
+    it('copies code to clipboard when Copy is pressed', () => {
+      const md = '```js\nconst x = 1;\n```';
+      render(<MarkdownText>{md}</MarkdownText>);
+      fireEvent.press(screen.getByLabelText('Copy code'));
+      expect(Clipboard.setStringAsync).toHaveBeenCalledWith('const x = 1;');
+    });
+
+    it('shows Copied! text after pressing Copy', () => {
+      const md = '```\nhello\n```';
+      render(<MarkdownText>{md}</MarkdownText>);
+      fireEvent.press(screen.getByLabelText('Copy code'));
+      expect(screen.getAllByText('Copied!').length).toBeGreaterThanOrEqual(1);
+    });
   });
 });
