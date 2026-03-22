@@ -4,3 +4,4 @@
 - Message actions (long-press menu: copy, retry, delete, share) (2026-03-23)
 - Message search (2026-03-23)
 - Character counter near input limit (2026-03-23)
+- Light theme toggle (2026-03-23)
