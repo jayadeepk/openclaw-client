@@ -1,5 +1,10 @@
 import React from 'react';
+import { LogBox } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+
+LogBox.ignoreLogs([
+  'expo-notifications: Android Push notifications',
+]);
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppNavigator } from './app/navigation/AppNavigator';
 import { ErrorBoundary } from './components/ErrorBoundary';
