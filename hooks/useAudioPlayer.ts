@@ -59,6 +59,7 @@ export function useAudioPlayer() {
   /** Play a single clip on native */
   const playNativeClip = useCallback(async (base64Audio: string, mimeType: string) => {
     if (playerRef.current) {
+      playerRef.current.pause();
       playerRef.current.remove();
       playerRef.current = null;
     }
@@ -133,6 +134,7 @@ export function useAudioPlayer() {
       }
     } else {
       if (playerRef.current) {
+        playerRef.current.pause();
         playerRef.current.remove();
         playerRef.current = null;
       }

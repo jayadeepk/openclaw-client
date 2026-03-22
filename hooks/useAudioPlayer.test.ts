@@ -169,6 +169,7 @@ describe('useAudioPlayer', () => {
     await act(async () => {
       result.current.stopAudio();
     });
+    expect(firstPlayer.pause).toHaveBeenCalled();
     expect(firstPlayer.remove).toHaveBeenCalled();
     expect(result.current.isPlaying).toBe(false);
 
