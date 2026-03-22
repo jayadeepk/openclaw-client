@@ -54,6 +54,22 @@ cat ~/.openclaw/openclaw.json | grep token | awk -F'"' '{print $4}' | xclip -sel
 
 The token is stored in `~/.openclaw/openclaw.json` and is auto-generated during the OpenClaw onboarding wizard. Authentication is optional when the gateway binds to localhost, but required for LAN or remote connections.
 
+### Web: allowed origins
+
+When running the web client (`npm run web`), the gateway must allow the Expo dev server origin. Add `http://localhost:8081` to `controlUi.allowedOrigins` in `~/.openclaw/openclaw.json` on the gateway machine:
+
+```json
+"controlUi": {
+  "allowedOrigins": [
+    "http://localhost:18789",
+    "http://127.0.0.1:18789",
+    "http://localhost:8081"
+  ]
+}
+```
+
+Then restart the gateway.
+
 ## Getting Started
 
 ```bash
