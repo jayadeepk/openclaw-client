@@ -34,6 +34,8 @@ export interface UseWebSocketReturn {
   /** True while waiting for the assistant's first response after sending */
   isTyping: boolean;
   sendMessage: (text: string) => void;
+  /** Retry a failed message by its system error message id */
+  retryMessage: (errorMsgId: string) => void;
   connect: () => void;
   disconnect: () => void;
   clearMessages: () => void;
@@ -380,12 +382,27 @@ export function useWebSocket(
           setIsTyping(false);
           setMessages((prev) => [
             ...prev,
-            makeSystemMsg(`Send failed: ${res.error?.message ?? 'unknown error'}`),
+            { ...makeSystemMsg(`Send failed: ${res.error?.message ?? 'unknown error'}`), retryText: text },
           ]);
         }
       });
     },
     [status, sendReq],
+  );
+
+  // ── Retry a failed message ──────────────────────────────────────────────
+
+  const retryMessage = useCallback(
+    (errorMsgId: string) => {
+      const errorMsg = messages.find((m) => m.id === errorMsgId);
+      if (!errorMsg?.retryText) return;
+      const text = errorMsg.retryText;
+      // Remove the error message
+      setMessages((prev) => prev.filter((m) => m.id !== errorMsgId));
+      // Resend
+      sendMessage(text);
+    },
+    [messages, sendMessage],
   );
 
   // ── Cleanup on unmount ────────────────────────────────────────────────────
@@ -401,5 +418,5 @@ export function useWebSocket(
     streamingRef.current.clear();
   }, []);
 
-  return { messages, status, reconnectIn, isTyping, sendMessage, connect, disconnect, clearMessages };
+  return { messages, status, reconnectIn, isTyping, sendMessage, retryMessage, connect, disconnect, clearMessages };
 }

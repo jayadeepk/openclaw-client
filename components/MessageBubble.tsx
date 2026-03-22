@@ -1,42 +1,66 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ChatMessage } from '../types';
 import { theme } from '../constants/theme';
 
 interface Props {
   message: ChatMessage;
+  onRetry?: (msgId: string) => void;
 }
 
 /** Renders a single chat message bubble, styled by role */
-export function MessageBubble({ message }: Props) {
+export function MessageBubble({ message, onRetry }: Props) {
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
+  const canRetry = isSystem && !!message.retryText && !!onRetry;
+
+  const bubble = (
+    <View
+      style={[
+        styles.bubble,
+        isUser && styles.bubbleUser,
+        isSystem && styles.bubbleSystem,
+      ]}
+    >
+      {!isUser && (
+        <Text style={styles.roleLabel}>
+          {isSystem ? 'System' : 'OpenClaw'}
+        </Text>
+      )}
+      <Text style={[styles.text, isSystem && styles.textSystem]}>
+        {message.content}
+        {message.streaming ? <Text style={styles.cursor}>▌</Text> : null}
+      </Text>
+      {canRetry && (
+        <Text style={styles.retryHint}>Tap to retry</Text>
+      )}
+      <Text style={styles.timestamp}>
+        {new Date(message.timestamp).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        })}
+      </Text>
+    </View>
+  );
+
+  if (canRetry) {
+    return (
+      <View style={[styles.row, isUser && styles.rowUser]}>
+        <TouchableOpacity
+          onPress={() => { onRetry(message.id); }}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Retry sending message"
+        >
+          {bubble}
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.row, isUser && styles.rowUser]}>
-      <View
-        style={[
-          styles.bubble,
-          isUser && styles.bubbleUser,
-          isSystem && styles.bubbleSystem,
-        ]}
-      >
-        {!isUser && (
-          <Text style={styles.roleLabel}>
-            {isSystem ? 'System' : 'OpenClaw'}
-          </Text>
-        )}
-        <Text style={[styles.text, isSystem && styles.textSystem]}>
-          {message.content}
-          {message.streaming ? <Text style={styles.cursor}>▌</Text> : null}
-        </Text>
-        <Text style={styles.timestamp}>
-          {new Date(message.timestamp).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
-        </Text>
-      </View>
+      {bubble}
     </View>
   );
 }
@@ -86,6 +110,12 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     alignSelf: 'flex-end',
     marginTop: 4,
+  },
+  retryHint: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textMuted,
+    fontStyle: 'italic',
+    marginTop: 2,
   },
   cursor: {
     color: theme.colors.accent,

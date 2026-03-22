@@ -119,6 +119,8 @@ export interface ChatMessage {
   timestamp: number;
   /** True while the assistant is still streaming */
   streaming?: boolean;
+  /** Original text to resend on retry (only on system error messages) */
+  retryText?: string;
 }
 
 /** Persisted settings */

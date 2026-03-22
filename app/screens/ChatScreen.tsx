@@ -39,7 +39,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
     });
   }, []);
 
-  const { messages, status, reconnectIn, isTyping, sendMessage, connect, disconnect, clearMessages } = useWebSocket(
+  const { messages, status, reconnectIn, isTyping, sendMessage, retryMessage, connect, disconnect, clearMessages } = useWebSocket(
     settings,
     {
       initialMessages,
@@ -85,9 +85,9 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       if ('type' in item) {
         return <DateSeparator label={item.label} />;
       }
-      return <MessageBubble message={item} />;
+      return <MessageBubble message={item} onRetry={retryMessage} />;
     },
-    [],
+    [retryMessage],
   );
 
   const keyExtractor = useCallback((item: ChatListItem) => item.id, []);
