@@ -1,3 +1,2 @@
-- Export conversation
 - Swipe-to-reply / message quoting
 - Notification support

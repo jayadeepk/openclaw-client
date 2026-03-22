@@ -6,3 +6,4 @@
 - Character counter near input limit (2026-03-23)
 - Light theme toggle (2026-03-23)
 - Conversation management (2026-03-23)
+- Export conversation (2026-03-23)
