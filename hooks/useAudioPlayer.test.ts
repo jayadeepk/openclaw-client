@@ -279,6 +279,40 @@ describe('useAudioPlayer', () => {
     expect(result.current.isPlaying).toBe(false);
   });
 
+  it('rejects playAudio after stopAudio until resumeAudio is called', async () => {
+    const { result } = renderHook(() => useAudioPlayer());
+
+    // Play a clip, then stop
+    await act(async () => {
+      await result.current.playAudio('first', 'audio/mp3');
+    });
+    expect(mockCreateAudioPlayer).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      result.current.stopAudio();
+    });
+
+    // New playAudio calls should be silently rejected
+    await act(async () => {
+      await result.current.playAudio('after-stop-1', 'audio/mp3');
+    });
+    await act(async () => {
+      await result.current.playAudio('after-stop-2', 'audio/mp3');
+    });
+    expect(mockCreateAudioPlayer).toHaveBeenCalledTimes(1); // no new players
+    expect(result.current.isPlaying).toBe(false);
+
+    // After resumeAudio, playAudio works again
+    await act(async () => {
+      result.current.resumeAudio();
+    });
+    await act(async () => {
+      await result.current.playAudio('resumed', 'audio/mp3');
+    });
+    expect(mockCreateAudioPlayer).toHaveBeenCalledTimes(2);
+    expect(result.current.isPlaying).toBe(true);
+  });
+
   it('registers playbackStatusUpdate listener on native player', async () => {
     const { result } = renderHook(() => useAudioPlayer());
     await act(async () => {

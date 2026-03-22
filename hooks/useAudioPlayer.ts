@@ -33,6 +33,8 @@ export function useAudioPlayer() {
   const advanceQueueRef = useRef<() => void>(() => {});
   // Incremented on stop to cancel any in-flight async playback
   const generationRef = useRef(0);
+  // When true, playAudio rejects until explicitly resumed
+  const stoppedRef = useRef(false);
 
   const updateIsPlaying = useCallback((value: boolean) => {
     playingRef.current = value;
@@ -117,6 +119,8 @@ export function useAudioPlayer() {
   /** Enqueue a clip. If nothing is playing, start immediately. */
   const playAudio = useCallback(async (base64Audio: string, mimeType: string = 'audio/mp3') => {
     try {
+      // Reject if stopAudio was called and no new playback started yet
+      if (stoppedRef.current) return;
       if (playingRef.current) {
         queueRef.current.push({ base64Audio, mimeType });
         return;
@@ -133,8 +137,10 @@ export function useAudioPlayer() {
     }
   }, [updateIsPlaying, playWebClip, playNativeClip, advanceQueue]);
 
-  /** Stop current playback and clear the entire queue */
+  /** Stop current playback and clear the entire queue.
+   *  After stop, new playAudio calls are rejected until resumeAudio is called. */
   const stopAudio = useCallback(() => {
+    stoppedRef.current = true;
     generationRef.current += 1;
     queueRef.current = [];
     if (Platform.OS === 'web') {
@@ -155,5 +161,10 @@ export function useAudioPlayer() {
     updateIsPlaying(false);
   }, [updateIsPlaying]);
 
-  return { playAudio, stopAudio, isPlaying };
+  /** Re-enable playAudio after a stop. Called when a new user message is sent. */
+  const resumeAudio = useCallback(() => {
+    stoppedRef.current = false;
+  }, []);
+
+  return { playAudio, stopAudio, resumeAudio, isPlaying };
 }
