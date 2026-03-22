@@ -497,6 +497,90 @@ describe('useWebSocket - TTS success path', () => {
 
     expect(onAudio).toHaveBeenCalledWith('data', 'audio/mp3');
   });
+
+  it('suppresses TTS when shouldSpeak returns false', async () => {
+    const shouldSpeak = jest.fn().mockReturnValue(false);
+    const hook = renderHook(() => useWebSocket(defaultSettings, { shouldSpeak }));
+    act(() => {
+      hook.result.current.connect();
+    });
+    const ws = getLastWs();
+    act(() => {
+      sendChallenge(ws);
+    });
+    const connectReq = getLastSentFrame(ws);
+    act(() => {
+      sendHelloOk(ws, connectReq.id);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    act(() => {
+      ws.serverSend({
+        type: 'event',
+        event: 'chat',
+        payload: { runId: 'run1', sessionKey: 'main', seq: 1, state: 'final', message: { role: 'assistant', content: 'Hello' } },
+      });
+    });
+
+    // No tts.convert request should be sent
+    const ttsReq = getSentFrames(ws).find((f: any) => f.method === 'tts.convert');
+    expect(ttsReq).toBeUndefined();
+    expect(Speech.speak).not.toHaveBeenCalled();
+  });
+
+  it('suppresses TTS after async gap when shouldSpeak becomes false', async () => {
+    let speakAllowed = true;
+    const shouldSpeak = () => speakAllowed;
+    const onAudio = jest.fn();
+    const hook = renderHook(() => useWebSocket(defaultSettings, { onAudioReceived: onAudio, shouldSpeak }));
+    act(() => {
+      hook.result.current.connect();
+    });
+    const ws = getLastWs();
+    act(() => {
+      sendChallenge(ws);
+    });
+    const connectReq = getLastSentFrame(ws);
+    act(() => {
+      sendHelloOk(ws, connectReq.id);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // Trigger TTS while shouldSpeak is true
+    act(() => {
+      ws.serverSend({
+        type: 'event',
+        event: 'chat',
+        payload: { runId: 'run1', sessionKey: 'main', seq: 1, state: 'final', message: { role: 'assistant', content: 'Hello' } },
+      });
+    });
+
+    const ttsReq = getSentFrames(ws).find((f: any) => f.method === 'tts.convert');
+    expect(ttsReq).toBeDefined();
+
+    // "Press stop" — shouldSpeak now returns false
+    speakAllowed = false;
+
+    // TTS response arrives after stop
+    act(() => {
+      ws.serverSend({
+        type: 'res',
+        id: ttsReq.id,
+        ok: true,
+        payload: { audioBase64: 'base64audio', outputFormat: 'audio/mp3' },
+      });
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // Audio callback should NOT have been called
+    expect(onAudio).not.toHaveBeenCalled();
+  });
 });
 
 // ─── Edge cases / branch coverage ───────────────────────────────────────────

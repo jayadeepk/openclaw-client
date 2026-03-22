@@ -166,5 +166,8 @@ export function useAudioPlayer() {
     stoppedRef.current = false;
   }, []);
 
-  return { playAudio, stopAudio, resumeAudio, isPlaying };
+  /** Returns true when audio is not stopped (i.e. playback is allowed). */
+  const shouldSpeak = useCallback(() => !stoppedRef.current, []);
+
+  return { playAudio, stopAudio, resumeAudio, shouldSpeak, isPlaying };
 }

@@ -37,7 +37,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
   const { theme, toggleTheme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const flatListRef = useRef<FlatList<ChatListItem>>(null);
-  const { playAudio, stopAudio, resumeAudio, isPlaying } = useAudioPlayer();
+  const { playAudio, stopAudio, resumeAudio, shouldSpeak, isPlaying } = useAudioPlayer();
   const { isBackground, sendNotification } = useNotifications();
   const isBackgroundRef = useRef(false);
   isBackgroundRef.current = isBackground;
@@ -81,6 +81,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       sessionKey: activeConversation?.id ?? 'main',
       onAudioReceived: (base64Audio, format) => { void playAudio(base64Audio, format); },
       onFinalMessage: handleFinalMessage,
+      shouldSpeak,
     },
   );
 

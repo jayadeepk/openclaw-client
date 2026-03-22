@@ -25,6 +25,8 @@ export interface UseWebSocketOptions {
   initialMessages?: ChatMessage[];
   onAudioReceived?: OnAudioReceived;
   onFinalMessage?: (content: string) => void;
+  /** When provided, speakText checks this before producing any audio. */
+  shouldSpeak?: () => boolean;
   sessionKey?: string;
 }
 
@@ -76,6 +78,8 @@ export function useWebSocket(
   settingsRef.current = settings;
   const onAudioRef = useRef(opts.onAudioReceived);
   onAudioRef.current = opts.onAudioReceived;
+  const shouldSpeakRef = useRef(opts.shouldSpeak);
+  shouldSpeakRef.current = opts.shouldSpeak;
   const onFinalMessageRef = useRef(opts.onFinalMessage);
   onFinalMessageRef.current = opts.onFinalMessage;
   const sessionKeyRef = useRef(opts.sessionKey ?? 'main');
@@ -114,6 +118,8 @@ export function useWebSocket(
 
   const speakText = useCallback(
     async (text: string) => {
+      if (shouldSpeakRef.current?.() === false) return;
+
       // Strip emojis unless the message is emoji-only
       const withoutEmoji = text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').replace(/\s{2,}/g, ' ').trim();
       const toSpeak = withoutEmoji || text.trim();
@@ -124,6 +130,8 @@ export function useWebSocket(
           text: toSpeak,
           includeBase64: true,
         });
+        // Re-check after async gap — stop may have been pressed during the request
+        if (shouldSpeakRef.current?.() === false) return;
         if (res.ok && res.payload?.audioBase64) {
           const format = res.payload.outputFormat ?? 'audio/mp3';
           onAudioRef.current?.(res.payload.audioBase64, format);
@@ -134,6 +142,7 @@ export function useWebSocket(
       }
 
       // Fallback: device TTS
+      if (shouldSpeakRef.current?.() === false) return;
       try {
         void Speech.stop();
         Speech.speak(toSpeak);
