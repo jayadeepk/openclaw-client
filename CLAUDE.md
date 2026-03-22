@@ -34,3 +34,5 @@ npx jest -u            # update snapshots
 - `utils/chatHelpers.ts` — Pure helpers extracted for testability
 - `types/index.ts` — All TypeScript interfaces
 - `docs/` — Architecture, testing, protocol docs
+- `scripts/` — CI helper scripts (excluded from eslint)
+- `.github/workflows/ci.yml` — CI pipeline: typecheck, lint, test, publish badges + reports to GitHub Pages
