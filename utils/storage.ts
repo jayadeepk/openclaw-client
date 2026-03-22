@@ -1,12 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
-import { AppSettings, ChatMessage } from '../types';
+import { AppSettings, ChatMessage, Conversation } from '../types';
 import { ThemeMode } from '../constants/theme';
 
 const SETTINGS_KEY = '@openclaw/settings';
 const MESSAGES_KEY = '@openclaw/messages';
 const THEME_MODE_KEY = '@openclaw/themeMode';
+const CONVERSATIONS_KEY = '@openclaw/conversations';
+const ACTIVE_CONVERSATION_KEY = '@openclaw/activeConversation';
 const AUTH_TOKEN_KEY = 'openclaw_auth_token';
 const MAX_PERSISTED_MESSAGES = 100;
 
@@ -125,6 +127,84 @@ export async function saveThemeMode(mode: ThemeMode): Promise<void> {
     await AsyncStorage.setItem(THEME_MODE_KEY, mode);
   } catch (err) {
     console.warn('Failed to save theme mode:', err);
+  }
+}
+
+// ─── Conversation Management ─────────────────────────────────────────────────
+
+/** Build a per-conversation messages key */
+function conversationMessagesKey(conversationId: string): string {
+  return `@openclaw/conv_messages/${conversationId}`;
+}
+
+/** Load the conversation list */
+export async function loadConversations(): Promise<Conversation[]> {
+  try {
+    const raw = await AsyncStorage.getItem(CONVERSATIONS_KEY);
+    if (raw) return JSON.parse(raw) as Conversation[];
+  } catch (err) {
+    console.warn('Failed to load conversations:', err);
+  }
+  return [];
+}
+
+/** Save the conversation list */
+export async function saveConversations(conversations: Conversation[]): Promise<void> {
+  try {
+    await AsyncStorage.setItem(CONVERSATIONS_KEY, JSON.stringify(conversations));
+  } catch (err) {
+    console.warn('Failed to save conversations:', err);
+  }
+}
+
+/** Load the active conversation ID */
+export async function loadActiveConversationId(): Promise<string | null> {
+  try {
+    return await AsyncStorage.getItem(ACTIVE_CONVERSATION_KEY);
+  } catch (err) {
+    console.warn('Failed to load active conversation ID:', err);
+  }
+  return null;
+}
+
+/** Save the active conversation ID */
+export async function saveActiveConversationId(id: string): Promise<void> {
+  try {
+    await AsyncStorage.setItem(ACTIVE_CONVERSATION_KEY, id);
+  } catch (err) {
+    console.warn('Failed to save active conversation ID:', err);
+  }
+}
+
+/** Load messages for a specific conversation */
+export async function loadConversationMessages(conversationId: string): Promise<ChatMessage[]> {
+  try {
+    const raw = await AsyncStorage.getItem(conversationMessagesKey(conversationId));
+    if (raw) return JSON.parse(raw) as ChatMessage[];
+  } catch (err) {
+    console.warn('Failed to load conversation messages:', err);
+  }
+  return [];
+}
+
+/** Save messages for a specific conversation */
+export async function saveConversationMessages(conversationId: string, messages: ChatMessage[]): Promise<void> {
+  try {
+    const toSave = messages
+      .filter((m) => !m.streaming)
+      .slice(-MAX_PERSISTED_MESSAGES);
+    await AsyncStorage.setItem(conversationMessagesKey(conversationId), JSON.stringify(toSave));
+  } catch (err) {
+    console.warn('Failed to save conversation messages:', err);
+  }
+}
+
+/** Delete a conversation's messages from storage */
+export async function deleteConversationMessages(conversationId: string): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(conversationMessagesKey(conversationId));
+  } catch (err) {
+    console.warn('Failed to delete conversation messages:', err);
   }
 }
 

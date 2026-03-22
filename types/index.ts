@@ -123,6 +123,14 @@ export interface ChatMessage {
   retryText?: string;
 }
 
+/** A single conversation */
+export interface Conversation {
+  id: string;
+  title: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
 /** Persisted settings */
 export interface AppSettings {
   gatewayHost: string;

@@ -24,6 +24,7 @@ type PendingResolver = (res: ResFrame) => void;
 export interface UseWebSocketOptions {
   initialMessages?: ChatMessage[];
   onAudioReceived?: OnAudioReceived;
+  sessionKey?: string;
 }
 
 export interface UseWebSocketReturn {
@@ -40,6 +41,8 @@ export interface UseWebSocketReturn {
   disconnect: () => void;
   clearMessages: () => void;
   deleteMessage: (msgId: string) => void;
+  /** Replace all messages (used when switching conversations) */
+  replaceMessages: (msgs: ChatMessage[]) => void;
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -72,6 +75,8 @@ export function useWebSocket(
   settingsRef.current = settings;
   const onAudioRef = useRef(opts.onAudioReceived);
   onAudioRef.current = opts.onAudioReceived;
+  const sessionKeyRef = useRef(opts.sessionKey ?? 'main');
+  sessionKeyRef.current = opts.sessionKey ?? 'main';
 
 
   // Pending req/res map: id → resolve function
@@ -372,7 +377,7 @@ export function useWebSocket(
       setMessages((prev) => [...prev, makeUserMsg(text)]);
 
       const params: ChatSendParams = {
-        sessionKey: 'main',
+        sessionKey: sessionKeyRef.current,
         message: text,
         idempotencyKey: nextId(),
         attachments: [],
@@ -423,5 +428,10 @@ export function useWebSocket(
     setMessages((prev) => prev.filter((m) => m.id !== msgId));
   }, []);
 
-  return { messages, status, reconnectIn, isTyping, sendMessage, retryMessage, connect, disconnect, clearMessages, deleteMessage };
+  const replaceMessages = useCallback((msgs: ChatMessage[]) => {
+    streamingRef.current.clear();
+    setMessages(msgs);
+  }, []);
+
+  return { messages, status, reconnectIn, isTyping, sendMessage, retryMessage, connect, disconnect, clearMessages, deleteMessage, replaceMessages };
 }

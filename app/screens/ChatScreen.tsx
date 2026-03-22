@@ -11,15 +11,17 @@ import { TypingIndicator } from '../../components/TypingIndicator';
 import { ScrollToBottomFAB } from '../../components/ScrollToBottomFAB';
 import { MessageActionsMenu } from '../../components/MessageActionsMenu';
 import { SearchBar } from '../../components/SearchBar';
+import { ConversationDrawer } from '../../components/ConversationDrawer';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
+import { useConversations } from '../../hooks/useConversations';
 import { useTheme } from '../../contexts/ThemeContext';
 import { AppSettings, ChatMessage } from '../../types';
 import { ChatListItem, insertDateSeparators } from '../../utils/chatHelpers';
 import { AppTheme } from '../../constants/theme';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { loadMessages, saveMessages, clearPersistedMessages } from '../../utils/storage';
+import { loadConversationMessages } from '../../utils/storage';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
 
@@ -34,31 +36,86 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
   const styles = useMemo(() => createStyles(theme), [theme]);
   const flatListRef = useRef<FlatList<ChatListItem>>(null);
   const { playAudio } = useAudioPlayer();
+
+  const {
+    conversations,
+    activeConversation,
+    loaded,
+    newConversation,
+    switchConversation,
+    deleteConversation,
+    saveActiveMessages,
+    touchActiveConversation,
+    autoTitle,
+  } = useConversations();
+
   const [initialMessages, setInitialMessages] = useState<ChatMessage[] | undefined>(undefined);
-  const [loaded, setLoaded] = useState(false);
+  const [convLoaded, setConvLoaded] = useState(false);
 
-  // Load persisted messages on mount
+  // Load messages for active conversation when it changes
+  const activeConversationId = activeConversation?.id ?? null;
   useEffect(() => {
-    void loadMessages().then((msgs) => {
+    if (!loaded || !activeConversationId) return;
+    void loadConversationMessages(activeConversationId).then((msgs) => {
       setInitialMessages(msgs);
-      setLoaded(true);
+      setConvLoaded(true);
     });
-  }, []);
+  }, [loaded, activeConversationId]);
 
-  const { messages, status, reconnectIn, isTyping, sendMessage, retryMessage, connect, disconnect, clearMessages, deleteMessage } = useWebSocket(
+  const { messages, status, reconnectIn, isTyping, sendMessage: wsSendMessage, retryMessage, connect, disconnect, deleteMessage, replaceMessages } = useWebSocket(
     settings,
     {
       initialMessages,
+      sessionKey: activeConversation?.id ?? 'main',
       onAudioReceived: (base64Audio, format) => { void playAudio(base64Audio, format); },
     },
   );
 
   // Persist messages when they change
   useEffect(() => {
-    if (loaded && messages.length > 0) {
-      void saveMessages(messages);
+    if (convLoaded && messages.length > 0) {
+      saveActiveMessages(messages);
     }
-  }, [loaded, messages]);
+  }, [convLoaded, messages, saveActiveMessages]);
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleNewConversation = useCallback(() => {
+    if (activeConversation) {
+      saveActiveMessages(messages);
+    }
+    newConversation();
+    replaceMessages([]);
+    setDrawerOpen(false);
+  }, [activeConversation, messages, saveActiveMessages, newConversation, replaceMessages]);
+
+  const handleSwitchConversation = useCallback((id: string) => {
+    if (id === activeConversation?.id) {
+      setDrawerOpen(false);
+      return;
+    }
+    if (activeConversation) {
+      saveActiveMessages(messages);
+    }
+    void switchConversation(id).then((msgs) => {
+      replaceMessages(msgs);
+      setDrawerOpen(false);
+    });
+  }, [activeConversation, messages, saveActiveMessages, switchConversation, replaceMessages]);
+
+  const handleDeleteConversation = useCallback((id: string) => {
+    const isActive = id === activeConversation?.id;
+    deleteConversation(id);
+    if (isActive) {
+      replaceMessages([]);
+    }
+  }, [activeConversation?.id, deleteConversation, replaceMessages]);
+
+  const sendMessage = useCallback((text: string) => {
+    wsSendMessage(text);
+    touchActiveConversation();
+    autoTitle(text);
+  }, [wsSendMessage, touchActiveConversation, autoTitle]);
 
   const isOnline = useNetworkStatus();
 
@@ -184,19 +241,20 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
           <ConnectionBadge status={status} reconnectIn={reconnectIn} isOnline={isOnline} />
         </View>
         <View style={styles.headerActions}>
-          <TouchableOpacity onPress={toggleTheme} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Toggle theme">
-            <Text style={styles.headerBtnText}>{theme.mode === 'dark' ? 'Light' : 'Dark'}</Text>
+          <TouchableOpacity onPress={() => { setDrawerOpen(true); }} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Open conversations">
+            <Text style={styles.headerBtnText}>Chats</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleNewConversation} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="New conversation">
+            <Text style={styles.headerBtnText}>New</Text>
           </TouchableOpacity>
           {messages.length > 0 && (
             <TouchableOpacity onPress={() => { setSearchOpen(true); }} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Search messages">
               <Text style={styles.headerBtnText}>Search</Text>
             </TouchableOpacity>
           )}
-          {messages.length > 0 && (
-            <TouchableOpacity onPress={() => { clearMessages(); void clearPersistedMessages(); }} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Clear messages">
-              <Text style={styles.headerBtnText}>Clear</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity onPress={toggleTheme} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Toggle theme">
+            <Text style={styles.headerBtnText}>{theme.mode === 'dark' ? 'Light' : 'Dark'}</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => { navigation.navigate('Settings'); }}
             style={styles.headerBtn}
@@ -268,6 +326,16 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
         onClose={closeActions}
         onRetry={retryMessage}
         onDelete={deleteMessage}
+      />
+
+      <ConversationDrawer
+        visible={drawerOpen}
+        conversations={conversations}
+        activeId={activeConversation?.id ?? null}
+        onSelect={handleSwitchConversation}
+        onNew={handleNewConversation}
+        onDelete={handleDeleteConversation}
+        onClose={() => { setDrawerOpen(false); }}
       />
     </View>
   );

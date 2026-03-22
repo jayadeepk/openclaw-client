@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
-import { loadSettings, saveSettings, buildWsUrl, DEFAULT_SETTINGS, loadMessages, saveMessages, clearPersistedMessages } from './storage';
-import { ChatMessage } from '../types';
+import { loadSettings, saveSettings, buildWsUrl, DEFAULT_SETTINGS, loadMessages, saveMessages, clearPersistedMessages, loadConversations, saveConversations, loadActiveConversationId, saveActiveConversationId, loadConversationMessages, saveConversationMessages, deleteConversationMessages } from './storage';
+import { ChatMessage, Conversation } from '../types';
 
 const mockGetItem = AsyncStorage.getItem as jest.Mock;
 const mockSetItem = AsyncStorage.setItem as jest.Mock;
@@ -174,6 +174,102 @@ describe('buildWsUrl', () => {
 
   it('handles localhost defaults', () => {
     expect(buildWsUrl(DEFAULT_SETTINGS)).toBe('ws://localhost:18789');
+  });
+});
+
+// ─── Conversation Storage ────────────────────────────────────────────────────
+
+const makeConv = (id: string): Conversation => ({
+  id,
+  title: `Chat ${id}`,
+  createdAt: Date.now(),
+  updatedAt: Date.now(),
+});
+
+describe('loadConversations', () => {
+  it('returns empty array when nothing is stored', async () => {
+    mockGetItem.mockResolvedValue(null);
+    expect(await loadConversations()).toEqual([]);
+  });
+
+  it('returns stored conversations', async () => {
+    const convs = [makeConv('c1'), makeConv('c2')];
+    mockGetItem.mockResolvedValue(JSON.stringify(convs));
+    expect(await loadConversations()).toEqual(convs);
+  });
+
+  it('returns empty array on error', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    mockGetItem.mockRejectedValue(new Error('read error'));
+    expect(await loadConversations()).toEqual([]);
+    warnSpy.mockRestore();
+  });
+});
+
+describe('saveConversations', () => {
+  it('persists conversations', async () => {
+    const convs = [makeConv('c1')];
+    await saveConversations(convs);
+    expect(mockSetItem).toHaveBeenCalledWith('@openclaw/conversations', JSON.stringify(convs));
+  });
+});
+
+describe('loadActiveConversationId', () => {
+  it('returns null when nothing is stored', async () => {
+    mockGetItem.mockResolvedValue(null);
+    expect(await loadActiveConversationId()).toBeNull();
+  });
+
+  it('returns stored id', async () => {
+    mockGetItem.mockResolvedValue('c1');
+    expect(await loadActiveConversationId()).toBe('c1');
+  });
+});
+
+describe('saveActiveConversationId', () => {
+  it('persists the active conversation id', async () => {
+    await saveActiveConversationId('c1');
+    expect(mockSetItem).toHaveBeenCalledWith('@openclaw/activeConversation', 'c1');
+  });
+});
+
+describe('loadConversationMessages', () => {
+  it('returns empty array when nothing is stored', async () => {
+    mockGetItem.mockResolvedValue(null);
+    expect(await loadConversationMessages('c1')).toEqual([]);
+  });
+
+  it('returns stored messages for the conversation', async () => {
+    const msgs = [makeMsg('1')];
+    mockGetItem.mockResolvedValue(JSON.stringify(msgs));
+    const result = await loadConversationMessages('c1');
+    expect(result).toEqual(msgs);
+    expect(mockGetItem).toHaveBeenCalledWith('@openclaw/conv_messages/c1');
+  });
+});
+
+describe('saveConversationMessages', () => {
+  it('persists messages to the conversation key', async () => {
+    const msgs = [makeMsg('1')];
+    await saveConversationMessages('c1', msgs);
+    expect(mockSetItem).toHaveBeenCalledWith('@openclaw/conv_messages/c1', JSON.stringify(msgs));
+  });
+
+  it('filters out streaming messages', async () => {
+    const msgs: ChatMessage[] = [
+      makeMsg('1'),
+      { ...makeMsg('2', 'assistant'), streaming: true },
+    ];
+    await saveConversationMessages('c1', msgs);
+    const saved = JSON.parse(mockSetItem.mock.calls[0][1] as string) as ChatMessage[];
+    expect(saved).toHaveLength(1);
+  });
+});
+
+describe('deleteConversationMessages', () => {
+  it('removes the conversation messages key', async () => {
+    await deleteConversationMessages('c1');
+    expect(mockRemoveItem).toHaveBeenCalledWith('@openclaw/conv_messages/c1');
   });
 });
 

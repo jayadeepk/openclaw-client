@@ -161,7 +161,7 @@ describe('ChatScreen integration', () => {
     expect(screen.queryByText('▌')).toBeNull(); // Cursor gone
   });
 
-  it('clear button removes all messages', async () => {
+  it('new conversation button clears messages', async () => {
     render(<ChatScreen navigation={mockNavigation} settings={settings} />);
     const ws = getLastWs();
     await completeHandshake(ws);
@@ -171,8 +171,8 @@ describe('ChatScreen integration', () => {
     fireEvent.press(screen.getByText('↑'));
     expect(screen.getByText('test')).toBeTruthy();
 
-    // Clear
-    fireEvent.press(screen.getByText('Clear'));
+    // Start new conversation
+    fireEvent.press(screen.getByText('New'));
     expect(screen.queryByText('test')).toBeNull();
     expect(screen.getByText('OpenClaw Client')).toBeTruthy(); // Back to empty state
   });
