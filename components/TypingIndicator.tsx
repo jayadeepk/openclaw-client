@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated, Platform, StyleSheet, View } from 'react-native';
 import { theme } from '../constants/theme';
 
 const DOT_COUNT = 3;
@@ -20,12 +20,12 @@ export function TypingIndicator() {
           Animated.timing(anim, {
             toValue: 1,
             duration: ANIMATION_DURATION,
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
           }),
           Animated.timing(anim, {
             toValue: 0,
             duration: ANIMATION_DURATION,
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
           }),
         ]),
       ),
