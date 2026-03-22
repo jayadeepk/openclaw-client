@@ -34,7 +34,7 @@ export function MessageBubble({ message, onRetry }: Props) {
       {canRetry && (
         <Text style={styles.retryHint}>Tap to retry</Text>
       )}
-      <Text style={styles.timestamp}>
+      <Text style={[styles.timestamp, isUser && styles.timestampUser]}>
         {new Date(message.timestamp).toLocaleTimeString([], {
           hour: '2-digit',
           minute: '2-digit',
@@ -110,6 +110,9 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     alignSelf: 'flex-end',
     marginTop: 4,
+  },
+  timestampUser: {
+    color: 'rgba(255, 255, 255, 0.65)',
   },
   retryHint: {
     fontSize: theme.fontSize.sm,

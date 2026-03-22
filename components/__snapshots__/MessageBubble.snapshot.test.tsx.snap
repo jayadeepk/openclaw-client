@@ -57,12 +57,15 @@ exports[`MessageBubble snapshots assistant message 1`] = `
     </Text>
     <Text
       style={
-        {
-          "alignSelf": "flex-end",
-          "color": "#55556a",
-          "fontSize": 11,
-          "marginTop": 4,
-        }
+        [
+          {
+            "alignSelf": "flex-end",
+            "color": "#55556a",
+            "fontSize": 11,
+            "marginTop": 4,
+          },
+          false,
+        ]
       }
     >
       02:30 PM
@@ -138,12 +141,15 @@ exports[`MessageBubble snapshots streaming message 1`] = `
     </Text>
     <Text
       style={
-        {
-          "alignSelf": "flex-end",
-          "color": "#55556a",
-          "fontSize": 11,
-          "marginTop": 4,
-        }
+        [
+          {
+            "alignSelf": "flex-end",
+            "color": "#55556a",
+            "fontSize": 11,
+            "marginTop": 4,
+          },
+          false,
+        ]
       }
     >
       02:30 PM
@@ -216,12 +222,15 @@ exports[`MessageBubble snapshots system message 1`] = `
     </Text>
     <Text
       style={
-        {
-          "alignSelf": "flex-end",
-          "color": "#55556a",
-          "fontSize": 11,
-          "marginTop": 4,
-        }
+        [
+          {
+            "alignSelf": "flex-end",
+            "color": "#55556a",
+            "fontSize": 11,
+            "marginTop": 4,
+          },
+          false,
+        ]
       }
     >
       02:30 PM
@@ -279,12 +288,17 @@ exports[`MessageBubble snapshots user message 1`] = `
     </Text>
     <Text
       style={
-        {
-          "alignSelf": "flex-end",
-          "color": "#55556a",
-          "fontSize": 11,
-          "marginTop": 4,
-        }
+        [
+          {
+            "alignSelf": "flex-end",
+            "color": "#55556a",
+            "fontSize": 11,
+            "marginTop": 4,
+          },
+          {
+            "color": "rgba(255, 255, 255, 0.65)",
+          },
+        ]
       }
     >
       02:30 PM
