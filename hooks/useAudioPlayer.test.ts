@@ -2,11 +2,13 @@ import { Platform } from 'react-native';
 import { renderHook, act } from '@testing-library/react-native';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { File } from 'expo-file-system';
+import * as Speech from 'expo-speech';
 import { useAudioPlayer } from './useAudioPlayer';
 
 const mockCreateAudioPlayer = createAudioPlayer as jest.Mock;
 const mockSetAudioMode = setAudioModeAsync as jest.Mock;
 const MockFile = File as unknown as jest.Mock;
+const mockSpeechStop = Speech.stop as jest.Mock;
 
 type StatusListener = (status: { didJustFinish: boolean }) => void;
 
@@ -231,6 +233,50 @@ describe('useAudioPlayer', () => {
 
     expect(warnSpy).toHaveBeenCalledWith('Audio playback failed:', expect.any(Error));
     warnSpy.mockRestore();
+  });
+
+  it('stopAudio also stops expo-speech', async () => {
+    const { result } = renderHook(() => useAudioPlayer());
+    await act(async () => {
+      await result.current.playAudio('data', 'audio/mp3');
+    });
+    await act(async () => {
+      result.current.stopAudio();
+    });
+    expect(mockSpeechStop).toHaveBeenCalled();
+  });
+
+  it('aborts playback if stopAudio called during async setup', async () => {
+    // Make setAudioModeAsync slow so we can stop mid-flight
+    const deferred = (() => {
+      let resolve = () => {};
+      const promise = new Promise<void>((r) => { resolve = r; });
+      return { promise, resolve };
+    })();
+    mockSetAudioMode.mockImplementationOnce(() => deferred.promise);
+
+    const { result } = renderHook(() => useAudioPlayer());
+
+    // Start playing — will await setAudioModeAsync
+    let playPromise = Promise.resolve();
+    await act(async () => {
+      playPromise = result.current.playAudio('data', 'audio/mp3');
+    });
+
+    // Stop while setAudioModeAsync is pending
+    await act(async () => {
+      result.current.stopAudio();
+    });
+
+    // Now resolve setAudioModeAsync
+    await act(async () => {
+      deferred.resolve();
+      await playPromise;
+    });
+
+    // Player should NOT have been created since stop was called
+    expect(mockCreateAudioPlayer).not.toHaveBeenCalled();
+    expect(result.current.isPlaying).toBe(false);
   });
 
   it('registers playbackStatusUpdate listener on native player', async () => {

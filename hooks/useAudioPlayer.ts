@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { File, Paths } from 'expo-file-system';
+import * as Speech from 'expo-speech';
 import type { AudioPlayer } from 'expo-audio';
 
 interface QueuedClip {
@@ -30,6 +31,8 @@ export function useAudioPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   // Ref to break circular dependency between play functions and advanceQueue
   const advanceQueueRef = useRef<() => void>(() => {});
+  // Incremented on stop to cancel any in-flight async playback
+  const generationRef = useRef(0);
 
   const updateIsPlaying = useCallback((value: boolean) => {
     playingRef.current = value;
@@ -64,10 +67,15 @@ export function useAudioPlayer() {
       playerRef.current = null;
     }
 
+    const gen = generationRef.current;
+
     await setAudioModeAsync({
       playsInSilentMode: true,
       interruptionMode: 'duckOthers',
     });
+
+    // If stopAudio was called during the await, abort
+    if (generationRef.current !== gen) return;
 
     const ext = mimeType.includes('wav') ? 'wav' : mimeType.includes('ogg') ? 'ogg' : 'mp3';
     const file = new File(Paths.cache, `openclaw_tts_${String(Date.now())}.${ext}`);
@@ -79,7 +87,9 @@ export function useAudioPlayer() {
     player.addListener('playbackStatusUpdate', (status) => {
       if (status.didJustFinish) {
         player.remove();
-        playerRef.current = null;
+        if (playerRef.current === player) {
+          playerRef.current = null;
+        }
         advanceQueueRef.current();
       }
     });
@@ -125,6 +135,7 @@ export function useAudioPlayer() {
 
   /** Stop current playback and clear the entire queue */
   const stopAudio = useCallback(() => {
+    generationRef.current += 1;
     queueRef.current = [];
     if (Platform.OS === 'web') {
       if (webAudioRef.current) {
@@ -139,6 +150,8 @@ export function useAudioPlayer() {
         playerRef.current = null;
       }
     }
+    // Also stop device TTS in case it's the audio source
+    void Speech.stop();
     updateIsPlaying(false);
   }, [updateIsPlaying]);
 
