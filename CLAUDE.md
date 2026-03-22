@@ -25,6 +25,8 @@ npx jest -u            # update snapshots
 
 - After completing any change that is tested and passing, commit and push automatically
 - Run `npm run check` before committing to verify nothing is broken
+- Write tests immediately after implementing each feature, before committing — not as a separate batch
+- When implementing multiple features in one go, end with a summary table (Commit, Feature, Tests added)
 
 ## Key Files
 
