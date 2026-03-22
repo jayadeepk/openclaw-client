@@ -60,7 +60,7 @@ export function useWebSocket(
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
 
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimer = useRef<ReturnType<typeof setTimeout>>();
+  const reconnectTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
 

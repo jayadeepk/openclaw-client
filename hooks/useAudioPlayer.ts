@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { Audio } from 'expo-av';
-import * as FileSystem from 'expo-file-system';
+import { File, Paths } from 'expo-file-system';
 
 /**
  * Provides a function to play base64-encoded audio received from the gateway.
@@ -28,15 +28,13 @@ export function useAudioPlayer() {
 
       // Determine file extension from MIME type
       const ext = mimeType.includes('wav') ? 'wav' : mimeType.includes('ogg') ? 'ogg' : 'mp3';
-      const fileUri = `${FileSystem.cacheDirectory}openclaw_tts_${Date.now()}.${ext}`;
+      const file = new File(Paths.cache, `openclaw_tts_${Date.now()}.${ext}`);
 
       // Write the base64 audio to a temporary file
-      await FileSystem.writeAsStringAsync(fileUri, base64Audio, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+      file.write(base64Audio, { encoding: 'base64' });
 
       // Load and play
-      const { sound } = await Audio.Sound.createAsync({ uri: fileUri }, { shouldPlay: true });
+      const { sound } = await Audio.Sound.createAsync({ uri: file.uri }, { shouldPlay: true });
       soundRef.current = sound;
 
       // Clean up when playback finishes
@@ -45,7 +43,7 @@ export function useAudioPlayer() {
           sound.unloadAsync();
           soundRef.current = null;
           // Remove temp file
-          FileSystem.deleteAsync(fileUri, { idempotent: true }).catch(() => {});
+          try { file.delete(); } catch {}
         }
       });
     } catch (err) {
