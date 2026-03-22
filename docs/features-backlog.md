@@ -1,7 +1,3 @@
-# Feature Backlog
-
-Features to implement, in priority order. Top item is next.
-
 - Scroll-to-bottom FAB
 - Markdown rendering for assistant messages
 - Code block copy button
