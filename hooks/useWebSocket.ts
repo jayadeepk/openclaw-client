@@ -38,6 +38,14 @@ function nextId(): string {
   return `rn_${Date.now()}_${_seq++}`;
 }
 
+/** Extract plain text from gateway content (string, {type,text}, or array of content blocks) */
+function extractText(content: unknown): string {
+  if (typeof content === 'string') return content;
+  if (Array.isArray(content)) return content.map(extractText).join('');
+  if (content && typeof content === 'object' && 'text' in content) return String((content as { text: unknown }).text);
+  return '';
+}
+
 function makeUserMsg(content: string): ChatMessage {
   return { id: nextId(), role: 'user', content, timestamp: Date.now() };
 }
@@ -108,7 +116,7 @@ export function useWebSocket(
             minProtocol: 3,
             maxProtocol: 3,
             client: {
-              id: 'openclaw-rn-client',
+              id: 'openclaw-android',
               version: '1.0.0',
               platform: 'mobile',
               mode: 'ui',
@@ -117,8 +125,7 @@ export function useWebSocket(
             scopes: ['operator.read', 'operator.write'],
             auth: { token: s.authToken },
           };
-          // nonce must be echoed back (device auth); we skip device signing for now
-          void sendReq<HelloOkPayload>('connect', { ...params, device: { nonce } }).then((res) => {
+          void sendReq<HelloOkPayload>('connect', params).then((res) => {
             if (res.ok && res.payload?.type === 'hello-ok') {
               setStatus('connected');
             } else {
@@ -138,12 +145,14 @@ export function useWebSocket(
           const { runId, state, message } = payload;
 
           if (!message?.content) break;
+          const text = extractText(message.content);
+          if (!text) break;
 
           if (state === 'delta') {
             // Accumulate delta into streaming message
             const existing = streamingRef.current.get(runId);
             if (existing) {
-              existing.content += message.content;
+              existing.content += text;
               setMessages((prev) =>
                 prev.map((m) =>
                   m.id === existing.msgId
@@ -154,13 +163,13 @@ export function useWebSocket(
             } else {
               // First delta for this runId — create a streaming message
               const msgId = nextId();
-              streamingRef.current.set(runId, { msgId, content: message.content });
+              streamingRef.current.set(runId, { msgId, content: text });
               setMessages((prev) => [
                 ...prev,
                 {
                   id: msgId,
                   role: 'assistant',
-                  content: message.content,
+                  content: text,
                   timestamp: Date.now(),
                   streaming: true,
                 },
@@ -170,7 +179,8 @@ export function useWebSocket(
             const existing = streamingRef.current.get(runId);
             if (existing) {
               // Mark streaming done, set final content
-              const finalContent = existing.content + (message.content ?? '');
+              const finalText = extractText(message.content);
+              const finalContent = existing.content + (finalText ?? '');
               setMessages((prev) =>
                 prev.map((m) =>
                   m.id === existing.msgId
@@ -186,7 +196,7 @@ export function useWebSocket(
                 {
                   id: nextId(),
                   role: 'assistant',
-                  content: message.content,
+                  content: text,
                   timestamp: Date.now(),
                 },
               ]);
