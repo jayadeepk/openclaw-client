@@ -9,11 +9,12 @@ Implement the next feature from the backlog. Safe to run in a loop via `/loop /i
 
 ## Steps
 
-- **Branch guard** — Run `git branch --show-current`. If on `main`, attempt to switch to `dev`:
-  - If `dev` exists: `git checkout dev`
-  - If `dev` does not exist: `git checkout -b dev`
-  - If the switch fails (e.g. uncommitted changes), report the issue and **stop gracefully**
-  - If not on `main` and not on `dev`, continue on the current branch
+- **Branch guard** — Run `git branch --show-current`. This skill must run on `dev`.
+  - If already on `dev`: continue
+  - If on any other branch (including `main`): attempt to switch to `dev`:
+    - If `dev` exists: `git checkout dev`
+    - If `dev` does not exist: `git checkout -b dev`
+    - If the switch fails (e.g. uncommitted changes), report the issue and **stop gracefully**
 
 - **Read the backlog** — Read `docs/features-backlog.md` and identify the first top-level bullet (a line matching `^- `). Include all its indented children (lines starting with two or more spaces followed by `- ` that immediately follow it). This entire block is the feature to implement.
   - If no top-level bullets remain, report "Backlog empty — nothing to implement" and **stop**
