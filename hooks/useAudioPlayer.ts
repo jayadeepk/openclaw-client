@@ -4,6 +4,11 @@ import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { File, Paths } from 'expo-file-system';
 import type { AudioPlayer } from 'expo-audio';
 
+interface QueuedClip {
+  base64Audio: string;
+  mimeType: string;
+}
+
 /** Normalize gateway format strings (e.g. "audio-24khz-48kbitrate-mono-mp3") to browser MIME types */
 function toMimeType(format: string): string {
   if (format.includes('mp3') || format.includes('mpeg')) return 'audio/mpeg';
@@ -14,17 +19,25 @@ function toMimeType(format: string): string {
 }
 
 /**
- * Provides a function to play base64-encoded audio received from the gateway.
- * Native: writes a temp file via expo-file-system, plays with expo-audio.
- * Web: uses an HTMLAudioElement with a data URI.
+ * Provides audio playback with a queue. When a clip is already playing,
+ * new clips are enqueued and played automatically in order.
  */
 export function useAudioPlayer() {
   const playerRef = useRef<AudioPlayer | null>(null);
   const webAudioRef = useRef<HTMLAudioElement | null>(null);
+  const queueRef = useRef<QueuedClip[]>([]);
+  const playingRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  // Ref to break circular dependency between play functions and advanceQueue
+  const advanceQueueRef = useRef<() => void>(() => {});
 
-  /** Play base64 audio on web using a data URI */
-  const playAudioWeb = useCallback((base64Audio: string, mimeType: string) => {
+  const updateIsPlaying = useCallback((value: boolean) => {
+    playingRef.current = value;
+    setIsPlaying(value);
+  }, []);
+
+  /** Play a single clip on web */
+  const playWebClip = useCallback((base64Audio: string, mimeType: string) => {
     if (webAudioRef.current) {
       webAudioRef.current.pause();
       webAudioRef.current = null;
@@ -32,56 +45,89 @@ export function useAudioPlayer() {
     const browserMime = toMimeType(mimeType);
     const el = new window.Audio(`data:${browserMime};base64,${base64Audio}`);
     webAudioRef.current = el;
-    setIsPlaying(true);
-    el.onended = () => { webAudioRef.current = null; setIsPlaying(false); };
-    void el.play().catch((e: unknown) => { console.warn('Web audio playback failed:', e); setIsPlaying(false); });
+    el.onended = () => {
+      webAudioRef.current = null;
+      advanceQueueRef.current();
+    };
+    void el.play().catch((e: unknown) => {
+      console.warn('Web audio playback failed:', e);
+      webAudioRef.current = null;
+      advanceQueueRef.current();
+    });
   }, []);
 
-  /** Play base64 audio on native using expo-audio + temp file */
-  const playAudioNative = useCallback(async (base64Audio: string, mimeType: string) => {
-    // Stop previous player
+  /** Play a single clip on native */
+  const playNativeClip = useCallback(async (base64Audio: string, mimeType: string) => {
     if (playerRef.current) {
       playerRef.current.remove();
       playerRef.current = null;
     }
 
-    // Configure audio mode for playback
     await setAudioModeAsync({
       playsInSilentMode: true,
       interruptionMode: 'duckOthers',
     });
 
-    // Determine file extension from MIME type
     const ext = mimeType.includes('wav') ? 'wav' : mimeType.includes('ogg') ? 'ogg' : 'mp3';
     const file = new File(Paths.cache, `openclaw_tts_${String(Date.now())}.${ext}`);
-
-    // Write the base64 audio to a temporary file
     file.write(base64Audio, { encoding: 'base64' });
 
-    // Create player and play
     const player = createAudioPlayer({ uri: file.uri });
     playerRef.current = player;
-    setIsPlaying(true);
+
+    player.addListener('playbackStatusUpdate', (status) => {
+      if (status.didJustFinish) {
+        player.remove();
+        playerRef.current = null;
+        advanceQueueRef.current();
+      }
+    });
+
     player.play();
   }, []);
 
-  /** Play base64 audio data. Automatically stops any currently playing audio. */
+  /** Play the next clip from the queue, or mark idle if empty */
+  const advanceQueue = useCallback(() => {
+    const next = queueRef.current.shift();
+    if (!next) {
+      updateIsPlaying(false);
+      return;
+    }
+    if (Platform.OS === 'web') {
+      playWebClip(next.base64Audio, next.mimeType);
+    } else {
+      void playNativeClip(next.base64Audio, next.mimeType);
+    }
+  }, [updateIsPlaying, playWebClip, playNativeClip]);
+
+  // Keep the ref in sync
+  advanceQueueRef.current = advanceQueue;
+
+  /** Enqueue a clip. If nothing is playing, start immediately. */
   const playAudio = useCallback(async (base64Audio: string, mimeType: string = 'audio/mp3') => {
     try {
+      if (playingRef.current) {
+        queueRef.current.push({ base64Audio, mimeType });
+        return;
+      }
+      updateIsPlaying(true);
       if (Platform.OS === 'web') {
-        playAudioWeb(base64Audio, mimeType);
+        playWebClip(base64Audio, mimeType);
       } else {
-        await playAudioNative(base64Audio, mimeType);
+        await playNativeClip(base64Audio, mimeType);
       }
     } catch (err) {
       console.warn('Audio playback failed:', err);
+      advanceQueue();
     }
-  }, [playAudioWeb, playAudioNative]);
+  }, [updateIsPlaying, playWebClip, playNativeClip, advanceQueue]);
 
-  /** Stop any currently playing audio */
+  /** Stop current playback and clear the entire queue */
   const stopAudio = useCallback(() => {
+    queueRef.current = [];
     if (Platform.OS === 'web') {
       if (webAudioRef.current) {
+        webAudioRef.current.onended = null;
         webAudioRef.current.pause();
         webAudioRef.current = null;
       }
@@ -91,8 +137,8 @@ export function useAudioPlayer() {
         playerRef.current = null;
       }
     }
-    setIsPlaying(false);
-  }, []);
+    updateIsPlaying(false);
+  }, [updateIsPlaying]);
 
   return { playAudio, stopAudio, isPlaying };
 }
