@@ -1,0 +1,18 @@
+# Feature Backlog
+
+Features to implement, in priority order. Top item is next.
+
+- Scroll-to-bottom FAB
+- Markdown rendering for assistant messages
+- Code block copy button
+- Message actions (long-press menu: copy, retry, delete, share)
+- Message search
+- Character counter near input limit
+- Connection latency display
+- Light theme toggle
+- Conversation management (multiple conversations)
+- Export conversation
+- Swipe-to-reply / message quoting
+- Voice input (speech-to-text)
+- Image/file attachments
+- Notification support
