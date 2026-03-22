@@ -1,3 +1,5 @@
+process.env.TZ = 'UTC';
+
 module.exports = {
   preset: 'jest-expo',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],

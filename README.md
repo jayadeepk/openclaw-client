@@ -11,16 +11,7 @@ A React Native/Expo chat app that connects to an [OpenClaw](https://github.com/a
 
 ## Auto-Play TTS
 
-When the assistant finishes a response, the client automatically converts it to speech and plays it back — no tap required. This makes it usable as a hands-free, voice-forward interface.
-
-**How it works:**
-
-1. Assistant response completes (streamed via WebSocket)
-2. Client sends a `tts.convert` request to the gateway with the full text
-3. Gateway returns base64-encoded audio → played via `expo-av`
-4. If the gateway is unavailable or TTS fails, falls back to on-device speech (`expo-speech`)
-
-Emoji-only messages are spoken as-is; mixed text has emojis stripped before synthesis to avoid the TTS engine reading out emoji names.
+Every assistant response is automatically converted to speech and played back — no tap required. Falls back to on-device speech (`expo-speech`) if the gateway TTS is unavailable.
 
 ## Other Features
 
@@ -49,12 +40,6 @@ npm start
 npm run android
 npm run ios
 npm run web
-```
-
-If your dev machine's IP isn't detected correctly (VPN, multiple NICs), create a `.env` file:
-
-```
-REACT_NATIVE_PACKAGER_HOSTNAME=192.168.1.100
 ```
 
 ## Development
@@ -91,11 +76,3 @@ utils/
 types/index.ts                   # TypeScript interfaces
 docs/                            # Architecture & protocol docs
 ```
-
-## Protocol
-
-The app implements the OpenClaw wire protocol over WebSocket. See [docs/api-protocol.md](docs/api-protocol.md) for the full spec.
-
-## License
-
-MIT

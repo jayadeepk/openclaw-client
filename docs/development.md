@@ -40,6 +40,18 @@ Settings are persisted to AsyncStorage under the key `@openclaw/settings`.
 
 The `.env` file contains `REACT_NATIVE_PACKAGER_HOSTNAME` for network configuration. This is not committed to git.
 
+## Troubleshooting
+
+### Dev server not reachable from device
+
+If your dev machine's IP isn't detected correctly (VPN, multiple NICs), create a `.env` file in the project root:
+
+```
+REACT_NATIVE_PACKAGER_HOSTNAME=192.168.1.100
+```
+
+Replace with your machine's actual LAN IP.
+
 ## NPM Scripts
 
 | Script | Purpose |
