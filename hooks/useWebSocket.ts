@@ -156,14 +156,14 @@ export function useWebSocket(
           if (!text) break;
 
           if (state === 'delta') {
-            // Accumulate delta into streaming message
+            // Each delta contains the full accumulated text so far
             const existing = streamingRef.current.get(runId);
             if (existing) {
-              existing.content += text;
+              existing.content = text;
               setMessages((prev) =>
                 prev.map((m) =>
                   m.id === existing.msgId
-                    ? { ...m, content: existing.content }
+                    ? { ...m, content: text }
                     : m,
                 ),
               );
@@ -186,9 +186,9 @@ export function useWebSocket(
             let finalContent: string;
             const existing = streamingRef.current.get(runId);
             if (existing) {
-              // Mark streaming done, set final content
+              // Mark streaming done — final contains the complete text
               const finalText = extractText(message.content);
-              finalContent = existing.content + (finalText ?? '');
+              finalContent = finalText || existing.content;
               setMessages((prev) =>
                 prev.map((m) =>
                   m.id === existing.msgId
