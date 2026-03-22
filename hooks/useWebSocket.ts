@@ -350,10 +350,9 @@ export function useWebSocket(
 
   useEffect(() => {
     return () => {
-      clearTimeout(reconnectTimer.current);
-      wsRef.current?.close();
+      disconnect();
     };
-  }, []);
+  }, [disconnect]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);
