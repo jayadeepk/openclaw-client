@@ -4,11 +4,8 @@
 - Message actions (long-press menu: copy, retry, delete, share)
 - Message search
 - Character counter near input limit
-- Connection latency display
 - Light theme toggle
-- Conversation management (multiple conversations)
+- Conversation management (similar to /new in Telegram for OpenClaw)
 - Export conversation
 - Swipe-to-reply / message quoting
-- Voice input (speech-to-text)
-- Image/file attachments
 - Notification support
