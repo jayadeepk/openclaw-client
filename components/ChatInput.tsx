@@ -9,10 +9,14 @@ import {
 } from 'react-native';
 import { AppTheme } from '../constants/theme';
 import { useTheme } from '../contexts/ThemeContext';
+import { ChatMessage } from '../types';
+import { ReplyPreview } from './ReplyPreview';
 
 interface Props {
   onSend: (text: string) => void;
   disabled?: boolean;
+  replyTo?: ChatMessage | null;
+  onCancelReply?: () => void;
 }
 
 const MAX_LENGTH = 4096;
@@ -25,7 +29,7 @@ function getCounterColor(remaining: number, errorColor: string, mutedColor: stri
 }
 
 /** Text input bar with a send button */
-export function ChatInput({ onSend, disabled }: Props) {
+export function ChatInput({ onSend, disabled, replyTo, onCancelReply }: Props) {
   const { theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -48,6 +52,10 @@ export function ChatInput({ onSend, disabled }: Props) {
   };
 
   return (
+      <View>
+        {replyTo && onCancelReply && (
+          <ReplyPreview message={replyTo} onDismiss={onCancelReply} />
+        )}
       <View style={styles.container}>
         <View style={styles.inputWrapper}>
           <TextInput
@@ -85,6 +93,7 @@ export function ChatInput({ onSend, disabled }: Props) {
         >
           <Text style={styles.sendIcon}>↑</Text>
         </TouchableOpacity>
+      </View>
       </View>
   );
 }

@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useMemo, useRef } from 'react';
+import { Animated, PanResponder, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ChatMessage } from '../types';
 import { AppTheme } from '../constants/theme';
 import { useTheme } from '../contexts/ThemeContext';
@@ -9,8 +9,11 @@ interface Props {
   message: ChatMessage;
   onRetry?: (msgId: string) => void;
   onLongPress?: (message: ChatMessage) => void;
+  onSwipeReply?: (message: ChatMessage) => void;
   searchQuery?: string;
 }
+
+const SWIPE_THRESHOLD = 60;
 
 /** Highlight matching substrings within text */
 function highlightText(text: string, query: string): React.ReactNode {
@@ -48,7 +51,7 @@ const highlightStyle = {
 } as const;
 
 /** Renders a single chat message bubble, styled by role */
-export function MessageBubble({ message, onRetry, onLongPress, searchQuery }: Props) {
+export function MessageBubble({ message, onRetry, onLongPress, onSwipeReply, searchQuery }: Props) {
   const { theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -60,6 +63,40 @@ export function MessageBubble({ message, onRetry, onLongPress, searchQuery }: Pr
   const handleLongPress = () => {
     onLongPress?.(message);
   };
+
+  // Swipe-to-reply gesture
+  const translateX = useRef(new Animated.Value(0)).current;
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gesture) =>
+        Math.abs(gesture.dx) > 10 && Math.abs(gesture.dx) > Math.abs(gesture.dy),
+      onPanResponderMove: (_, gesture) => {
+        // Only allow rightward swipe, capped
+        if (gesture.dx > 0) {
+          translateX.setValue(Math.min(gesture.dx, SWIPE_THRESHOLD + 20));
+        }
+      },
+      onPanResponderRelease: (_, gesture) => {
+        if (gesture.dx >= SWIPE_THRESHOLD) {
+          onSwipeReply?.(message);
+        }
+        Animated.spring(translateX, {
+          toValue: 0,
+          useNativeDriver: true,
+          tension: 40,
+          friction: 8,
+        }).start();
+      },
+      onPanResponderTerminate: () => {
+        Animated.spring(translateX, {
+          toValue: 0,
+          useNativeDriver: true,
+          tension: 40,
+          friction: 8,
+        }).start();
+      },
+    }),
+  ).current;
 
   const bubble = (
     <View
@@ -98,6 +135,8 @@ export function MessageBubble({ message, onRetry, onLongPress, searchQuery }: Pr
     </View>
   );
 
+  const swipeEnabled = !!onSwipeReply && !isSystem;
+
   if (canRetry) {
     return (
       <View style={[styles.row, isUser && styles.rowUser]}>
@@ -115,7 +154,10 @@ export function MessageBubble({ message, onRetry, onLongPress, searchQuery }: Pr
   }
 
   return (
-    <View style={[styles.row, isUser && styles.rowUser]}>
+    <Animated.View
+      style={[styles.row, isUser && styles.rowUser, swipeEnabled && { transform: [{ translateX }] }]}
+      {...(swipeEnabled ? panResponder.panHandlers : {})}
+    >
       <TouchableOpacity
         onLongPress={handleLongPress}
         activeOpacity={1}
@@ -125,7 +167,7 @@ export function MessageBubble({ message, onRetry, onLongPress, searchQuery }: Pr
       >
         {bubble}
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 }
 

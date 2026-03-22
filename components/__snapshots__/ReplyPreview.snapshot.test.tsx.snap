@@ -1,0 +1,118 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ReplyPreview matches snapshot 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#0a0a0f",
+      "borderTopColor": "#2a2a3a",
+      "borderTopWidth": 1,
+      "flexDirection": "row",
+      "paddingHorizontal": 16,
+      "paddingVertical": 8,
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignSelf": "stretch",
+        "backgroundColor": "#6c63ff",
+        "borderRadius": 2,
+        "marginRight": 8,
+        "width": 3,
+      }
+    }
+  />
+  <View
+    style={
+      {
+        "flex": 1,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "#6c63ff",
+          "fontSize": 13,
+          "fontWeight": "600",
+          "marginBottom": 2,
+        }
+      }
+    >
+      OpenClaw
+    </Text>
+    <Text
+      numberOfLines={2}
+      style={
+        {
+          "color": "#8888a0",
+          "fontSize": 13,
+          "lineHeight": 18,
+        }
+      }
+    >
+      Here is a reply preview
+    </Text>
+  </View>
+  <View
+    accessibilityLabel="Cancel reply"
+    accessibilityRole="button"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    hitSlop={
+      {
+        "bottom": 8,
+        "left": 8,
+        "right": 8,
+        "top": 8,
+      }
+    }
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "marginLeft": 8,
+        "opacity": 1,
+        "padding": 4,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "#55556a",
+          "fontSize": 15,
+        }
+      }
+    >
+      ✕
+    </Text>
+  </View>
+</View>
+`;

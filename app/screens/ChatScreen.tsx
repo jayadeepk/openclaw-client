@@ -123,6 +123,31 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
     void Share.share({ message: text });
   }, [messages, activeConversation?.title]);
 
+  // Reply / quote state
+  const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
+
+  const handleSwipeReply = useCallback((msg: ChatMessage) => {
+    setReplyTo(msg);
+  }, []);
+
+  const handleCancelReply = useCallback(() => {
+    setReplyTo(null);
+  }, []);
+
+  const handleSendWithReply = useCallback((text: string) => {
+    if (replyTo) {
+      const label = replyTo.role === 'user' ? 'You' : 'OpenClaw';
+      const quotedSnippet = replyTo.content.length > 80
+        ? replyTo.content.slice(0, 80) + '...'
+        : replyTo.content;
+      const fullText = `> ${label}: ${quotedSnippet}\n\n${text}`;
+      sendMessage(fullText);
+      setReplyTo(null);
+    } else {
+      sendMessage(text);
+    }
+  }, [replyTo, sendMessage]);
+
   const isOnline = useNetworkStatus();
 
   // Connect when settings change (e.g. after saving new gateway URL)
@@ -211,9 +236,9 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       if ('type' in item) {
         return <DateSeparator label={item.label} />;
       }
-      return <MessageBubble message={item} onRetry={retryMessage} onLongPress={handleMessageLongPress} searchQuery={searchOpen ? searchQuery : undefined} />;
+      return <MessageBubble message={item} onRetry={retryMessage} onLongPress={handleMessageLongPress} onSwipeReply={handleSwipeReply} searchQuery={searchOpen ? searchQuery : undefined} />;
     },
-    [retryMessage, handleMessageLongPress, searchOpen, searchQuery],
+    [retryMessage, handleMessageLongPress, handleSwipeReply, searchOpen, searchQuery],
   );
 
   const keyExtractor = useCallback((item: ChatListItem) => item.id, []);
@@ -328,7 +353,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       {isTyping && <TypingIndicator />}
 
       {/* Input */}
-      <ChatInput onSend={sendMessage} disabled={status !== 'connected'} />
+      <ChatInput onSend={handleSendWithReply} disabled={status !== 'connected'} replyTo={replyTo} onCancelReply={handleCancelReply} />
       <View style={{ height: insets.bottom }} />
 
       <MessageActionsMenu

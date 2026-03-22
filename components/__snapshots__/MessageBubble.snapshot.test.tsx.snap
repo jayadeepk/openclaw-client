@@ -2,16 +2,14 @@
 
 exports[`MessageBubble snapshots assistant message 1`] = `
 <View
+  collapsable={false}
   style={
-    [
-      {
-        "flexDirection": "row",
-        "justifyContent": "flex-start",
-        "marginVertical": 4,
-        "paddingHorizontal": 16,
-      },
-      false,
-    ]
+    {
+      "flexDirection": "row",
+      "justifyContent": "flex-start",
+      "marginVertical": 4,
+      "paddingHorizontal": 16,
+    }
   }
 >
   <View
@@ -123,16 +121,14 @@ exports[`MessageBubble snapshots assistant message 1`] = `
 
 exports[`MessageBubble snapshots streaming message 1`] = `
 <View
+  collapsable={false}
   style={
-    [
-      {
-        "flexDirection": "row",
-        "justifyContent": "flex-start",
-        "marginVertical": 4,
-        "paddingHorizontal": 16,
-      },
-      false,
-    ]
+    {
+      "flexDirection": "row",
+      "justifyContent": "flex-start",
+      "marginVertical": 4,
+      "paddingHorizontal": 16,
+    }
   }
 >
   <View
@@ -254,16 +250,14 @@ exports[`MessageBubble snapshots streaming message 1`] = `
 
 exports[`MessageBubble snapshots system message 1`] = `
 <View
+  collapsable={false}
   style={
-    [
-      {
-        "flexDirection": "row",
-        "justifyContent": "flex-start",
-        "marginVertical": 4,
-        "paddingHorizontal": 16,
-      },
-      false,
-    ]
+    {
+      "flexDirection": "row",
+      "justifyContent": "flex-start",
+      "marginVertical": 4,
+      "paddingHorizontal": 16,
+    }
   }
 >
   <View
@@ -373,18 +367,14 @@ exports[`MessageBubble snapshots system message 1`] = `
 
 exports[`MessageBubble snapshots user message 1`] = `
 <View
+  collapsable={false}
   style={
-    [
-      {
-        "flexDirection": "row",
-        "justifyContent": "flex-start",
-        "marginVertical": 4,
-        "paddingHorizontal": 16,
-      },
-      {
-        "justifyContent": "flex-end",
-      },
-    ]
+    {
+      "flexDirection": "row",
+      "justifyContent": "flex-end",
+      "marginVertical": 4,
+      "paddingHorizontal": 16,
+    }
   }
 >
   <View
