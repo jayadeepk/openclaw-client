@@ -20,12 +20,15 @@ function escapeHtml(str) {
 
 function renderSuite(suite) {
   const relPath = path.relative(process.cwd(), suite.name);
-  const suitePassed = suite.numFailingTests === 0;
+  const tests = suite.assertionResults || [];
+  const numPassing = tests.filter(t => t.status === 'passed').length;
+  const numFailing = tests.filter(t => t.status === 'failed').length;
+  const suitePassed = numFailing === 0;
   const icon = suitePassed ? '&#x2705;' : '&#x274C;';
   const time = ((suite.endTime - suite.startTime) / 1000).toFixed(2);
 
   let rows = '';
-  for (const test of suite.testResults) {
+  for (const test of tests) {
     const passed = test.status === 'passed';
     const testIcon = passed ? '&#x2705;' : '&#x274C;';
     const ancestors = test.ancestorTitles.length ? test.ancestorTitles.join(' > ') + ' > ' : '';
@@ -42,7 +45,7 @@ function renderSuite(suite) {
   return `<div class="suite">
     <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
       <span>${icon} <strong>${escapeHtml(relPath)}</strong></span>
-      <span class="suite-meta">${suite.numPassingTests}/${suite.numPassingTests + suite.numFailingTests} passed &middot; ${time}s</span>
+      <span class="suite-meta">${numPassing}/${numPassing + numFailing} passed &middot; ${time}s</span>
     </div>
     <table class="tests">${rows}</table>
   </div>`;
