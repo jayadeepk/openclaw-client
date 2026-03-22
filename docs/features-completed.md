@@ -14,3 +14,8 @@
   - Tapping it stops the audio playback immediately and clears the audio queue
   - FAB should be visually distinct (e.g. stop icon or "■") and positioned so it doesn't overlap the scroll-to-bottom FAB
   - FAB disappears automatically when audio finishes playing and the queue is empty
+- Audio playback queue (2026-03-23)
+  - If audio is already playing when a new audio clip arrives, enqueue it instead of dropping or interrupting
+  - Play queued clips in order automatically once the current clip finishes
+  - The stop FAB (from the audio stop button feature) should stop current playback and clear the entire queue
+  - FAB should remain visible while there are queued clips, even between clips
