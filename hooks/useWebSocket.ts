@@ -46,6 +46,7 @@ export function useWebSocket(
 
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const reconnectAttempt = useRef(0);
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
   const onAudioRef = useRef(onAudioReceived);
@@ -137,6 +138,7 @@ export function useWebSocket(
           };
           void sendReq<HelloOkPayload>('connect', params).then((res) => {
             if (res.ok && res.payload?.type === 'hello-ok') {
+              reconnectAttempt.current = 0;
               setStatus('connected');
             } else {
               setStatus('error');
@@ -309,9 +311,11 @@ export function useWebSocket(
       pendingRef.current.clear();
       streamingRef.current.clear();
       setStatus('disconnected');
-      // Auto-reconnect after 3s if we have a token
+      // Auto-reconnect with exponential backoff (3s, 6s, 12s, … capped at 30s)
       if (settingsRef.current.authToken) {
-        reconnectTimer.current = setTimeout(connect, 3000);
+        const delay = Math.min(3000 * 2 ** reconnectAttempt.current, 30000);
+        reconnectAttempt.current += 1;
+        reconnectTimer.current = setTimeout(connect, delay);
       }
     };
 

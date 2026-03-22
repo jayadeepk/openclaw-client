@@ -588,6 +588,34 @@ describe('useWebSocket - disconnect and reconnect', () => {
     jest.useRealTimers();
   });
 
+  it('uses exponential backoff for subsequent reconnects', () => {
+    jest.useFakeTimers();
+    const { result } = renderHook(() => useWebSocket(defaultSettings));
+    act(() => {
+      result.current.connect();
+    });
+
+    // First close → reconnect after 3s
+    let ws = getLastWs();
+    act(() => { ws.onclose?.(); });
+    const countAfterFirstClose = MockWebSocket.instances.length;
+    act(() => { jest.advanceTimersByTime(2999); });
+    expect(MockWebSocket.instances.length).toBe(countAfterFirstClose);
+    act(() => { jest.advanceTimersByTime(1); });
+    expect(MockWebSocket.instances.length).toBe(countAfterFirstClose + 1);
+
+    // Second close → reconnect after 6s
+    ws = getLastWs();
+    act(() => { ws.onclose?.(); });
+    const countAfterSecondClose = MockWebSocket.instances.length;
+    act(() => { jest.advanceTimersByTime(5999); });
+    expect(MockWebSocket.instances.length).toBe(countAfterSecondClose);
+    act(() => { jest.advanceTimersByTime(1); });
+    expect(MockWebSocket.instances.length).toBe(countAfterSecondClose + 1);
+
+    jest.useRealTimers();
+  });
+
   it('does not reconnect when authToken is empty', () => {
     jest.useFakeTimers();
     const noTokenSettings = { ...defaultSettings, authToken: '' };
