@@ -5,8 +5,6 @@ import {
   TouchableOpacity,
   View,
   Text,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { theme } from '../constants/theme';
 
@@ -27,10 +25,6 @@ export function ChatInput({ onSend, disabled }: Props) {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={90}
-    >
       <View style={styles.container}>
         <TextInput
           style={styles.input}
@@ -54,7 +48,6 @@ export function ChatInput({ onSend, disabled }: Props) {
           <Text style={styles.sendIcon}>↑</Text>
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
   );
 }
 

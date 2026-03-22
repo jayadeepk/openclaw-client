@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -48,11 +48,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
   const keyExtractor = useCallback((item: ChatMessage) => item.id, []);
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { paddingTop: insets.top }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={0}
-    >
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
         <View>
@@ -99,7 +95,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       {/* Input */}
       <ChatInput onSend={sendMessage} disabled={status !== 'connected'} />
       <View style={{ height: insets.bottom }} />
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
