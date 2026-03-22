@@ -123,7 +123,7 @@ export function useWebSocket(
             minProtocol: 3,
             maxProtocol: 3,
             client: {
-              id: 'openclaw-android',
+              id: 'openclaw-control-ui',
               version: '1.0.0',
               platform: 'mobile',
               mode: 'ui',
