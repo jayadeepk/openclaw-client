@@ -23,6 +23,8 @@ type PendingResolver = (res: ResFrame) => void;
 export interface UseWebSocketReturn {
   messages: ChatMessage[];
   status: ConnectionStatus;
+  /** Seconds until next reconnect attempt (0 when not reconnecting) */
+  reconnectIn: number;
   sendMessage: (text: string) => void;
   connect: () => void;
   disconnect: () => void;
@@ -43,9 +45,11 @@ export function useWebSocket(
 ): UseWebSocketReturn {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
+  const [reconnectIn, setReconnectIn] = useState(0);
 
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const countdownTimer = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const reconnectAttempt = useRef(0);
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
@@ -265,6 +269,8 @@ export function useWebSocket(
 
   const disconnect = useCallback(() => {
     clearTimeout(reconnectTimer.current);
+    clearInterval(countdownTimer.current);
+    setReconnectIn(0);
     if (wsRef.current) {
       wsRef.current.onclose = null; // prevent reconnect loop
       wsRef.current.close();
@@ -310,12 +316,25 @@ export function useWebSocket(
       wsRef.current = null;
       pendingRef.current.clear();
       streamingRef.current.clear();
-      setStatus('disconnected');
       // Auto-reconnect with exponential backoff (3s, 6s, 12s, … capped at 30s)
       if (settingsRef.current.authToken) {
         const delay = Math.min(3000 * 2 ** reconnectAttempt.current, 30000);
         reconnectAttempt.current += 1;
+        const delaySec = Math.ceil(delay / 1000);
+        setReconnectIn(delaySec);
+        setStatus('reconnecting');
+        countdownTimer.current = setInterval(() => {
+          setReconnectIn((prev) => {
+            if (prev <= 1) {
+              clearInterval(countdownTimer.current);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
         reconnectTimer.current = setTimeout(connect, delay);
+      } else {
+        setStatus('disconnected');
       }
     };
 
@@ -363,5 +382,5 @@ export function useWebSocket(
     streamingRef.current.clear();
   }, []);
 
-  return { messages, status, sendMessage, connect, disconnect, clearMessages };
+  return { messages, status, reconnectIn, sendMessage, connect, disconnect, clearMessages };
 }

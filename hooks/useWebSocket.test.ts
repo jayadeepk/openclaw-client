@@ -578,10 +578,17 @@ describe('useWebSocket - disconnect and reconnect', () => {
       ws.onclose?.();
     });
 
+    expect(result.current.status).toBe('reconnecting');
+    expect(result.current.reconnectIn).toBe(3);
     expect(MockWebSocket.instances.length).toBe(initialCount);
 
     act(() => {
-      jest.advanceTimersByTime(3000);
+      jest.advanceTimersByTime(1000);
+    });
+    expect(result.current.reconnectIn).toBe(2);
+
+    act(() => {
+      jest.advanceTimersByTime(2000);
     });
 
     expect(MockWebSocket.instances.length).toBeGreaterThan(initialCount);

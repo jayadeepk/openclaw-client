@@ -134,4 +134,5 @@ export type ConnectionStatus =
   | 'connecting'
   | 'authenticating'
   | 'connected'
+  | 'reconnecting'
   | 'error';

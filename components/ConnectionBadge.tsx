@@ -5,24 +5,29 @@ import { theme } from '../constants/theme';
 
 interface Props {
   status: ConnectionStatus;
+  reconnectIn?: number;
 }
 
 const STATUS_CONFIG: Record<ConnectionStatus, { label: string; color: string }> = {
   connected: { label: 'Connected', color: theme.colors.accent },
   connecting: { label: 'Connecting...', color: '#ffaa00' },
   authenticating: { label: 'Authenticating...', color: '#ff8c00' },
+  reconnecting: { label: 'Reconnecting', color: '#ffaa00' },
   disconnected: { label: 'Disconnected', color: theme.colors.textMuted },
   error: { label: 'Connection Error', color: theme.colors.error },
 };
 
 /** Small pill-shaped badge showing WebSocket connection status */
-export function ConnectionBadge({ status }: Props) {
+export function ConnectionBadge({ status, reconnectIn }: Props) {
   const config = STATUS_CONFIG[status];
+  const label = status === 'reconnecting' && reconnectIn
+    ? `Reconnecting in ${String(reconnectIn)}s...`
+    : config.label;
 
   return (
-    <View style={styles.container} accessibilityRole="text" accessibilityLabel={`Connection status: ${config.label}`}>
+    <View style={styles.container} accessibilityRole="text" accessibilityLabel={`Connection status: ${label}`}>
       <View style={[styles.dot, { backgroundColor: config.color }]} />
-      <Text style={[styles.label, { color: config.color }]}>{config.label}</Text>
+      <Text style={[styles.label, { color: config.color }]}>{label}</Text>
     </View>
   );
 }

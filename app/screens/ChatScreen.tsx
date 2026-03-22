@@ -23,7 +23,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList<ChatMessage>>(null);
   const { playAudio } = useAudioPlayer();
-  const { messages, status, sendMessage, connect, disconnect, clearMessages } = useWebSocket(
+  const { messages, status, reconnectIn, sendMessage, connect, disconnect, clearMessages } = useWebSocket(
     settings,
     (base64Audio, format) => { void playAudio(base64Audio, format); },
   );
@@ -56,7 +56,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       <View style={styles.header}>
         <View>
           <Text style={styles.title}>OpenClaw</Text>
-          <ConnectionBadge status={status} />
+          <ConnectionBadge status={status} reconnectIn={reconnectIn} />
         </View>
         <View style={styles.headerActions}>
           {messages.length > 0 && (
