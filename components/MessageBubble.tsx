@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ChatMessage } from '../types';
 import { theme } from '../constants/theme';
+import { MarkdownText } from './MarkdownText';
 
 interface Props {
   message: ChatMessage;
@@ -27,10 +28,17 @@ export function MessageBubble({ message, onRetry }: Props) {
           {isSystem ? 'System' : 'OpenClaw'}
         </Text>
       )}
-      <Text style={[styles.text, isSystem && styles.textSystem]}>
-        {message.content}
-        {message.streaming ? <Text style={styles.cursor}>▌</Text> : null}
-      </Text>
+      {isUser || isSystem ? (
+        <Text style={[styles.text, isSystem && styles.textSystem]}>
+          {message.content}
+          {message.streaming ? <Text style={styles.cursor}>▌</Text> : null}
+        </Text>
+      ) : (
+        <View>
+          <MarkdownText baseStyle={styles.text}>{message.content}</MarkdownText>
+          {message.streaming ? <Text style={styles.cursor}>▌</Text> : null}
+        </View>
+      )}
       {canRetry && (
         <Text style={styles.retryHint}>Tap to retry</Text>
       )}

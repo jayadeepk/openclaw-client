@@ -1,0 +1,217 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MarkdownText snapshots plain text 1`] = `
+<View>
+  <Text
+    style={
+      [
+        {
+          "color": "#e8e8ef",
+          "fontSize": 15,
+          "lineHeight": 22,
+          "marginBottom": 4,
+        },
+        undefined,
+      ]
+    }
+  >
+    Hello world
+  </Text>
+</View>
+`;
+
+exports[`MarkdownText snapshots rich markdown 1`] = `
+<View>
+  <Text
+    style={
+      [
+        {
+          "color": "#e8e8ef",
+          "fontSize": 15,
+          "lineHeight": 22,
+          "marginBottom": 4,
+        },
+        undefined,
+        {
+          "fontWeight": "700",
+          "marginBottom": 4,
+          "marginTop": 4,
+        },
+        {
+          "fontSize": 18,
+          "lineHeight": 26,
+        },
+      ]
+    }
+  >
+    Heading
+  </Text>
+  <Text
+    style={
+      [
+        {
+          "color": "#e8e8ef",
+          "fontSize": 15,
+          "lineHeight": 22,
+          "marginBottom": 4,
+        },
+        undefined,
+      ]
+    }
+  >
+    Paragraph with 
+    <Text
+      style={
+        {
+          "fontWeight": "700",
+        }
+      }
+    >
+      bold
+    </Text>
+    , 
+    <Text
+      style={
+        {
+          "fontStyle": "italic",
+        }
+      }
+    >
+      italic
+    </Text>
+    , and 
+    <Text
+      style={
+        {
+          "backgroundColor": "#14141c",
+          "borderRadius": 3,
+          "color": "#00d4aa",
+          "fontFamily": "monospace",
+          "fontSize": 13,
+          "paddingHorizontal": 4,
+        }
+      }
+    >
+      code
+    </Text>
+    .
+  </Text>
+  <View
+    style={
+      {
+        "marginBottom": 4,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "flexDirection": "row",
+          "marginBottom": 2,
+        }
+      }
+    >
+      <Text
+        style={
+          [
+            {
+              "color": "#8888a0",
+              "fontSize": 15,
+              "lineHeight": 22,
+              "width": 20,
+            },
+            undefined,
+          ]
+        }
+      >
+        •
+      </Text>
+      <Text
+        style={
+          [
+            {
+              "color": "#e8e8ef",
+              "fontSize": 15,
+              "lineHeight": 22,
+              "marginBottom": 4,
+            },
+            {
+              "flex": 1,
+              "marginBottom": 0,
+            },
+            undefined,
+          ]
+        }
+      >
+        Bullet one
+      </Text>
+    </View>
+    <View
+      style={
+        {
+          "flexDirection": "row",
+          "marginBottom": 2,
+        }
+      }
+    >
+      <Text
+        style={
+          [
+            {
+              "color": "#8888a0",
+              "fontSize": 15,
+              "lineHeight": 22,
+              "width": 20,
+            },
+            undefined,
+          ]
+        }
+      >
+        •
+      </Text>
+      <Text
+        style={
+          [
+            {
+              "color": "#e8e8ef",
+              "fontSize": 15,
+              "lineHeight": 22,
+              "marginBottom": 4,
+            },
+            {
+              "flex": 1,
+              "marginBottom": 0,
+            },
+            undefined,
+          ]
+        }
+      >
+        Bullet two
+      </Text>
+    </View>
+  </View>
+  <View
+    style={
+      {
+        "backgroundColor": "#14141c",
+        "borderRadius": 8,
+        "marginVertical": 4,
+        "padding": 8,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "#e8e8ef",
+          "fontFamily": "monospace",
+          "fontSize": 13,
+          "lineHeight": 20,
+        }
+      }
+    >
+      const x = 42;
+    </Text>
+  </View>
+</View>
+`;

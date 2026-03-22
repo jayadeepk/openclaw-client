@@ -41,20 +41,29 @@ exports[`MessageBubble snapshots assistant message 1`] = `
     >
       OpenClaw
     </Text>
-    <Text
-      style={
-        [
-          {
-            "color": "#e8e8ef",
-            "fontSize": 15,
-            "lineHeight": 22,
-          },
-          false,
-        ]
-      }
-    >
-      Hi! How can I help?
-    </Text>
+    <View>
+      <View>
+        <Text
+          style={
+            [
+              {
+                "color": "#e8e8ef",
+                "fontSize": 15,
+                "lineHeight": 22,
+                "marginBottom": 4,
+              },
+              {
+                "color": "#e8e8ef",
+                "fontSize": 15,
+                "lineHeight": 22,
+              },
+            ]
+          }
+        >
+          Hi! How can I help?
+        </Text>
+      </View>
+    </View>
     <Text
       style={
         [
@@ -115,19 +124,28 @@ exports[`MessageBubble snapshots streaming message 1`] = `
     >
       OpenClaw
     </Text>
-    <Text
-      style={
-        [
-          {
-            "color": "#e8e8ef",
-            "fontSize": 15,
-            "lineHeight": 22,
-          },
-          false,
-        ]
-      }
-    >
-      Thinking...
+    <View>
+      <View>
+        <Text
+          style={
+            [
+              {
+                "color": "#e8e8ef",
+                "fontSize": 15,
+                "lineHeight": 22,
+                "marginBottom": 4,
+              },
+              {
+                "color": "#e8e8ef",
+                "fontSize": 15,
+                "lineHeight": 22,
+              },
+            ]
+          }
+        >
+          Thinking...
+        </Text>
+      </View>
       <Text
         style={
           {
@@ -138,7 +156,7 @@ exports[`MessageBubble snapshots streaming message 1`] = `
       >
         ▌
       </Text>
-    </Text>
+    </View>
     <Text
       style={
         [
