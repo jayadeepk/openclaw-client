@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import * as Speech from 'expo-speech';
 import {
   AppSettings,
-  AudioEventPayload,
   ChatEventPayload,
   ChatMessage,
   ChatSendParams,
@@ -29,7 +29,6 @@ export interface UseWebSocketReturn {
   clearMessages: () => void;
 }
 
-type OnAudioReceived = (base64Audio: string, format: string) => void;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -62,7 +61,6 @@ function makeSystemMsg(content: string): ChatMessage {
  */
 export function useWebSocket(
   settings: AppSettings,
-  onAudioReceived?: OnAudioReceived,
 ): UseWebSocketReturn {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
@@ -72,8 +70,6 @@ export function useWebSocket(
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
 
-  const onAudioRef = useRef(onAudioReceived);
-  onAudioRef.current = onAudioReceived;
 
   // Pending req/res map: id → resolve function
   const pendingRef = useRef<Map<string, PendingResolver>>(new Map());
@@ -102,6 +98,17 @@ export function useWebSocket(
     },
     [sendFrame],
   );
+
+  // ── Speak assistant text using device TTS ────────────────────────────────
+
+  const speakText = useCallback((text: string) => {
+    try {
+      Speech.stop();
+      Speech.speak(text);
+    } catch {
+      // TTS is best-effort
+    }
+  }, []);
 
   // ── Handle incoming event frames ─────────────────────────────────────────
 
@@ -176,11 +183,12 @@ export function useWebSocket(
               ]);
             }
           } else if (state === 'final') {
+            let finalContent: string;
             const existing = streamingRef.current.get(runId);
             if (existing) {
               // Mark streaming done, set final content
               const finalText = extractText(message.content);
-              const finalContent = existing.content + (finalText ?? '');
+              finalContent = existing.content + (finalText ?? '');
               setMessages((prev) =>
                 prev.map((m) =>
                   m.id === existing.msgId
@@ -191,6 +199,7 @@ export function useWebSocket(
               streamingRef.current.delete(runId);
             } else {
               // Non-streaming final (complete message in one shot)
+              finalContent = text;
               setMessages((prev) => [
                 ...prev,
                 {
@@ -200,6 +209,10 @@ export function useWebSocket(
                   timestamp: Date.now(),
                 },
               ]);
+            }
+            // Request TTS for the final assistant message
+            if (finalContent) {
+              void speakText(finalContent);
             }
           } else if (state === 'error' || state === 'aborted') {
             const existing = streamingRef.current.get(runId);
@@ -217,15 +230,6 @@ export function useWebSocket(
           break;
         }
 
-        case 'audio': {
-          // TTS audio from gateway
-          const payload = frame.payload as AudioEventPayload;
-          if (payload.audio) {
-            onAudioRef.current?.(payload.audio, payload.format ?? 'audio/mp3');
-          }
-          break;
-        }
-
         case 'tick':
           // Server heartbeat — nothing to do
           break;
@@ -239,7 +243,7 @@ export function useWebSocket(
           break;
       }
     },
-    [sendReq],
+    [sendReq, speakText],
   );
 
   // ── Handle incoming res frames ────────────────────────────────────────────

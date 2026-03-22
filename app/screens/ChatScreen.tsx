@@ -7,7 +7,6 @@ import { MessageBubble } from '../../components/MessageBubble';
 import { ChatInput } from '../../components/ChatInput';
 import { ConnectionBadge } from '../../components/ConnectionBadge';
 import { useWebSocket } from '../../hooks/useWebSocket';
-import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { AppSettings, ChatMessage } from '../../types';
 import { theme } from '../../constants/theme';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -22,14 +21,8 @@ interface ChatScreenProps {
 export function ChatScreen({ navigation, settings }: ChatScreenProps) {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList<ChatMessage>>(null);
-  const { playAudio } = useAudioPlayer();
-
   const { messages, status, sendMessage, connect, disconnect, clearMessages } = useWebSocket(
     settings,
-    // Auto-play TTS audio from the gateway
-    (base64Audio, format) => {
-      playAudio(base64Audio, format);
-    },
   );
 
   // Connect when settings change (e.g. after saving new gateway URL)
