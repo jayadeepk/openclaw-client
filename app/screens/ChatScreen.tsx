@@ -1,15 +1,17 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MessageBubble } from '../../components/MessageBubble';
+import { DateSeparator } from '../../components/DateSeparator';
 import { ChatInput } from '../../components/ChatInput';
 import { ConnectionBadge } from '../../components/ConnectionBadge';
 import { TypingIndicator } from '../../components/TypingIndicator';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { AppSettings, ChatMessage } from '../../types';
+import { ChatListItem, insertDateSeparators } from '../../utils/chatHelpers';
 import { theme } from '../../constants/theme';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { loadMessages, saveMessages, clearPersistedMessages } from '../../utils/storage';
@@ -23,7 +25,7 @@ interface ChatScreenProps {
 
 export function ChatScreen({ navigation, settings }: ChatScreenProps) {
   const insets = useSafeAreaInsets();
-  const flatListRef = useRef<FlatList<ChatMessage>>(null);
+  const flatListRef = useRef<FlatList<ChatListItem>>(null);
   const { playAudio } = useAudioPlayer();
   const [initialMessages, setInitialMessages] = useState<ChatMessage[] | undefined>(undefined);
   const [loaded, setLoaded] = useState(false);
@@ -66,12 +68,19 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
     }
   }, [messages.length]);
 
+  const listItems = useMemo(() => insertDateSeparators(messages), [messages]);
+
   const renderItem = useCallback(
-    ({ item }: { item: ChatMessage }) => <MessageBubble message={item} />,
+    ({ item }: { item: ChatListItem }) => {
+      if ('type' in item) {
+        return <DateSeparator label={item.label} />;
+      }
+      return <MessageBubble message={item} />;
+    },
     [],
   );
 
-  const keyExtractor = useCallback((item: ChatMessage) => item.id, []);
+  const keyExtractor = useCallback((item: ChatListItem) => item.id, []);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -112,7 +121,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       ) : (
         <FlatList
           ref={flatListRef}
-          data={messages}
+          data={listItems}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
           contentContainerStyle={styles.messageList}

@@ -1,4 +1,5 @@
-import { nextId, extractText, makeUserMsg, makeSystemMsg } from './chatHelpers';
+import { nextId, extractText, makeUserMsg, makeSystemMsg, formatDayLabel, insertDateSeparators, DateSeparatorItem } from './chatHelpers';
+import { ChatMessage } from '../types';
 
 describe('nextId', () => {
   it('returns a string starting with rn_', () => {
@@ -67,5 +68,70 @@ describe('makeSystemMsg', () => {
     expect(msg.content).toBe('error occurred');
     expect(msg.id).toMatch(/^rn_/);
     expect(typeof msg.timestamp).toBe('number');
+  });
+});
+
+describe('formatDayLabel', () => {
+  const now = new Date(2026, 2, 22, 12, 0, 0).getTime(); // Mar 22, 2026
+
+  it('returns "Today" for same day', () => {
+    expect(formatDayLabel(now, now)).toBe('Today');
+  });
+
+  it('returns "Yesterday" for previous day', () => {
+    const yesterday = now - 86400000;
+    expect(formatDayLabel(yesterday, now)).toBe('Yesterday');
+  });
+
+  it('returns formatted date for older messages', () => {
+    const threeDaysAgo = now - 3 * 86400000;
+    const label = formatDayLabel(threeDaysAgo, now);
+    // Should contain "Mar" and "19"
+    expect(label).toContain('Mar');
+    expect(label).toContain('19');
+  });
+});
+
+describe('insertDateSeparators', () => {
+  const now = new Date(2026, 2, 22, 12, 0, 0).getTime();
+  const yesterday = now - 86400000;
+
+  const makeMsg = (id: string, timestamp: number): ChatMessage => ({
+    id,
+    role: 'user',
+    content: `msg-${id}`,
+    timestamp,
+  });
+
+  it('returns empty array for empty messages', () => {
+    expect(insertDateSeparators([], now)).toEqual([]);
+  });
+
+  it('adds a separator before the first message', () => {
+    const msgs = [makeMsg('1', now)];
+    const result = insertDateSeparators(msgs, now);
+    expect(result).toHaveLength(2);
+    expect((result[0] as DateSeparatorItem).type).toBe('date-separator');
+    expect((result[0] as DateSeparatorItem).label).toBe('Today');
+  });
+
+  it('groups same-day messages under one separator', () => {
+    const msgs = [
+      makeMsg('1', now),
+      makeMsg('2', now + 1000),
+    ];
+    const result = insertDateSeparators(msgs, now);
+    expect(result).toHaveLength(3); // 1 separator + 2 messages
+  });
+
+  it('inserts separator between different days', () => {
+    const msgs = [
+      makeMsg('1', yesterday),
+      makeMsg('2', now),
+    ];
+    const result = insertDateSeparators(msgs, now);
+    expect(result).toHaveLength(4); // 2 separators + 2 messages
+    expect((result[0] as DateSeparatorItem).label).toBe('Yesterday');
+    expect((result[2] as DateSeparatorItem).label).toBe('Today');
   });
 });
