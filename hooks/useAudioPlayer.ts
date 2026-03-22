@@ -1,0 +1,66 @@
+import { useCallback, useRef } from 'react';
+import { Audio } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
+
+/**
+ * Provides a function to play base64-encoded audio received from the gateway.
+ * Uses expo-av for playback and writes a temp file via expo-file-system.
+ */
+export function useAudioPlayer() {
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  /** Play base64 audio data. Automatically stops any currently playing audio. */
+  const playAudio = useCallback(async (base64Audio: string, mimeType: string = 'audio/mp3') => {
+    try {
+      // Stop previous sound if still playing
+      if (soundRef.current) {
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+
+      // Configure audio mode for playback
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: false,
+        shouldDuckAndroid: true,
+      });
+
+      // Determine file extension from MIME type
+      const ext = mimeType.includes('wav') ? 'wav' : mimeType.includes('ogg') ? 'ogg' : 'mp3';
+      const fileUri = `${FileSystem.cacheDirectory}openclaw_tts_${Date.now()}.${ext}`;
+
+      // Write the base64 audio to a temporary file
+      await FileSystem.writeAsStringAsync(fileUri, base64Audio, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Load and play
+      const { sound } = await Audio.Sound.createAsync({ uri: fileUri }, { shouldPlay: true });
+      soundRef.current = sound;
+
+      // Clean up when playback finishes
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          sound.unloadAsync();
+          soundRef.current = null;
+          // Remove temp file
+          FileSystem.deleteAsync(fileUri, { idempotent: true }).catch(() => {});
+        }
+      });
+    } catch (err) {
+      console.warn('Audio playback failed:', err);
+    }
+  }, []);
+
+  /** Stop any currently playing audio */
+  const stopAudio = useCallback(async () => {
+    if (soundRef.current) {
+      await soundRef.current.stopAsync();
+      await soundRef.current.unloadAsync();
+      soundRef.current = null;
+    }
+  }, []);
+
+  return { playAudio, stopAudio };
+}
