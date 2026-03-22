@@ -1,4 +1,3 @@
-- Scroll-to-bottom FAB
 - Markdown rendering for assistant messages
 - Code block copy button
 - Message actions (long-press menu: copy, retry, delete, share)
