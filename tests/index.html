@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test Results - OpenClaw Client</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0f; color: #e0e0e0; padding: 24px; }
+  h1 { font-size: 1.5rem; margin-bottom: 8px; }
+  .summary { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; padding: 16px; background: #1a1a2e; border-radius: 8px; border-left: 4px solid #4caf50; }
+  .summary .stat { display: flex; flex-direction: column; }
+  .summary .stat .value { font-size: 1.4rem; font-weight: 700; }
+  .summary .stat .label { font-size: 0.8rem; color: #888; text-transform: uppercase; }
+  .status { color: #4caf50; font-weight: 600; font-size: 1.1rem; margin-bottom: 16px; }
+  .suite { margin-bottom: 12px; background: #1a1a2e; border-radius: 8px; overflow: hidden; }
+  .suite-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; cursor: pointer; user-select: none; }
+  .suite-header:hover { background: #252540; }
+  .suite-meta { color: #888; font-size: 0.85rem; }
+  .suite.collapsed .tests { display: none; }
+  table.tests { width: 100%; border-collapse: collapse; }
+  table.tests tr { border-top: 1px solid #252540; }
+  table.tests td { padding: 8px 16px; font-size: 0.9rem; }
+  table.tests td:first-child { width: 30px; text-align: center; }
+  table.tests td:last-child { width: 70px; text-align: right; color: #888; }
+  tr.fail { background: #2a1520; }
+  .fail-msg { margin-top: 8px; padding: 8px; background: #1a0a10; border-radius: 4px; font-size: 0.8rem; color: #ff6b6b; overflow-x: auto; white-space: pre-wrap; }
+  .timestamp { color: #555; font-size: 0.8rem; margin-top: 24px; }
+</style>
+</head>
+<body>
+<h1>Test Results</h1>
+<p class="status">All tests passed</p>
+<div class="summary">
+  <div class="stat"><span class="value">161</span><span class="label">Tests</span></div>
+  <div class="stat"><span class="value" style="color:#4caf50">161</span><span class="label">Passed</span></div>
+  <div class="stat"><span class="value" style="color:#4caf50">0</span><span class="label">Failed</span></div>
+  <div class="stat"><span class="value">17</span><span class="label">Suites</span></div>
+  <div class="stat"><span class="value">29.7s</span><span class="label">Duration</span></div>
+</div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>app/screens/ChatScreen.integration.test.tsx</strong></span>
+      <span class="suite-meta">11/11 passed &middot; 10.61s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatScreen integration &gt; shows empty state when no messages</td>
+      <td>3485ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatScreen integration &gt; shows connected prompt when authToken exists</td>
+      <td>27ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatScreen integration &gt; connects and shows Connected badge after handshake</td>
+      <td>27ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatScreen integration &gt; full flow: connect → send message → receive streaming response</td>
+      <td>2353ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatScreen integration &gt; clear button removes all messages</td>
+      <td>32ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatScreen integration &gt; pull-to-refresh triggers reconnect when disconnected</td>
+      <td>23ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatScreen integration &gt; pull-to-refresh is no-op when already connected</td>
+      <td>24ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatScreen integration &gt; plays audio when gateway returns TTS audio</td>
+      <td>23ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatScreen integration &gt; settings button navigates to Settings</td>
+      <td>13ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatScreen integration &gt; shows connection error status</td>
+      <td>12ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatScreen integration &gt; input is disabled when not connected</td>
+      <td>12ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>app/screens/SettingsScreen.snapshot.test.tsx</strong></span>
+      <span class="suite-meta">2/2 passed &middot; 0.17s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>SettingsScreen snapshots &gt; renders with default settings</td>
+      <td>46ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>SettingsScreen snapshots &gt; renders with empty settings</td>
+      <td>8ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>app/screens/SettingsScreen.test.tsx</strong></span>
+      <span class="suite-meta">7/7 passed &middot; 4.08s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>SettingsScreen &gt; renders with initial settings values</td>
+      <td>3586ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>SettingsScreen &gt; calls onSave with trimmed values on valid save</td>
+      <td>13ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>SettingsScreen &gt; calls onGoBack after save</td>
+      <td>8ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>SettingsScreen &gt; shows alert when host is empty</td>
+      <td>9ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>SettingsScreen &gt; shows alert when port is non-numeric</td>
+      <td>8ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>SettingsScreen &gt; shows alert when port is empty</td>
+      <td>8ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>SettingsScreen &gt; back button calls onGoBack</td>
+      <td>8ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>components/ChatInput.snapshot.test.tsx</strong></span>
+      <span class="suite-meta">2/2 passed &middot; 0.14s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatInput snapshots &gt; enabled state</td>
+      <td>25ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatInput snapshots &gt; disabled state</td>
+      <td>3ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>components/ChatInput.test.tsx</strong></span>
+      <span class="suite-meta">8/8 passed &middot; 5.52s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatInput &gt; renders input and send button</td>
+      <td>2813ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatInput &gt; calls onSend with trimmed text on press</td>
+      <td>2212ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatInput &gt; clears input after send</td>
+      <td>9ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatInput &gt; does not call onSend with whitespace-only input</td>
+      <td>7ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatInput &gt; does not call onSend when disabled</td>
+      <td>4ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatInput &gt; input is not editable when disabled</td>
+      <td>4ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatInput &gt; sends on Enter key press on web</td>
+      <td>8ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ChatInput &gt; does not send on Shift+Enter on web</td>
+      <td>6ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>components/ConnectionBadge.snapshot.test.tsx</strong></span>
+      <span class="suite-meta">5/5 passed &middot; 0.18s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ConnectionBadge snapshots &gt; connected status</td>
+      <td>15ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ConnectionBadge snapshots &gt; connecting status</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ConnectionBadge snapshots &gt; authenticating status</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ConnectionBadge snapshots &gt; disconnected status</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ConnectionBadge snapshots &gt; error status</td>
+      <td>2ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>components/ConnectionBadge.test.tsx</strong></span>
+      <span class="suite-meta">9/9 passed &middot; 0.14s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ConnectionBadge &gt; shows "connected" label for Connected status</td>
+      <td>8ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ConnectionBadge &gt; shows "connecting" label for Connecting... status</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ConnectionBadge &gt; shows "authenticating" label for Authenticating... status</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ConnectionBadge &gt; shows "reconnecting" label for Reconnecting status</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ConnectionBadge &gt; shows "disconnected" label for Disconnected status</td>
+      <td>6ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ConnectionBadge &gt; shows "error" label for Connection Error status</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ConnectionBadge &gt; shows countdown when reconnecting with reconnectIn</td>
+      <td>5ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ConnectionBadge &gt; shows Offline when isOnline is false</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ConnectionBadge &gt; offline overrides other statuses</td>
+      <td>1ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>components/ErrorBoundary.test.tsx</strong></span>
+      <span class="suite-meta">3/3 passed &middot; 0.25s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ErrorBoundary &gt; renders children when no error</td>
+      <td>14ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ErrorBoundary &gt; renders fallback UI when child throws</td>
+      <td>30ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>ErrorBoundary &gt; recovers when Try Again is pressed</td>
+      <td>10ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>components/MessageBubble.snapshot.test.tsx</strong></span>
+      <span class="suite-meta">4/4 passed &middot; 0.17s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>MessageBubble snapshots &gt; user message</td>
+      <td>16ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>MessageBubble snapshots &gt; assistant message</td>
+      <td>3ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>MessageBubble snapshots &gt; system message</td>
+      <td>3ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>MessageBubble snapshots &gt; streaming message</td>
+      <td>2ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>components/MessageBubble.test.tsx</strong></span>
+      <span class="suite-meta">9/9 passed &middot; 0.29s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>MessageBubble &gt; renders message content</td>
+      <td>42ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>MessageBubble &gt; shows "OpenClaw" label for assistant messages</td>
+      <td>3ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>MessageBubble &gt; shows "System" label for system messages</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>MessageBubble &gt; does not show role label for user messages</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>MessageBubble &gt; shows streaming cursor when streaming</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>MessageBubble &gt; hides streaming cursor when not streaming</td>
+      <td>4ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>MessageBubble &gt; shows "Tap to retry" on system messages with retryText</td>
+      <td>34ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>MessageBubble &gt; calls onRetry with message id when tapped</td>
+      <td>5ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>MessageBubble &gt; does not show retry hint without retryText</td>
+      <td>4ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>components/TypingIndicator.test.tsx</strong></span>
+      <span class="suite-meta">2/2 passed &middot; 0.25s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>TypingIndicator &gt; renders three animated dots</td>
+      <td>120ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>TypingIndicator &gt; has accessible label</td>
+      <td>7ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>hooks/useAudioPlayer.test.ts</strong></span>
+      <span class="suite-meta">15/15 passed &middot; 0.49s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; configures audio mode on playAudio</td>
+      <td>13ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; writes base64 to temp file</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; creates player and plays</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; uses .wav extension for audio/wav</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; uses .ogg extension for audio/ogg</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; defaults to .mp3 extension</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; removes previous player before playing new one</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; stopAudio removes player</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; stopAudio is safe when nothing is playing</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; handles playAudio error gracefully</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; web platform &gt; plays audio via HTMLAudioElement with data URI on web</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; web platform &gt; normalizes gateway format strings to MIME types</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; web platform &gt; pauses previous web audio before playing new one</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; web platform &gt; stopAudio pauses web audio</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useAudioPlayer &gt; web platform &gt; does not use expo-audio on web</td>
+      <td>1ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>hooks/useNetworkStatus.test.ts</strong></span>
+      <span class="suite-meta">3/3 passed &middot; 0.12s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useNetworkStatus &gt; defaults to true (online)</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useNetworkStatus &gt; updates when network state changes</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useNetworkStatus &gt; unsubscribes on unmount</td>
+      <td>1ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>hooks/useWebSocket.test.ts</strong></span>
+      <span class="suite-meta">37/37 passed &middot; 3.88s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - connection lifecycle &gt; sets status to connecting on connect()</td>
+      <td>27ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - connection lifecycle &gt; creates WebSocket with correct URL</td>
+      <td>3ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - connection lifecycle &gt; completes handshake: challenge → connect → hello-ok → connected</td>
+      <td>5ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - connection lifecycle &gt; sends connect request with auth token after challenge</td>
+      <td>4ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - connection lifecycle &gt; sets status to authenticating after challenge</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - connection lifecycle &gt; sets status to error on auth failure</td>
+      <td>3ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - sending messages &gt; is no-op when not connected</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - sending messages &gt; adds user message optimistically</td>
+      <td>32ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - sending messages &gt; sends chat.send frame with correct params</td>
+      <td>4ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - sending messages &gt; adds system error on send failure</td>
+      <td>4ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - chat streaming &gt; delta event creates streaming assistant message</td>
+      <td>5ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - chat streaming &gt; subsequent delta updates content</td>
+      <td>5ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - chat streaming &gt; final event marks streaming false</td>
+      <td>3ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - chat streaming &gt; final without prior delta creates complete message</td>
+      <td>3ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - chat streaming &gt; error state preserves existing content</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - chat streaming &gt; aborted state preserves existing content</td>
+      <td>5ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - TTS &gt; triggers TTS request on final message</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - TTS &gt; falls back to device Speech when gateway TTS fails</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - TTS &gt; strips emojis from mixed text for TTS</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - TTS &gt; keeps emoji-only messages for TTS</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - TTS success path &gt; calls onAudioReceived when gateway TTS succeeds</td>
+      <td>3ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - TTS success path &gt; uses default format audio/mp3 when outputFormat missing</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - edge cases &gt; error event with no streaming entry is ignored</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - edge cases &gt; chat event with empty content is ignored</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - edge cases &gt; chat event with no message is ignored</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - edge cases &gt; ignores unknown event types</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - disconnect and reconnect &gt; disconnect() sets status to disconnected</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - disconnect and reconnect &gt; auto-reconnects after 3s when authToken exists</td>
+      <td>5ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - disconnect and reconnect &gt; uses exponential backoff for subsequent reconnects</td>
+      <td>5ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - disconnect and reconnect &gt; does not reconnect when authToken is empty</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - disconnect and reconnect &gt; clearMessages() empties messages array</td>
+      <td>4ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - retryMessage &gt; retries a failed message by removing error and resending</td>
+      <td>7ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - retryMessage &gt; is a no-op for non-existent error message id</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - event handling &gt; ignores non-JSON frames</td>
+      <td>7ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - event handling &gt; handles shutdown event</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - event handling &gt; handles tick event without error</td>
+      <td>4ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>useWebSocket - event handling &gt; sets status to error on ws error</td>
+      <td>2ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>utils/chatHelpers.test.ts</strong></span>
+      <span class="suite-meta">20/20 passed &middot; 0.19s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>nextId &gt; returns a string starting with rn_</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>nextId &gt; returns unique ids on sequential calls</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>extractText &gt; returns string content as-is</td>
+      <td>0ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>extractText &gt; extracts text from an object with text field</td>
+      <td>0ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>extractText &gt; joins array of strings</td>
+      <td>0ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>extractText &gt; joins array of objects with text fields</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>extractText &gt; handles mixed arrays</td>
+      <td>0ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>extractText &gt; returns empty string for null</td>
+      <td>0ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>extractText &gt; returns empty string for undefined</td>
+      <td>0ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>extractText &gt; returns empty string for empty array</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>extractText &gt; returns empty string for number</td>
+      <td>0ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>makeUserMsg &gt; creates a user message with correct fields</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>makeSystemMsg &gt; creates a system message with correct fields</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>formatDayLabel &gt; returns "Today" for same day</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>formatDayLabel &gt; returns "Yesterday" for previous day</td>
+      <td>0ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>formatDayLabel &gt; returns formatted date for older messages</td>
+      <td>18ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>insertDateSeparators &gt; returns empty array for empty messages</td>
+      <td>0ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>insertDateSeparators &gt; adds a separator before the first message</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>insertDateSeparators &gt; groups same-day messages under one separator</td>
+      <td>0ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>insertDateSeparators &gt; inserts separator between different days</td>
+      <td>1ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>utils/haptics.test.ts</strong></span>
+      <span class="suite-meta">2/2 passed &middot; 0.09s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>lightTap &gt; vibrates for 10ms on native</td>
+      <td>3ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>lightTap &gt; does not vibrate on web</td>
+      <td>1ms</td>
+    </tr></table>
+  </div>
+<div class="suite">
+    <div class="suite-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>&#x2705; <strong>utils/storage.test.ts</strong></span>
+      <span class="suite-meta">22/22 passed &middot; 3.11s</span>
+    </div>
+    <table class="tests"><tr class="pass">
+      <td>&#x2705;</td>
+      <td>loadSettings &gt; returns defaults when nothing is stored</td>
+      <td>95ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>loadSettings &gt; merges stored values with defaults and loads token from SecureStore</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>loadSettings &gt; returns empty authToken when SecureStore has no token</td>
+      <td>8ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>loadSettings &gt; returns defaults on AsyncStorage error</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>loadSettings &gt; returns defaults on corrupt JSON</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>saveSettings &gt; persists settings to AsyncStorage and token to SecureStore</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>saveSettings &gt; deletes token from SecureStore when authToken is empty</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>saveSettings &gt; swallows errors</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>loadMessages &gt; returns empty array when nothing is stored</td>
+      <td>0ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>loadMessages &gt; returns stored messages</td>
+      <td>0ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>loadMessages &gt; returns empty array on error</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>saveMessages &gt; persists messages to the correct key</td>
+      <td>28ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>saveMessages &gt; filters out streaming messages</td>
+      <td>2ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>saveMessages &gt; keeps only the most recent 100 messages</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>saveMessages &gt; swallows errors</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>clearPersistedMessages &gt; removes the messages key</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>clearPersistedMessages &gt; swallows errors</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>buildWsUrl &gt; builds correct URL from settings</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>buildWsUrl &gt; handles localhost defaults</td>
+      <td>0ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>web platform token storage &gt; loads token from localStorage on web</td>
+      <td>0ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>web platform token storage &gt; saves token to localStorage on web</td>
+      <td>1ms</td>
+    </tr><tr class="pass">
+      <td>&#x2705;</td>
+      <td>web platform token storage &gt; removes token from localStorage when empty on web</td>
+      <td>1ms</td>
+    </tr></table>
+  </div>
+<p class="timestamp">Generated 2026-03-22 20:41:49 UTC</p>
+</body>
+</html>
