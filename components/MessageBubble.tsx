@@ -7,13 +7,18 @@ import { MarkdownText } from './MarkdownText';
 interface Props {
   message: ChatMessage;
   onRetry?: (msgId: string) => void;
+  onLongPress?: (message: ChatMessage) => void;
 }
 
 /** Renders a single chat message bubble, styled by role */
-export function MessageBubble({ message, onRetry }: Props) {
+export function MessageBubble({ message, onRetry, onLongPress }: Props) {
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
   const canRetry = isSystem && !!message.retryText && !!onRetry;
+
+  const handleLongPress = () => {
+    onLongPress?.(message);
+  };
 
   const bubble = (
     <View
@@ -56,6 +61,7 @@ export function MessageBubble({ message, onRetry }: Props) {
       <View style={[styles.row, isUser && styles.rowUser]}>
         <TouchableOpacity
           onPress={() => { onRetry(message.id); }}
+          onLongPress={handleLongPress}
           activeOpacity={0.7}
           accessibilityRole="button"
           accessibilityLabel="Retry sending message"
@@ -68,7 +74,15 @@ export function MessageBubble({ message, onRetry }: Props) {
 
   return (
     <View style={[styles.row, isUser && styles.rowUser]}>
-      {bubble}
+      <TouchableOpacity
+        onLongPress={handleLongPress}
+        activeOpacity={1}
+        delayLongPress={400}
+        accessibilityRole="button"
+        accessibilityLabel="Message actions"
+      >
+        {bubble}
+      </TouchableOpacity>
     </View>
   );
 }

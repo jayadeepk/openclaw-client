@@ -39,6 +39,7 @@ export interface UseWebSocketReturn {
   connect: () => void;
   disconnect: () => void;
   clearMessages: () => void;
+  deleteMessage: (msgId: string) => void;
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -418,5 +419,9 @@ export function useWebSocket(
     streamingRef.current.clear();
   }, []);
 
-  return { messages, status, reconnectIn, isTyping, sendMessage, retryMessage, connect, disconnect, clearMessages };
+  const deleteMessage = useCallback((msgId: string) => {
+    setMessages((prev) => prev.filter((m) => m.id !== msgId));
+  }, []);
+
+  return { messages, status, reconnectIn, isTyping, sendMessage, retryMessage, connect, disconnect, clearMessages, deleteMessage };
 }

@@ -9,6 +9,7 @@ import { ChatInput } from '../../components/ChatInput';
 import { ConnectionBadge } from '../../components/ConnectionBadge';
 import { TypingIndicator } from '../../components/TypingIndicator';
 import { ScrollToBottomFAB } from '../../components/ScrollToBottomFAB';
+import { MessageActionsMenu } from '../../components/MessageActionsMenu';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
@@ -40,7 +41,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
     });
   }, []);
 
-  const { messages, status, reconnectIn, isTyping, sendMessage, retryMessage, connect, disconnect, clearMessages } = useWebSocket(
+  const { messages, status, reconnectIn, isTyping, sendMessage, retryMessage, connect, disconnect, clearMessages, deleteMessage } = useWebSocket(
     settings,
     {
       initialMessages,
@@ -79,6 +80,16 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
     }
   }, [messages.length]);
 
+  const [actionTarget, setActionTarget] = useState<ChatMessage | null>(null);
+
+  const handleMessageLongPress = useCallback((msg: ChatMessage) => {
+    setActionTarget(msg);
+  }, []);
+
+  const closeActions = useCallback(() => {
+    setActionTarget(null);
+  }, []);
+
   const listItems = useMemo(() => insertDateSeparators(messages), [messages]);
 
   const renderItem = useCallback(
@@ -86,9 +97,9 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       if ('type' in item) {
         return <DateSeparator label={item.label} />;
       }
-      return <MessageBubble message={item} onRetry={retryMessage} />;
+      return <MessageBubble message={item} onRetry={retryMessage} onLongPress={handleMessageLongPress} />;
     },
-    [retryMessage],
+    [retryMessage, handleMessageLongPress],
   );
 
   const keyExtractor = useCallback((item: ChatListItem) => item.id, []);
@@ -180,6 +191,14 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       {/* Input */}
       <ChatInput onSend={sendMessage} disabled={status !== 'connected'} />
       <View style={{ height: insets.bottom }} />
+
+      <MessageActionsMenu
+        message={actionTarget}
+        visible={actionTarget !== null}
+        onClose={closeActions}
+        onRetry={retryMessage}
+        onDelete={deleteMessage}
+      />
     </View>
   );
 }
