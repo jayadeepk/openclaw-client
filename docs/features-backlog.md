@@ -1,0 +1,4 @@
+- Offline mode (2026-03-23)
+  - Queue outgoing messages when the device is offline
+  - Automatically send queued messages when connectivity is restored
+  - Show a visual indicator when the app is offline
