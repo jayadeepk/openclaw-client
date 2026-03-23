@@ -30,7 +30,7 @@ export function useAudioPlayer() {
   const playingRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   // Ref to break circular dependency between play functions and advanceQueue
-  const advanceQueueRef = useRef<() => void>(() => {});
+  const advanceQueueRef = useRef(null as unknown as () => void);
   // Incremented on stop to cancel any in-flight async playback
   const generationRef = useRef(0);
   // When true, playAudio rejects until explicitly resumed
@@ -85,9 +85,7 @@ export function useAudioPlayer() {
       if (status.didJustFinish && !finished) {
         finished = true;
         player.remove();
-        if (playerRef.current === player) {
-          playerRef.current = null;
-        }
+        playerRef.current = null;
         advanceQueueRef.current();
       }
     });

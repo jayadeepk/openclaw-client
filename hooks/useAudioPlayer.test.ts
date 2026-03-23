@@ -313,6 +313,31 @@ describe('useAudioPlayer', () => {
     expect(result.current.isPlaying).toBe(true);
   });
 
+  it('shouldSpeak returns false after stop and true after resume', async () => {
+    const { result } = renderHook(() => useAudioPlayer());
+    expect(result.current.shouldSpeak()).toBe(true);
+
+    await act(async () => {
+      result.current.stopAudio();
+    });
+    expect(result.current.shouldSpeak()).toBe(false);
+
+    await act(async () => {
+      result.current.resumeAudio();
+    });
+    expect(result.current.shouldSpeak()).toBe(true);
+  });
+
+  it('uses default mimeType when called without format argument', async () => {
+    const { result } = renderHook(() => useAudioPlayer());
+    await act(async () => {
+      await result.current.playAudio('data');
+    });
+    // Should use default 'audio/mp3' — creates player with .mp3 extension
+    const constructorCall = MockFile.mock.calls[0];
+    expect(constructorCall[1]).toMatch(/\.mp3$/);
+  });
+
   it('ignores duplicate didJustFinish events from native player', async () => {
     const { result } = renderHook(() => useAudioPlayer());
     await act(async () => {
@@ -418,6 +443,15 @@ describe('useAudioPlayer', () => {
 
       expect(window.Audio).toHaveBeenCalledTimes(2);
       expect(result.current.isPlaying).toBe(true);
+    });
+
+    it('stopAudio is safe on web when nothing is playing', async () => {
+      const { result } = renderHook(() => useAudioPlayer());
+      await act(async () => {
+        result.current.stopAudio();
+      });
+      expect(mockPause).not.toHaveBeenCalled();
+      expect(result.current.isPlaying).toBe(false);
     });
 
     it('stopAudio pauses web audio and clears queue', async () => {
