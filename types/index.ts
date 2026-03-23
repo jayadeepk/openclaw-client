@@ -121,6 +121,8 @@ export interface ChatMessage {
   streaming?: boolean;
   /** Original text to resend on retry (only on system error messages) */
   retryText?: string;
+  /** True when the message was queued while offline and hasn't been sent yet */
+  pending?: boolean;
 }
 
 /** A single conversation */

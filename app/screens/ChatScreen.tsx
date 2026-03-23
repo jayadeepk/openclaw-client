@@ -415,7 +415,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       {isTyping && <TypingIndicator />}
 
       {/* Input */}
-      <ChatInput onSend={handleSendWithReply} disabled={status !== 'connected'} replyTo={replyTo} onCancelReply={handleCancelReply} />
+      <ChatInput onSend={handleSendWithReply} disabled={!settings.authToken} offline={status !== 'connected'} replyTo={replyTo} onCancelReply={handleCancelReply} />
       <View style={{ height: insets.bottom }} />
 
       <MessageActionsMenu

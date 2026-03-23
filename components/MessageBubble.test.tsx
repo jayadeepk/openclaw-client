@@ -61,4 +61,14 @@ describe('MessageBubble', () => {
     render(<MessageBubble message={{ ...baseMsg, role: 'system' }} />);
     expect(screen.queryByText('Tap to retry')).toBeNull();
   });
+
+  it('shows "Queued" indicator for pending messages', () => {
+    render(<MessageBubble message={{ ...baseMsg, role: 'user', pending: true }} />);
+    expect(screen.getByText(/Queued/)).toBeTruthy();
+  });
+
+  it('does not show "Queued" for non-pending messages', () => {
+    render(<MessageBubble message={{ ...baseMsg, role: 'user' }} />);
+    expect(screen.queryByText(/Queued/)).toBeNull();
+  });
 });

@@ -61,6 +61,7 @@ exports[`MessageBubble snapshots assistant message 1`] = `
           false,
           false,
           false,
+          undefined,
         ]
       }
     >
@@ -180,6 +181,7 @@ exports[`MessageBubble snapshots streaming message 1`] = `
           false,
           false,
           false,
+          undefined,
         ]
       }
     >
@@ -313,6 +315,7 @@ exports[`MessageBubble snapshots system message 1`] = `
             "borderWidth": 1,
           },
           false,
+          undefined,
         ]
       }
     >
@@ -428,6 +431,7 @@ exports[`MessageBubble snapshots user message 1`] = `
           },
           false,
           false,
+          undefined,
         ]
       }
     >

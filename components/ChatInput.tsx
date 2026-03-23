@@ -15,6 +15,8 @@ import { ReplyPreview } from './ReplyPreview';
 interface Props {
   onSend: (text: string) => void;
   disabled?: boolean;
+  /** True when the WebSocket is not connected (messages will be queued) */
+  offline?: boolean;
   replyTo?: ChatMessage | null;
   onCancelReply?: () => void;
 }
@@ -29,7 +31,7 @@ function getCounterColor(remaining: number, errorColor: string, mutedColor: stri
 }
 
 /** Text input bar with a send button */
-export function ChatInput({ onSend, disabled, replyTo, onCancelReply }: Props) {
+export function ChatInput({ onSend, disabled, offline, replyTo, onCancelReply }: Props) {
   const { theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -62,7 +64,7 @@ export function ChatInput({ onSend, disabled, replyTo, onCancelReply }: Props) {
             style={styles.input}
             value={text}
             onChangeText={setText}
-            placeholder="Message OpenClaw..."
+            placeholder={offline && !disabled ? "Message (will send when online)..." : "Message OpenClaw..."}
             placeholderTextColor={theme.colors.textMuted}
             multiline
             maxLength={MAX_LENGTH}

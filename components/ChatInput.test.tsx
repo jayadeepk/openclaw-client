@@ -75,6 +75,20 @@ describe('ChatInput', () => {
     Platform.OS = original;
   });
 
+  it('shows offline placeholder when offline', () => {
+    render(<ChatInput onSend={jest.fn()} offline />);
+    expect(screen.getByPlaceholderText('Message (will send when online)...')).toBeTruthy();
+  });
+
+  it('allows sending when offline (queues message)', () => {
+    const onSend = jest.fn();
+    render(<ChatInput onSend={onSend} offline />);
+    const input = screen.getByPlaceholderText('Message (will send when online)...');
+    fireEvent.changeText(input, 'queued hello');
+    fireEvent.press(screen.getByText('↑'));
+    expect(onSend).toHaveBeenCalledWith('queued hello');
+  });
+
   describe('character counter', () => {
     it('does not show counter for short text', () => {
       render(<ChatInput onSend={jest.fn()} />);

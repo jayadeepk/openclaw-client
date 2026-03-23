@@ -105,6 +105,7 @@ export function MessageBubble({ message, onRetry, onLongPress, onSwipeReply, sea
         isUser && styles.bubbleUser,
         isSystem && styles.bubbleSystem,
         hasMatch && styles.bubbleMatch,
+        message.pending && styles.bubblePending,
       ]}
     >
       {!isUser && (
@@ -127,7 +128,7 @@ export function MessageBubble({ message, onRetry, onLongPress, onSwipeReply, sea
         <Text style={styles.retryHint}>Tap to retry</Text>
       )}
       <Text style={[styles.timestamp, isUser && styles.timestampUser]}>
-        {new Date(message.timestamp).toLocaleTimeString([], {
+        {message.pending ? '⏳ Queued' : new Date(message.timestamp).toLocaleTimeString([], {
           hour: '2-digit',
           minute: '2-digit',
         })}
@@ -200,6 +201,9 @@ function createStyles(t: AppTheme) {
     bubbleMatch: {
       borderWidth: 1,
       borderColor: t.colors.primary,
+    },
+    bubblePending: {
+      opacity: 0.6,
     },
     roleLabel: {
       fontSize: t.fontSize.sm,

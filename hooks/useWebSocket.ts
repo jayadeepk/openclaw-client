@@ -87,6 +87,8 @@ export function useWebSocket(
   const sessionKeyRef = useRef(opts.sessionKey ?? 'main');
   sessionKeyRef.current = opts.sessionKey ?? 'main';
 
+  // Offline queue: messages queued while disconnected
+  const offlineQueueRef = useRef<{ text: string; msgId: string }[]>([]);
 
   // Pending req/res map: id → resolve function
   const pendingRef = useRef<Map<string, PendingResolver>>(new Map());
@@ -386,14 +388,18 @@ export function useWebSocket(
 
   // ── Send a chat message ──────────────────────────────────────────────────
 
-  const sendMessage = useCallback(
-    (text: string) => {
-      if (status !== 'connected') return;
-
-      lightTap();
+  const sendMessageOnline = useCallback(
+    (text: string, existingMsgId?: string) => {
+      if (existingMsgId) {
+        // Mark previously pending message as no longer pending
+        setMessages((prev) =>
+          prev.map((m) => m.id === existingMsgId ? { ...m, pending: false } : m),
+        );
+      } else {
+        lightTap();
+        setMessages((prev) => [...prev, makeUserMsg(text)]);
+      }
       setIsTyping(true);
-      // Optimistically add user message to UI
-      setMessages((prev) => [...prev, makeUserMsg(text)]);
 
       const params: ChatSendParams = {
         sessionKey: sessionKeyRef.current,
@@ -412,7 +418,22 @@ export function useWebSocket(
         }
       });
     },
-    [status, sendReq],
+    [sendReq],
+  );
+
+  const sendMessage = useCallback(
+    (text: string) => {
+      if (status === 'connected') {
+        sendMessageOnline(text);
+      } else {
+        // Queue message for later delivery
+        lightTap();
+        const msg = { ...makeUserMsg(text), pending: true };
+        offlineQueueRef.current.push({ text, msgId: msg.id });
+        setMessages((prev) => [...prev, msg]);
+      }
+    },
+    [status, sendMessageOnline],
   );
 
   // ── Retry a failed message ──────────────────────────────────────────────
@@ -429,6 +450,16 @@ export function useWebSocket(
     },
     [messages, sendMessage],
   );
+
+  // ── Flush offline queue on reconnect ─────────────────────────────────────
+
+  useEffect(() => {
+    if (status !== 'connected') return;
+    const queue = offlineQueueRef.current.splice(0);
+    for (const { text, msgId } of queue) {
+      sendMessageOnline(text, msgId);
+    }
+  }, [status, sendMessageOnline]);
 
   // ── Cleanup on unmount ────────────────────────────────────────────────────
 

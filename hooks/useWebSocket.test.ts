@@ -200,12 +200,14 @@ describe('useWebSocket - connection lifecycle', () => {
 // ─── Sending Messages ────────────────────────────────────────────────────────
 
 describe('useWebSocket - sending messages', () => {
-  it('is no-op when not connected', () => {
+  it('queues message as pending when not connected', () => {
     const { result } = renderHook(() => useWebSocket(defaultSettings));
     act(() => {
       result.current.sendMessage('hello');
     });
-    expect(result.current.messages).toHaveLength(0);
+    expect(result.current.messages).toHaveLength(1);
+    expect(result.current.messages[0].content).toBe('hello');
+    expect(result.current.messages[0].pending).toBe(true);
   });
 
   it('adds user message optimistically', async () => {
@@ -864,5 +866,61 @@ describe('useWebSocket - event handling', () => {
       ws.onerror?.();
     });
     expect(result.current.status).toBe('error');
+  });
+});
+
+// ─── Offline Queue ──────────────────────────────────────────────────────────
+
+describe('useWebSocket - offline queue', () => {
+  it('queues multiple messages while disconnected', () => {
+    const { result } = renderHook(() => useWebSocket(defaultSettings));
+    act(() => {
+      result.current.sendMessage('first');
+      result.current.sendMessage('second');
+    });
+    expect(result.current.messages).toHaveLength(2);
+    expect(result.current.messages.every((m) => m.pending === true)).toBe(true);
+  });
+
+  it('flushes queued messages when connection is established', async () => {
+    const { result } = renderHook(() => useWebSocket(defaultSettings));
+    // Queue a message while disconnected
+    act(() => {
+      result.current.sendMessage('queued msg');
+    });
+    expect(result.current.messages[0].pending).toBe(true);
+
+    // Now connect
+    act(() => {
+      result.current.connect();
+    });
+    const ws = getLastWs();
+    act(() => {
+      sendChallenge(ws);
+    });
+    const connectReq = getLastSentFrame(ws);
+    act(() => {
+      sendHelloOk(ws, connectReq.id);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // The queued message should now be sent (pending: false) and a chat.send frame sent
+    expect(result.current.messages[0].pending).toBeFalsy();
+    const chatSend = getSentFrames(ws).find((f: any) => f.method === 'chat.send');
+    expect(chatSend).toBeDefined();
+    expect(chatSend.params.message).toBe('queued msg');
+  });
+
+  it('sends messages directly when already connected', async () => {
+    const { hook, ws } = await connectFull();
+    act(() => {
+      hook.result.current.sendMessage('online msg');
+    });
+    const userMsg = hook.result.current.messages.find((m) => m.role === 'user');
+    expect(userMsg?.pending).toBeUndefined();
+    const chatSend = getSentFrames(ws).find((f: any) => f.method === 'chat.send');
+    expect(chatSend).toBeDefined();
   });
 });
