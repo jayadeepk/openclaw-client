@@ -171,7 +171,7 @@ export function useWebSocket(
               mode: 'ui',
             },
             role: 'operator',
-            scopes: ['operator.read', 'operator.write'],
+            scopes: ['operator.admin', 'operator.read', 'operator.write'],
             auth: { token: s.authToken },
           };
           void sendReq<HelloOkPayload>('connect', params).then((res) => {
