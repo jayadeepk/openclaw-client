@@ -6,3 +6,11 @@
   - Allow users to adjust the chat text size for accessibility
   - Persist the selected font size across sessions
   - Provide a range of sizes (small, medium, large, extra-large)
+- Slash commands in chat (2026-03-23)
+  - Support commands like /clear, /model, /system typed directly in the chat input
+  - Parse input starting with "/" and handle recognized commands
+  - Show autocomplete suggestions when typing a slash command
+- Input history FAB (2026-03-23)
+  - Add a FAB button to cycle through previously sent messages
+  - Tapping the FAB populates the input field with the previous message
+  - Change the send button icon from "↑" to a send icon (e.g. ➤) to free up the arrow metaphor
