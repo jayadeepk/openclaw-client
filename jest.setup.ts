@@ -66,7 +66,7 @@ jest.mock('./contexts/ThemeContext', () => {
   const themeMod = require('./constants/theme') as { buildTheme: (m: string) => unknown };
   const darkTheme = themeMod.buildTheme('dark');
   return {
-    useTheme: () => ({ theme: darkTheme, toggleTheme: jest.fn() }),
+    useTheme: () => ({ theme: darkTheme, toggleTheme: jest.fn(), setFontSize: jest.fn() }),
     ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
   };
 });

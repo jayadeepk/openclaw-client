@@ -2,11 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { AppSettings, ChatMessage, Conversation } from '../types';
-import { ThemeMode } from '../constants/theme';
+import { FontSizeLabel, ThemeMode } from '../constants/theme';
 
 const SETTINGS_KEY = '@openclaw/settings';
 const MESSAGES_KEY = '@openclaw/messages';
 const THEME_MODE_KEY = '@openclaw/themeMode';
+const FONT_SIZE_KEY = '@openclaw/fontSize';
 const CONVERSATIONS_KEY = '@openclaw/conversations';
 const ACTIVE_CONVERSATION_KEY = '@openclaw/activeConversation';
 const AUTH_TOKEN_KEY = 'openclaw_auth_token';
@@ -127,6 +128,26 @@ export async function saveThemeMode(mode: ThemeMode): Promise<void> {
     await AsyncStorage.setItem(THEME_MODE_KEY, mode);
   } catch (err) {
     console.warn('Failed to save theme mode:', err);
+  }
+}
+
+/** Load persisted font size label */
+export async function loadFontSize(): Promise<FontSizeLabel> {
+  try {
+    const raw = await AsyncStorage.getItem(FONT_SIZE_KEY);
+    if (raw === 'small' || raw === 'medium' || raw === 'large' || raw === 'extra-large') return raw;
+  } catch (err) {
+    console.warn('Failed to load font size:', err);
+  }
+  return 'medium';
+}
+
+/** Persist font size label */
+export async function saveFontSize(label: FontSizeLabel): Promise<void> {
+  try {
+    await AsyncStorage.setItem(FONT_SIZE_KEY, label);
+  } catch (err) {
+    console.warn('Failed to save font size:', err);
   }
 }
 

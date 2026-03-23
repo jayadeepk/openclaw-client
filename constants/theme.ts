@@ -61,21 +61,46 @@ export type ThemeColors = {
 };
 export type ThemeMode = 'dark' | 'light';
 
+export type FontSizeLabel = 'small' | 'medium' | 'large' | 'extra-large';
+
+/** Scale factors for each font size preset */
+export const fontScales: Record<FontSizeLabel, number> = {
+  'small': 0.85,
+  'medium': 1,
+  'large': 1.2,
+  'extra-large': 1.4,
+};
+
+export const fontSizeLabels: FontSizeLabel[] = ['small', 'medium', 'large', 'extra-large'];
+
+/** Build scaled fontSize object from a font size label */
+function scaleFontSize(label: FontSizeLabel) {
+  const scale = fontScales[label];
+  return {
+    sm: Math.round(layout.fontSize.sm * scale),
+    md: Math.round(layout.fontSize.md * scale),
+    lg: Math.round(layout.fontSize.lg * scale),
+    xl: Math.round(layout.fontSize.xl * scale),
+  } as const;
+}
+
 export interface AppTheme {
   colors: ThemeColors;
   spacing: typeof layout.spacing;
   borderRadius: typeof layout.borderRadius;
-  fontSize: typeof layout.fontSize;
+  fontSize: { sm: number; md: number; lg: number; xl: number };
   mode: ThemeMode;
+  fontSizeLabel: FontSizeLabel;
 }
 
-export function buildTheme(mode: ThemeMode): AppTheme {
+export function buildTheme(mode: ThemeMode, fontSizeLabel: FontSizeLabel = 'medium'): AppTheme {
   return {
     colors: mode === 'dark' ? darkColors : lightColors,
     spacing: layout.spacing,
     borderRadius: layout.borderRadius,
-    fontSize: layout.fontSize,
+    fontSize: scaleFontSize(fontSizeLabel),
     mode,
+    fontSizeLabel,
   };
 }
 

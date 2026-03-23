@@ -21,7 +21,7 @@ import { useNotifications } from '../../hooks/useNotifications';
 import { useTheme } from '../../contexts/ThemeContext';
 import { AppSettings, ChatMessage } from '../../types';
 import { ChatListItem, insertDateSeparators, formatConversationExport } from '../../utils/chatHelpers';
-import { AppTheme } from '../../constants/theme';
+import { AppTheme, FontSizeLabel, fontSizeLabels } from '../../constants/theme';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { loadConversationMessages } from '../../utils/storage';
 
@@ -32,9 +32,18 @@ interface ChatScreenProps {
   settings: AppSettings;
 }
 
+function fontSizeBtnLabel(label: FontSizeLabel): string {
+  switch (label) {
+    case 'small': return 'S';
+    case 'medium': return 'M';
+    case 'large': return 'L';
+    case 'extra-large': return 'XL';
+  }
+}
+
 export function ChatScreen({ navigation, settings }: ChatScreenProps) {
   const insets = useSafeAreaInsets();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, setFontSize } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const flatListRef = useRef<FlatList<ChatListItem>>(null);
   const { playAudio, stopAudio, resumeAudio, shouldSpeak, isPlaying } = useAudioPlayer();
@@ -348,6 +357,25 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
                   >
                     <Text style={styles.menuItemText}>{theme.mode === 'dark' ? '☀️  Light mode' : '🌙  Dark mode'}</Text>
                   </TouchableOpacity>
+                  <View style={styles.menuItem}>
+                    <Text style={styles.menuItemText}>🔤  Text size</Text>
+                    <View style={styles.fontSizeRow}>
+                      {fontSizeLabels.map((label) => (
+                        <TouchableOpacity
+                          key={label}
+                          style={[styles.fontSizeBtn, theme.fontSizeLabel === label && styles.fontSizeBtnActive]}
+                          onPress={() => { setFontSize(label); }}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Text size ${label}`}
+                          accessibilityState={{ selected: theme.fontSizeLabel === label }}
+                        >
+                          <Text style={[styles.fontSizeBtnText, theme.fontSizeLabel === label && styles.fontSizeBtnTextActive]}>
+                            {fontSizeBtnLabel(label)}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </View>
                   <TouchableOpacity
                     style={styles.menuItem}
                     onPress={() => { setMenuOpen(false); navigation.navigate('Settings'); }}
@@ -506,6 +534,28 @@ function createStyles(t: AppTheme) {
     },
     menuItemTextDisabled: {
       color: t.colors.textMuted,
+    },
+    fontSizeRow: {
+      flexDirection: 'row',
+      gap: 8,
+      marginTop: 8,
+    },
+    fontSizeBtn: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: t.borderRadius.sm,
+      backgroundColor: t.colors.surfaceLight,
+    },
+    fontSizeBtnActive: {
+      backgroundColor: t.colors.primary,
+    },
+    fontSizeBtnText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: t.colors.textSecondary,
+    },
+    fontSizeBtnTextActive: {
+      color: '#fff',
     },
     menuDivider: {
       height: 1,
