@@ -1,7 +1,3 @@
-- Font size settings (2026-03-23)
-  - Allow users to adjust the chat text size for accessibility
-  - Persist the selected font size across sessions
-  - Provide a range of sizes (small, medium, large, extra-large)
 - Slash commands in chat (2026-03-23)
   - Support commands like /clear, /model, /system typed directly in the chat input
   - Parse input starting with "/" and handle recognized commands
