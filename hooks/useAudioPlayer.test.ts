@@ -352,7 +352,7 @@ describe('useAudioPlayer', () => {
   describe('web platform', () => {
     let mockPlay: jest.Mock;
     let mockPause: jest.Mock;
-    let lastAudioEl: { play: jest.Mock; pause: jest.Mock; onended: (() => void) | null };
+    let lastAudioEl: { play: jest.Mock; pause: jest.Mock; onended: (() => void) | null; paused?: boolean };
 
     beforeEach(() => {
       Platform.OS = 'web';
@@ -466,6 +466,82 @@ describe('useAudioPlayer', () => {
       // isPlaying should remain true because the audio is actually playing
       expect(result.current.isPlaying).toBe(true);
 
+      warnSpy.mockRestore();
+    });
+
+    it('normalizes wav format to audio/wav MIME type', async () => {
+      const { result } = renderHook(() => useAudioPlayer());
+      await act(async () => {
+        await result.current.playAudio('data', 'audio/wav');
+      });
+      expect(window.Audio).toHaveBeenCalledWith('data:audio/wav;base64,data');
+    });
+
+    it('normalizes ogg format to audio/ogg MIME type', async () => {
+      const { result } = renderHook(() => useAudioPlayer());
+      await act(async () => {
+        await result.current.playAudio('data', 'audio/ogg');
+      });
+      expect(window.Audio).toHaveBeenCalledWith('data:audio/ogg;base64,data');
+    });
+
+    it('normalizes webm format to audio/webm MIME type', async () => {
+      const { result } = renderHook(() => useAudioPlayer());
+      await act(async () => {
+        await result.current.playAudio('data', 'audio/webm');
+      });
+      expect(window.Audio).toHaveBeenCalledWith('data:audio/webm;base64,data');
+    });
+
+    it('defaults unknown format to audio/mpeg', async () => {
+      const { result } = renderHook(() => useAudioPlayer());
+      await act(async () => {
+        await result.current.playAudio('data', 'audio/flac');
+      });
+      expect(window.Audio).toHaveBeenCalledWith('data:audio/mpeg;base64,data');
+    });
+
+    it('advances queue when play() truly fails (el.paused is true)', async () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const { result } = renderHook(() => useAudioPlayer());
+      await act(async () => {
+        await result.current.playAudio('first', 'audio/mp3');
+      });
+      const firstEl = lastAudioEl;
+      // Queue a second clip whose play() will reject
+      mockPlay.mockRejectedValueOnce(new DOMException('NotSupportedError'));
+
+      await act(async () => {
+        await result.current.playAudio('second', 'audio/mp3');
+      });
+
+      // Override Audio mock so the NEXT element created has paused=true
+      const origAudio = (window as unknown as Record<string, unknown>).Audio;
+      (window as unknown as Record<string, unknown>).Audio = jest.fn().mockImplementation(() => {
+        lastAudioEl = {
+          play: mockPlay,
+          pause: mockPause,
+          onended: null,
+          paused: true, // truly failed — audio did not start
+        };
+        return lastAudioEl;
+      });
+
+      // Simulate first clip ending → plays second clip from queue
+      // The second clip's play() will reject and el.paused is true (real failure)
+      await act(async () => {
+        firstEl.onended?.();
+      });
+      // Allow the rejected play() promise to settle
+      await act(async () => {
+        await new Promise((r) => setTimeout(r, 0));
+      });
+
+      // Queue is empty after the failed clip, so isPlaying should become false
+      expect(result.current.isPlaying).toBe(false);
+
+      (window as unknown as Record<string, unknown>).Audio = origAudio;
       warnSpy.mockRestore();
     });
 
