@@ -43,10 +43,6 @@ export function useAudioPlayer() {
 
   /** Play a single clip on web */
   const playWebClip = useCallback((base64Audio: string, mimeType: string) => {
-    if (webAudioRef.current) {
-      webAudioRef.current.pause();
-      webAudioRef.current = null;
-    }
     const browserMime = toMimeType(mimeType);
     const el = new window.Audio(`data:${browserMime};base64,${base64Audio}`);
     webAudioRef.current = el;
@@ -67,12 +63,6 @@ export function useAudioPlayer() {
 
   /** Play a single clip on native */
   const playNativeClip = useCallback(async (base64Audio: string, mimeType: string) => {
-    if (playerRef.current) {
-      playerRef.current.pause();
-      playerRef.current.remove();
-      playerRef.current = null;
-    }
-
     const gen = generationRef.current;
 
     await setAudioModeAsync({
