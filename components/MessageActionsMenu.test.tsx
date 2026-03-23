@@ -124,6 +124,18 @@ describe('MessageActionsMenu', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it('calls Share.share and closes on Share press', () => {
+    const shareSpy = jest.spyOn(require('react-native').Share, 'share').mockResolvedValue({ action: 'sharedAction' });
+    const onClose = jest.fn();
+    render(
+      <MessageActionsMenu message={baseMsg} visible={true} onClose={onClose} />,
+    );
+    fireEvent.press(screen.getByText('Share'));
+    expect(shareSpy).toHaveBeenCalledWith({ message: 'Hello world' });
+    expect(onClose).toHaveBeenCalled();
+    shareSpy.mockRestore();
+  });
+
   it('shows message preview', () => {
     render(
       <MessageActionsMenu message={baseMsg} visible={true} onClose={jest.fn()} />,

@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
-import { loadSettings, saveSettings, buildWsUrl, DEFAULT_SETTINGS, loadMessages, saveMessages, clearPersistedMessages, loadConversations, saveConversations, loadActiveConversationId, saveActiveConversationId, loadConversationMessages, saveConversationMessages, deleteConversationMessages } from './storage';
+import { loadSettings, saveSettings, buildWsUrl, DEFAULT_SETTINGS, loadMessages, saveMessages, clearPersistedMessages, loadConversations, saveConversations, loadActiveConversationId, saveActiveConversationId, loadConversationMessages, saveConversationMessages, deleteConversationMessages, loadThemeMode, saveThemeMode, loadFontSize, saveFontSize } from './storage';
 import { ChatMessage, Conversation } from '../types';
 
 const mockGetItem = AsyncStorage.getItem as jest.Mock;
@@ -212,6 +212,14 @@ describe('saveConversations', () => {
     await saveConversations(convs);
     expect(mockSetItem).toHaveBeenCalledWith('@openclaw/conversations', JSON.stringify(convs));
   });
+
+  it('swallows errors', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    mockSetItem.mockRejectedValue(new Error('write error'));
+    await expect(saveConversations([makeConv('c1')])).resolves.toBeUndefined();
+    expect(warnSpy).toHaveBeenCalledWith('Failed to save conversations:', expect.any(Error));
+    warnSpy.mockRestore();
+  });
 });
 
 describe('loadActiveConversationId', () => {
@@ -224,12 +232,28 @@ describe('loadActiveConversationId', () => {
     mockGetItem.mockResolvedValue('c1');
     expect(await loadActiveConversationId()).toBe('c1');
   });
+
+  it('returns null on error', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    mockGetItem.mockRejectedValue(new Error('read error'));
+    expect(await loadActiveConversationId()).toBeNull();
+    expect(warnSpy).toHaveBeenCalledWith('Failed to load active conversation ID:', expect.any(Error));
+    warnSpy.mockRestore();
+  });
 });
 
 describe('saveActiveConversationId', () => {
   it('persists the active conversation id', async () => {
     await saveActiveConversationId('c1');
     expect(mockSetItem).toHaveBeenCalledWith('@openclaw/activeConversation', 'c1');
+  });
+
+  it('swallows errors', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    mockSetItem.mockRejectedValue(new Error('write error'));
+    await expect(saveActiveConversationId('c1')).resolves.toBeUndefined();
+    expect(warnSpy).toHaveBeenCalledWith('Failed to save active conversation ID:', expect.any(Error));
+    warnSpy.mockRestore();
   });
 });
 
@@ -245,6 +269,14 @@ describe('loadConversationMessages', () => {
     const result = await loadConversationMessages('c1');
     expect(result).toEqual(msgs);
     expect(mockGetItem).toHaveBeenCalledWith('@openclaw/conv_messages/c1');
+  });
+
+  it('returns empty array on error', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    mockGetItem.mockRejectedValue(new Error('read error'));
+    expect(await loadConversationMessages('c1')).toEqual([]);
+    expect(warnSpy).toHaveBeenCalledWith('Failed to load conversation messages:', expect.any(Error));
+    warnSpy.mockRestore();
   });
 });
 
@@ -264,12 +296,115 @@ describe('saveConversationMessages', () => {
     const saved = JSON.parse(mockSetItem.mock.calls[0][1] as string) as ChatMessage[];
     expect(saved).toHaveLength(1);
   });
+
+  it('swallows errors', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    mockSetItem.mockRejectedValue(new Error('write error'));
+    await expect(saveConversationMessages('c1', [makeMsg('1')])).resolves.toBeUndefined();
+    expect(warnSpy).toHaveBeenCalledWith('Failed to save conversation messages:', expect.any(Error));
+    warnSpy.mockRestore();
+  });
 });
 
 describe('deleteConversationMessages', () => {
   it('removes the conversation messages key', async () => {
     await deleteConversationMessages('c1');
     expect(mockRemoveItem).toHaveBeenCalledWith('@openclaw/conv_messages/c1');
+  });
+
+  it('swallows errors', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    mockRemoveItem.mockRejectedValue(new Error('remove error'));
+    await expect(deleteConversationMessages('c1')).resolves.toBeUndefined();
+    expect(warnSpy).toHaveBeenCalledWith('Failed to delete conversation messages:', expect.any(Error));
+    warnSpy.mockRestore();
+  });
+});
+
+// ─── Theme Mode Storage ──────────────────────────────────────────────────────
+
+describe('loadThemeMode', () => {
+  it('returns dark when nothing is stored', async () => {
+    mockGetItem.mockResolvedValue(null);
+    expect(await loadThemeMode()).toBe('dark');
+  });
+
+  it('returns light when stored', async () => {
+    mockGetItem.mockResolvedValue('light');
+    expect(await loadThemeMode()).toBe('light');
+  });
+
+  it('returns dark on error', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    mockGetItem.mockRejectedValue(new Error('read error'));
+    expect(await loadThemeMode()).toBe('dark');
+    expect(warnSpy).toHaveBeenCalledWith('Failed to load theme mode:', expect.any(Error));
+    warnSpy.mockRestore();
+  });
+
+  it('returns dark on invalid value', async () => {
+    mockGetItem.mockResolvedValue('blue');
+    expect(await loadThemeMode()).toBe('dark');
+  });
+});
+
+describe('saveThemeMode', () => {
+  it('persists to the correct key', async () => {
+    await saveThemeMode('light');
+    expect(mockSetItem).toHaveBeenCalledWith('@openclaw/themeMode', 'light');
+  });
+
+  it('swallows errors', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    mockSetItem.mockRejectedValue(new Error('write error'));
+    await expect(saveThemeMode('dark')).resolves.toBeUndefined();
+    expect(warnSpy).toHaveBeenCalledWith('Failed to save theme mode:', expect.any(Error));
+    warnSpy.mockRestore();
+  });
+});
+
+// ─── Font Size Storage ───────────────────────────────────────────────────────
+
+describe('loadFontSize', () => {
+  it('returns medium as default', async () => {
+    mockGetItem.mockResolvedValue(null);
+    expect(await loadFontSize()).toBe('medium');
+  });
+
+  it.each(['small', 'medium', 'large', 'extra-large'] as const)(
+    'returns stored value %s',
+    async (label) => {
+      mockGetItem.mockResolvedValue(label);
+      expect(await loadFontSize()).toBe(label);
+    },
+  );
+
+  it('returns medium on error', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    mockGetItem.mockRejectedValue(new Error('read error'));
+    expect(await loadFontSize()).toBe('medium');
+    expect(warnSpy).toHaveBeenCalledWith('Failed to load font size:', expect.any(Error));
+    warnSpy.mockRestore();
+  });
+
+  it('returns medium on invalid value', async () => {
+    mockGetItem.mockResolvedValue('huge');
+    expect(await loadFontSize()).toBe('medium');
+  });
+});
+
+describe('saveFontSize', () => {
+  it('persists to the correct key', async () => {
+    await saveFontSize('large');
+    expect(mockSetItem).toHaveBeenCalledWith('@openclaw/fontSize', 'large');
+  });
+
+  it('swallows errors', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    mockSetItem.mockRejectedValue(new Error('write error'));
+    await expect(saveFontSize('medium')).resolves.toBeUndefined();
+    expect(warnSpy).toHaveBeenCalledWith('Failed to save font size:', expect.any(Error));
+    warnSpy.mockRestore();
   });
 });
 

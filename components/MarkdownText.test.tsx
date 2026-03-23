@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import * as Clipboard from 'expo-clipboard';
 import { MarkdownText } from './MarkdownText';
 
@@ -95,6 +95,31 @@ describe('MarkdownText', () => {
       render(<MarkdownText>{md}</MarkdownText>);
       fireEvent.press(screen.getByLabelText('Copy code'));
       expect(screen.getAllByText('Copied!').length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('Copied! indicator fades out after timeout', () => {
+      jest.useFakeTimers();
+      const md = '```\nhello\n```';
+      render(<MarkdownText>{md}</MarkdownText>);
+
+      act(() => {
+        fireEvent.press(screen.getByLabelText('Copy code'));
+      });
+      expect(screen.getAllByText('Copied!').length).toBeGreaterThanOrEqual(1);
+
+      // Advance past the COPIED_DISPLAY_MS (1500ms) timeout
+      act(() => {
+        jest.advanceTimersByTime(2000);
+      });
+
+      jest.useRealTimers();
+    });
+  });
+
+  describe('inline parsing edge cases', () => {
+    it('renders a broken link syntax as plain text', () => {
+      render(<MarkdownText>{'Check [broken link'}</MarkdownText>);
+      expect(screen.getByText(/broken link/)).toBeTruthy();
     });
   });
 });

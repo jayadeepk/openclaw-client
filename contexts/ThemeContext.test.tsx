@@ -2,7 +2,7 @@ import React from 'react';
 import { Text } from 'react-native';
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import { ThemeProvider, useTheme } from './ThemeContext';
-import { FontSizeLabel } from '../constants/theme';
+import * as storage from '../utils/storage';
 
 // Override the global mock from jest.setup.ts for this file
 jest.unmock('./ThemeContext');
@@ -84,10 +84,72 @@ describe('ThemeContext', () => {
     expect(screen.getByTestId('mode').props.children).toBe('light');
   });
 
+  it('scales font sizes when set to extra-large', () => {
+    render(
+      <ThemeProvider initialMode="dark" initialFontSize="extra-large">
+        <TestConsumer />
+      </ThemeProvider>,
+    );
+    expect(screen.getByTestId('fontSizeLabel').props.children).toBe('extra-large');
+    // 15 * 1.4 = 21
+    expect(screen.getByTestId('fontSizeMd').props.children).toBe('21');
+  });
+
+  it('changes font size to extra-large via setFontSize', () => {
+    render(
+      <ThemeProvider initialMode="dark" initialFontSize="medium">
+        <TestConsumer />
+      </ThemeProvider>,
+    );
+    expect(screen.getByTestId('fontSizeLabel').props.children).toBe('medium');
+
+    act(() => {
+      fireEvent.press(screen.getByTestId('setXL'));
+    });
+    expect(screen.getByTestId('fontSizeLabel').props.children).toBe('extra-large');
+  });
+
   it('throws when useTheme is used outside ThemeProvider', () => {
     // Suppress console.error for this test
     const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => render(<TestConsumer />)).toThrow('useTheme must be used within ThemeProvider');
     spy.mockRestore();
+  });
+
+  it('renders null while loading from storage (no initialMode)', () => {
+    const loadThemeModeSpy = jest.spyOn(storage, 'loadThemeMode').mockReturnValue(new Promise(() => {}));
+    const loadFontSizeSpy = jest.spyOn(storage, 'loadFontSize').mockReturnValue(new Promise(() => {}));
+
+    const { toJSON } = render(
+      <ThemeProvider>
+        <TestConsumer />
+      </ThemeProvider>,
+    );
+    expect(toJSON()).toBeNull();
+
+    loadThemeModeSpy.mockRestore();
+    loadFontSizeSpy.mockRestore();
+  });
+
+  it('loads theme mode and font size from storage when no initialMode', async () => {
+    const loadThemeModeSpy = jest.spyOn(storage, 'loadThemeMode').mockResolvedValue('light');
+    const loadFontSizeSpy = jest.spyOn(storage, 'loadFontSize').mockResolvedValue('large');
+
+    render(
+      <ThemeProvider>
+        <TestConsumer />
+      </ThemeProvider>,
+    );
+
+    // Wait for the storage load to complete
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.getByTestId('mode').props.children).toBe('light');
+    expect(screen.getByTestId('fontSizeLabel').props.children).toBe('large');
+
+    loadThemeModeSpy.mockRestore();
+    loadFontSizeSpy.mockRestore();
   });
 });
