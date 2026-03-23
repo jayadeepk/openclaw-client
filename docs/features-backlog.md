@@ -1,7 +1,3 @@
-- Offline mode (2026-03-23)
-  - Queue outgoing messages when the device is offline
-  - Automatically send queued messages when connectivity is restored
-  - Show a visual indicator when the app is offline
 - Font size settings (2026-03-23)
   - Allow users to adjust the chat text size for accessibility
   - Persist the selected font size across sessions

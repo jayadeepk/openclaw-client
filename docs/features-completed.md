@@ -23,3 +23,7 @@
   - The stop FAB is visible correctly but tapping it does not stop the currently playing audio
   - Investigate `useAudioPlayer` — ensure `stopAudio` is wired up and actually called on the active sound instance
   - After fix, pressing the stop FAB must immediately halt playback and hide the FAB
+- Offline mode (2026-03-23)
+  - Queue outgoing messages when the device is offline
+  - Automatically send queued messages when connectivity is restored
+  - Show a visual indicator when the app is offline
