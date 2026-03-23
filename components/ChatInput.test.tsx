@@ -4,10 +4,10 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 import { ChatInput } from './ChatInput';
 
 describe('ChatInput', () => {
-  it('renders input and send button', () => {
+  it('renders input and send button with ➤ icon', () => {
     render(<ChatInput onSend={jest.fn()} />);
     expect(screen.getByPlaceholderText('Message OpenClaw...')).toBeTruthy();
-    expect(screen.getByText('↑')).toBeTruthy();
+    expect(screen.getByText('➤')).toBeTruthy();
   });
 
   it('calls onSend with trimmed text on press', () => {
@@ -15,7 +15,7 @@ describe('ChatInput', () => {
     render(<ChatInput onSend={onSend} />);
     const input = screen.getByPlaceholderText('Message OpenClaw...');
     fireEvent.changeText(input, '  hello  ');
-    fireEvent.press(screen.getByText('↑'));
+    fireEvent.press(screen.getByLabelText('Send message'));
     expect(onSend).toHaveBeenCalledWith('hello');
   });
 
@@ -23,7 +23,7 @@ describe('ChatInput', () => {
     render(<ChatInput onSend={jest.fn()} />);
     const input = screen.getByPlaceholderText('Message OpenClaw...');
     fireEvent.changeText(input, 'hello');
-    fireEvent.press(screen.getByText('↑'));
+    fireEvent.press(screen.getByLabelText('Send message'));
     expect(input.props.value).toBe('');
   });
 
@@ -32,7 +32,7 @@ describe('ChatInput', () => {
     render(<ChatInput onSend={onSend} />);
     const input = screen.getByPlaceholderText('Message OpenClaw...');
     fireEvent.changeText(input, '   ');
-    fireEvent.press(screen.getByText('↑'));
+    fireEvent.press(screen.getByLabelText('Send message'));
     expect(onSend).not.toHaveBeenCalled();
   });
 
@@ -41,7 +41,7 @@ describe('ChatInput', () => {
     render(<ChatInput onSend={onSend} disabled />);
     const input = screen.getByPlaceholderText('Message OpenClaw...');
     fireEvent.changeText(input, 'hello');
-    fireEvent.press(screen.getByText('↑'));
+    fireEvent.press(screen.getByLabelText('Send message'));
     expect(onSend).not.toHaveBeenCalled();
   });
 
@@ -85,7 +85,7 @@ describe('ChatInput', () => {
     render(<ChatInput onSend={onSend} offline />);
     const input = screen.getByPlaceholderText('Message (will send when online)...');
     fireEvent.changeText(input, 'queued hello');
-    fireEvent.press(screen.getByText('↑'));
+    fireEvent.press(screen.getByLabelText('Send message'));
     expect(onSend).toHaveBeenCalledWith('queued hello');
   });
 
@@ -130,7 +130,7 @@ describe('ChatInput', () => {
       render(<ChatInput onSend={onSend} onSlashCommand={onSlashCommand} />);
       const input = screen.getByPlaceholderText('Message OpenClaw...');
       fireEvent.changeText(input, '/clear');
-      fireEvent.press(screen.getByText('↑'));
+      fireEvent.press(screen.getByLabelText('Send message'));
       expect(onSlashCommand).toHaveBeenCalledWith('/clear');
       expect(onSend).not.toHaveBeenCalled();
     });
@@ -141,9 +141,63 @@ describe('ChatInput', () => {
       render(<ChatInput onSend={onSend} onSlashCommand={onSlashCommand} />);
       const input = screen.getByPlaceholderText('Message OpenClaw...');
       fireEvent.changeText(input, '/unknown');
-      fireEvent.press(screen.getByText('↑'));
+      fireEvent.press(screen.getByLabelText('Send message'));
       expect(onSend).toHaveBeenCalledWith('/unknown');
       expect(onSlashCommand).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('input history', () => {
+    it('does not show history button when no messages have been sent', () => {
+      render(<ChatInput onSend={jest.fn()} />);
+      expect(screen.queryByLabelText('Previous message')).toBeNull();
+    });
+
+    it('shows history button after sending a message and clearing input', () => {
+      const onSend = jest.fn();
+      render(<ChatInput onSend={onSend} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      fireEvent.changeText(input, 'hello');
+      fireEvent.press(screen.getByLabelText('Send message'));
+      // After sending, input is cleared and history button should appear
+      expect(screen.getByLabelText('Previous message')).toBeTruthy();
+    });
+
+    it('populates input with previous message when history button is pressed', () => {
+      const onSend = jest.fn();
+      render(<ChatInput onSend={onSend} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      fireEvent.changeText(input, 'first message');
+      fireEvent.press(screen.getByLabelText('Send message'));
+      // Press history button
+      fireEvent.press(screen.getByLabelText('Previous message'));
+      expect(input.props.value).toBe('first message');
+    });
+
+    it('cycles through multiple history entries', () => {
+      const onSend = jest.fn();
+      render(<ChatInput onSend={onSend} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      // Send two messages
+      fireEvent.changeText(input, 'first');
+      fireEvent.press(screen.getByLabelText('Send message'));
+      fireEvent.changeText(input, 'second');
+      fireEvent.press(screen.getByLabelText('Send message'));
+      // History: ['second', 'first'] (most recent first)
+      fireEvent.press(screen.getByLabelText('Previous message'));
+      expect(input.props.value).toBe('second');
+    });
+
+    it('hides history button when input has text', () => {
+      const onSend = jest.fn();
+      render(<ChatInput onSend={onSend} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      fireEvent.changeText(input, 'first');
+      fireEvent.press(screen.getByLabelText('Send message'));
+      expect(screen.getByLabelText('Previous message')).toBeTruthy();
+      // Start typing — history button should hide
+      fireEvent.changeText(input, 'typing...');
+      expect(screen.queryByLabelText('Previous message')).toBeNull();
     });
   });
 
@@ -190,7 +244,7 @@ describe('ChatInput', () => {
       const input = screen.getByPlaceholderText('Message OpenClaw...');
       fireEvent.changeText(input, 'x'.repeat(3950));
       expect(screen.getByLabelText('146 characters remaining')).toBeTruthy();
-      fireEvent.press(screen.getByText('↑'));
+      fireEvent.press(screen.getByLabelText('Send message'));
       expect(screen.queryByLabelText(/characters remaining/)).toBeNull();
     });
   });

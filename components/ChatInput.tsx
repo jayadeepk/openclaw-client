@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Platform,
   StyleSheet,
@@ -42,11 +42,28 @@ export function ChatInput({ onSend, onSlashCommand, disabled, offline, replyTo, 
   const remaining = MAX_LENGTH - text.length;
   const showCounter = text.length > 0 && remaining <= COUNTER_THRESHOLD;
 
+  // Input history
+  const historyRef = useRef<string[]>([]);
+  const historyIndexRef = useRef(-1);
+  const MAX_HISTORY = 50;
+
+  const showHistoryBtn = text.length === 0 && historyRef.current.length > 0;
+
+  const handleHistoryUp = useCallback(() => {
+    const history = historyRef.current;
+    if (history.length === 0) return;
+    const nextIndex = historyIndexRef.current + 1;
+    if (nextIndex >= history.length) return;
+    historyIndexRef.current = nextIndex;
+    setText(history[nextIndex]);
+  }, []);
+
   const suggestions = useMemo(() => matchCommands(text), [text]);
   const showSuggestions = suggestions.length > 0 && text.startsWith('/');
 
   const handleSelectCommand = (cmd: SlashCommand) => {
     setText('');
+    historyIndexRef.current = -1;
     onSlashCommand?.(cmd.name);
   };
 
@@ -57,9 +74,18 @@ export function ChatInput({ onSend, onSlashCommand, disabled, offline, replyTo, 
     const cmd = isSlashCommand(trimmed);
     if (cmd) {
       setText('');
+      historyIndexRef.current = -1;
       onSlashCommand?.(cmd.name);
       return;
     }
+    // Add to history (most recent first, avoid duplicates at top)
+    if (historyRef.current[0] !== trimmed) {
+      historyRef.current.unshift(trimmed);
+      if (historyRef.current.length > MAX_HISTORY) {
+        historyRef.current.pop();
+      }
+    }
+    historyIndexRef.current = -1;
     onSend(trimmed);
     setText('');
   };
@@ -118,6 +144,17 @@ export function ChatInput({ onSend, onSlashCommand, disabled, offline, replyTo, 
             </Text>
           )}
         </View>
+        {showHistoryBtn && (
+          <TouchableOpacity
+            style={styles.historyBtn}
+            onPress={handleHistoryUp}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Previous message"
+          >
+            <Text style={styles.historyIcon}>↑</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={[styles.sendBtn, (!text.trim() || disabled) && styles.sendBtnDisabled]}
           onPress={handleSend}
@@ -127,7 +164,7 @@ export function ChatInput({ onSend, onSlashCommand, disabled, offline, replyTo, 
           accessibilityLabel="Send message"
           accessibilityState={{ disabled: !text.trim() || disabled }}
         >
-          <Text style={styles.sendIcon}>↑</Text>
+          <Text style={styles.sendIcon}>➤</Text>
         </TouchableOpacity>
       </View>
       </View>
@@ -166,6 +203,22 @@ function createStyles(t: AppTheme) {
       marginTop: 2,
       marginRight: t.spacing.xs,
     },
+    historyBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: t.colors.surfaceLight,
+      borderWidth: 1,
+      borderColor: t.colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: t.spacing.xs,
+    },
+    historyIcon: {
+      color: t.colors.textSecondary,
+      fontSize: 16,
+      fontWeight: '700',
+    },
     sendBtn: {
       width: 40,
       height: 40,
@@ -179,7 +232,7 @@ function createStyles(t: AppTheme) {
     },
     sendIcon: {
       color: '#fff',
-      fontSize: 20,
+      fontSize: 18,
       fontWeight: '700',
     },
     suggestions: {

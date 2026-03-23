@@ -126,7 +126,7 @@ describe('ChatScreen integration', () => {
     // Type and send a message
     const input = screen.getByPlaceholderText('Message OpenClaw...');
     fireEvent.changeText(input, 'Hello OpenClaw');
-    fireEvent.press(screen.getByText('↑'));
+    fireEvent.press(screen.getByLabelText('Send message'));
 
     // User message should appear
     expect(screen.getByText('Hello OpenClaw')).toBeTruthy();
@@ -168,7 +168,7 @@ describe('ChatScreen integration', () => {
 
     // Send a message
     fireEvent.changeText(screen.getByPlaceholderText('Message OpenClaw...'), 'test');
-    fireEvent.press(screen.getByText('↑'));
+    fireEvent.press(screen.getByLabelText('Send message'));
     expect(screen.getByText('test')).toBeTruthy();
 
     // Open menu and start new conversation
@@ -216,7 +216,7 @@ describe('ChatScreen integration', () => {
 
     // Send a message so we get a FlatList instead of ScrollView
     fireEvent.changeText(screen.getByPlaceholderText('Message OpenClaw...'), 'test');
-    fireEvent.press(screen.getByText('↑'));
+    fireEvent.press(screen.getByLabelText('Send message'));
 
     const flatList = UNSAFE_getByType(require('react-native').FlatList);
     const refreshControl = flatList.props.refreshControl;

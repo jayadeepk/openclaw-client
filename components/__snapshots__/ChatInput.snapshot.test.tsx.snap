@@ -97,12 +97,12 @@ exports[`ChatInput snapshots disabled state 1`] = `
         style={
           {
             "color": "#fff",
-            "fontSize": 20,
+            "fontSize": 18,
             "fontWeight": "700",
           }
         }
       >
-        ↑
+        ➤
       </Text>
     </View>
   </View>
@@ -206,12 +206,12 @@ exports[`ChatInput snapshots enabled state 1`] = `
         style={
           {
             "color": "#fff",
-            "fontSize": 20,
+            "fontSize": 18,
             "fontWeight": "700",
           }
         }
       >
-        ↑
+        ➤
       </Text>
     </View>
   </View>
