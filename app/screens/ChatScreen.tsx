@@ -83,7 +83,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
     });
   }, [loaded, activeConversationId]);
 
-  const { messages, status, reconnectIn, isTyping, sendMessage: wsSendMessage, retryMessage, connect, disconnect, deleteMessage, replaceMessages } = useWebSocket(
+  const { messages, status, reconnectIn, isTyping, sendMessage: wsSendMessage, retryMessage, connect, disconnect, clearMessages, deleteMessage, replaceMessages } = useWebSocket(
     settings,
     {
       initialMessages,
@@ -171,6 +171,23 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       sendMessage(text);
     }
   }, [replyTo, sendMessage]);
+
+  const handleSlashCommand = useCallback((command: string) => {
+    switch (command) {
+      case '/clear':
+        clearMessages();
+        break;
+      case '/new':
+        handleNewConversation();
+        break;
+      case '/export':
+        handleExport();
+        break;
+      case '/theme':
+        toggleTheme();
+        break;
+    }
+  }, [clearMessages, handleNewConversation, handleExport, toggleTheme]);
 
   const isOnline = useNetworkStatus();
 
@@ -443,7 +460,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       {isTyping && <TypingIndicator />}
 
       {/* Input */}
-      <ChatInput onSend={handleSendWithReply} disabled={!settings.authToken} offline={status !== 'connected'} replyTo={replyTo} onCancelReply={handleCancelReply} />
+      <ChatInput onSend={handleSendWithReply} onSlashCommand={handleSlashCommand} disabled={!settings.authToken} offline={status !== 'connected'} replyTo={replyTo} onCancelReply={handleCancelReply} />
       <View style={{ height: insets.bottom }} />
 
       <MessageActionsMenu

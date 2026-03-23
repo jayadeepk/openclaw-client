@@ -89,6 +89,64 @@ describe('ChatInput', () => {
     expect(onSend).toHaveBeenCalledWith('queued hello');
   });
 
+  describe('slash commands', () => {
+    it('shows autocomplete suggestions when typing /', () => {
+      render(<ChatInput onSend={jest.fn()} onSlashCommand={jest.fn()} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      fireEvent.changeText(input, '/');
+      expect(screen.getByText('/clear')).toBeTruthy();
+      expect(screen.getByText('/new')).toBeTruthy();
+      expect(screen.getByText('/export')).toBeTruthy();
+      expect(screen.getByText('/theme')).toBeTruthy();
+    });
+
+    it('filters suggestions as user types', () => {
+      render(<ChatInput onSend={jest.fn()} onSlashCommand={jest.fn()} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      fireEvent.changeText(input, '/cl');
+      expect(screen.getByText('/clear')).toBeTruthy();
+      expect(screen.queryByText('/new')).toBeNull();
+    });
+
+    it('hides suggestions for non-slash input', () => {
+      render(<ChatInput onSend={jest.fn()} onSlashCommand={jest.fn()} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      fireEvent.changeText(input, 'hello');
+      expect(screen.queryByText('/clear')).toBeNull();
+    });
+
+    it('calls onSlashCommand when tapping a suggestion', () => {
+      const onSlashCommand = jest.fn();
+      render(<ChatInput onSend={jest.fn()} onSlashCommand={onSlashCommand} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      fireEvent.changeText(input, '/');
+      fireEvent.press(screen.getByText('/clear'));
+      expect(onSlashCommand).toHaveBeenCalledWith('/clear');
+    });
+
+    it('calls onSlashCommand when sending an exact slash command', () => {
+      const onSend = jest.fn();
+      const onSlashCommand = jest.fn();
+      render(<ChatInput onSend={onSend} onSlashCommand={onSlashCommand} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      fireEvent.changeText(input, '/clear');
+      fireEvent.press(screen.getByText('↑'));
+      expect(onSlashCommand).toHaveBeenCalledWith('/clear');
+      expect(onSend).not.toHaveBeenCalled();
+    });
+
+    it('sends regular text starting with / if not a recognized command', () => {
+      const onSend = jest.fn();
+      const onSlashCommand = jest.fn();
+      render(<ChatInput onSend={onSend} onSlashCommand={onSlashCommand} />);
+      const input = screen.getByPlaceholderText('Message OpenClaw...');
+      fireEvent.changeText(input, '/unknown');
+      fireEvent.press(screen.getByText('↑'));
+      expect(onSend).toHaveBeenCalledWith('/unknown');
+      expect(onSlashCommand).not.toHaveBeenCalled();
+    });
+  });
+
   describe('character counter', () => {
     it('does not show counter for short text', () => {
       render(<ChatInput onSend={jest.fn()} />);

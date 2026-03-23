@@ -11,9 +11,12 @@ import { AppTheme } from '../constants/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { ChatMessage } from '../types';
 import { ReplyPreview } from './ReplyPreview';
+import { matchCommands, isSlashCommand, SlashCommand } from '../utils/slashCommands';
 
 interface Props {
   onSend: (text: string) => void;
+  /** Called when the user submits a recognized slash command */
+  onSlashCommand?: (command: string) => void;
   disabled?: boolean;
   /** True when the WebSocket is not connected (messages will be queued) */
   offline?: boolean;
@@ -31,7 +34,7 @@ function getCounterColor(remaining: number, errorColor: string, mutedColor: stri
 }
 
 /** Text input bar with a send button */
-export function ChatInput({ onSend, disabled, offline, replyTo, onCancelReply }: Props) {
+export function ChatInput({ onSend, onSlashCommand, disabled, offline, replyTo, onCancelReply }: Props) {
   const { theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -39,9 +42,24 @@ export function ChatInput({ onSend, disabled, offline, replyTo, onCancelReply }:
   const remaining = MAX_LENGTH - text.length;
   const showCounter = text.length > 0 && remaining <= COUNTER_THRESHOLD;
 
+  const suggestions = useMemo(() => matchCommands(text), [text]);
+  const showSuggestions = suggestions.length > 0 && text.startsWith('/');
+
+  const handleSelectCommand = (cmd: SlashCommand) => {
+    setText('');
+    onSlashCommand?.(cmd.name);
+  };
+
   const handleSend = () => {
     const trimmed = text.trim();
     if (!trimmed || disabled) return;
+    // Check if it's a slash command
+    const cmd = isSlashCommand(trimmed);
+    if (cmd) {
+      setText('');
+      onSlashCommand?.(cmd.name);
+      return;
+    }
     onSend(trimmed);
     setText('');
   };
@@ -57,6 +75,22 @@ export function ChatInput({ onSend, disabled, offline, replyTo, onCancelReply }:
       <View>
         {replyTo && onCancelReply && (
           <ReplyPreview message={replyTo} onDismiss={onCancelReply} />
+        )}
+        {showSuggestions && (
+          <View style={styles.suggestions} accessibilityRole="menu" accessibilityLabel="Slash command suggestions">
+            {suggestions.map((cmd) => (
+              <TouchableOpacity
+                key={cmd.name}
+                style={styles.suggestionItem}
+                onPress={() => { handleSelectCommand(cmd); }}
+                accessibilityRole="menuitem"
+                accessibilityLabel={cmd.name}
+              >
+                <Text style={styles.suggestionName}>{cmd.name}</Text>
+                <Text style={styles.suggestionDesc}>{cmd.description}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         )}
       <View style={styles.container}>
         <View style={styles.inputWrapper}>
@@ -147,6 +181,28 @@ function createStyles(t: AppTheme) {
       color: '#fff',
       fontSize: 20,
       fontWeight: '700',
+    },
+    suggestions: {
+      backgroundColor: t.colors.surface,
+      borderTopWidth: 1,
+      borderTopColor: t.colors.border,
+      paddingVertical: t.spacing.xs,
+    },
+    suggestionItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: t.spacing.md,
+      paddingVertical: t.spacing.sm,
+      gap: t.spacing.sm,
+    },
+    suggestionName: {
+      color: t.colors.primary,
+      fontSize: t.fontSize.md,
+      fontWeight: '600',
+    },
+    suggestionDesc: {
+      color: t.colors.textSecondary,
+      fontSize: t.fontSize.sm,
     },
   });
 }
