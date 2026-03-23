@@ -171,7 +171,7 @@ export function ChatScreen({ navigation, settings }: ChatScreenProps) {
       connect();
     }
     return () => { disconnect(); };
-  }, [settings.gatewayHost, settings.gatewayPort, settings.authToken]);
+  }, [settings.gatewayHost, settings.gatewayPort, settings.authToken, connect, disconnect]);
 
   // Reconnect when network comes back online
   useEffect(() => {

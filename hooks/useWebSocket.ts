@@ -74,6 +74,8 @@ export function useWebSocket(
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const countdownTimer = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const reconnectAttempt = useRef(0);
+  // Guards against processing connect.challenge more than once per WebSocket
+  const handshakeSentRef = useRef(false);
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
   const onAudioRef = useRef(opts.onAudioReceived);
@@ -159,6 +161,9 @@ export function useWebSocket(
     (frame: EventFrame) => {
       switch (frame.event) {
         case 'connect.challenge': {
+          // Guard: only send one connect request per WebSocket connection
+          if (handshakeSentRef.current) break;
+          handshakeSentRef.current = true;
           // Step 2: respond to the challenge with our connect req
           const s = settingsRef.current;
           const params: ConnectParams = {
@@ -324,6 +329,7 @@ export function useWebSocket(
     disconnect();
 
     const url = buildWsUrl(settingsRef.current);
+    handshakeSentRef.current = false;
     setStatus('connecting');
 
     const ws = new WebSocket(url);

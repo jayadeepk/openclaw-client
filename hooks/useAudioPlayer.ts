@@ -56,8 +56,12 @@ export function useAudioPlayer() {
     };
     void el.play().catch((e: unknown) => {
       console.warn('Web audio playback failed:', e);
-      webAudioRef.current = null;
-      advanceQueueRef.current();
+      // Only advance if the audio truly failed — some browsers reject the
+      // play() promise yet still begin playback (autoplay-policy edge case).
+      if (el.paused) {
+        webAudioRef.current = null;
+        advanceQueueRef.current();
+      }
     });
   }, []);
 
@@ -86,8 +90,10 @@ export function useAudioPlayer() {
     const player = createAudioPlayer({ uri: file.uri });
     playerRef.current = player;
 
+    let finished = false;
     player.addListener('playbackStatusUpdate', (status) => {
-      if (status.didJustFinish) {
+      if (status.didJustFinish && !finished) {
+        finished = true;
         player.remove();
         if (playerRef.current === player) {
           playerRef.current = null;

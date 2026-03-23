@@ -174,6 +174,27 @@ describe('useWebSocket - connection lifecycle', () => {
     expect(result.current.status).toBe('error');
     expect(result.current.messages.some((m) => m.content.includes('Invalid token'))).toBe(true);
   });
+  it('ignores duplicate connect.challenge on the same connection', () => {
+    const { result } = renderHook(() => useWebSocket(defaultSettings));
+    act(() => {
+      result.current.connect();
+    });
+    const ws = getLastWs();
+    act(() => {
+      sendChallenge(ws);
+    });
+    // First challenge should have sent a connect request
+    const frames = getSentFrames(ws);
+    expect(frames).toHaveLength(1);
+    expect(frames[0].method).toBe('connect');
+
+    // Sending a second challenge on the same connection
+    act(() => {
+      sendChallenge(ws);
+    });
+    // Should NOT send another connect request
+    expect(getSentFrames(ws)).toHaveLength(1);
+  });
 });
 
 // ─── Sending Messages ────────────────────────────────────────────────────────

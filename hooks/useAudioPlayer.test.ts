@@ -313,6 +313,33 @@ describe('useAudioPlayer', () => {
     expect(result.current.isPlaying).toBe(true);
   });
 
+  it('ignores duplicate didJustFinish events from native player', async () => {
+    const { result } = renderHook(() => useAudioPlayer());
+    await act(async () => {
+      await result.current.playAudio('first', 'audio/mp3');
+    });
+    await act(async () => {
+      await result.current.playAudio('second', 'audio/mp3');
+    });
+    expect(result.current.isPlaying).toBe(true);
+
+    // Simulate first clip firing didJustFinish TWICE (expo-audio quirk)
+    const firstPlayer = mockCreateAudioPlayer.mock.results[0].value;
+    await act(async () => {
+      firstPlayer._fireFinish();
+    });
+    // Second clip should now be playing — isPlaying must stay true
+    expect(result.current.isPlaying).toBe(true);
+    expect(mockCreateAudioPlayer).toHaveBeenCalledTimes(2);
+
+    // Fire didJustFinish again from the FIRST player (duplicate event)
+    await act(async () => {
+      firstPlayer._fireFinish();
+    });
+    // isPlaying must still be true — the duplicate must be ignored
+    expect(result.current.isPlaying).toBe(true);
+  });
+
   it('registers playbackStatusUpdate listener on native player', async () => {
     const { result } = renderHook(() => useAudioPlayer());
     await act(async () => {
@@ -406,6 +433,40 @@ describe('useAudioPlayer', () => {
       });
       expect(mockPause).toHaveBeenCalled();
       expect(result.current.isPlaying).toBe(false);
+    });
+
+    it('does not advance queue when play() rejects but audio is actually playing', async () => {
+      // Simulate browser quirk: play() rejects but audio still plays
+      mockPlay.mockRejectedValueOnce(new DOMException('NotAllowedError'));
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const { result } = renderHook(() => useAudioPlayer());
+      await act(async () => {
+        await result.current.playAudio('first', 'audio/mp3');
+      });
+      const firstEl = lastAudioEl;
+      // Make second clip's play() also reject but audio plays (paused = false)
+      mockPlay.mockRejectedValueOnce(new DOMException('NotAllowedError'));
+
+      await act(async () => {
+        await result.current.playAudio('second', 'audio/mp3');
+      });
+
+      // Simulate first clip ending → plays second clip from queue
+      // The second clip's play() will reject, but the element isn't paused
+      Object.defineProperty(lastAudioEl, 'paused', { value: false, writable: true });
+      await act(async () => {
+        firstEl.onended?.();
+      });
+      // Allow the rejected play() promise to settle
+      await act(async () => {
+        await new Promise((r) => setTimeout(r, 0));
+      });
+
+      // isPlaying should remain true because the audio is actually playing
+      expect(result.current.isPlaying).toBe(true);
+
+      warnSpy.mockRestore();
     });
 
     it('does not use expo-audio on web', async () => {
