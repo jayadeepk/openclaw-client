@@ -24,6 +24,10 @@ type PendingResolver = (res: ResFrame) => void;
 export interface UseWebSocketOptions {
   initialMessages?: ChatMessage[];
   onAudioReceived?: OnAudioReceived;
+  onFinalMessage?: (content: string) => void;
+  /** When provided, speakText checks this before producing any audio. */
+  shouldSpeak?: () => boolean;
+  sessionKey?: string;
 }
 
 export interface UseWebSocketReturn {
@@ -39,6 +43,9 @@ export interface UseWebSocketReturn {
   connect: () => void;
   disconnect: () => void;
   clearMessages: () => void;
+  deleteMessage: (msgId: string) => void;
+  /** Replace all messages (used when switching conversations) */
+  replaceMessages: (msgs: ChatMessage[]) => void;
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -67,11 +74,21 @@ export function useWebSocket(
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const countdownTimer = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const reconnectAttempt = useRef(0);
+  // Guards against processing connect.challenge more than once per WebSocket
+  const handshakeSentRef = useRef(false);
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
   const onAudioRef = useRef(opts.onAudioReceived);
   onAudioRef.current = opts.onAudioReceived;
+  const shouldSpeakRef = useRef(opts.shouldSpeak);
+  shouldSpeakRef.current = opts.shouldSpeak;
+  const onFinalMessageRef = useRef(opts.onFinalMessage);
+  onFinalMessageRef.current = opts.onFinalMessage;
+  const sessionKeyRef = useRef(opts.sessionKey ?? 'main');
+  sessionKeyRef.current = opts.sessionKey ?? 'main';
 
+  // Offline queue: messages queued while disconnected
+  const offlineQueueRef = useRef<{ text: string; msgId: string }[]>([]);
 
   // Pending req/res map: id → resolve function
   const pendingRef = useRef<Map<string, PendingResolver>>(new Map());
@@ -105,6 +122,8 @@ export function useWebSocket(
 
   const speakText = useCallback(
     async (text: string) => {
+      if (shouldSpeakRef.current?.() === false) return;
+
       // Strip emojis unless the message is emoji-only
       const withoutEmoji = text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').replace(/\s{2,}/g, ' ').trim();
       const toSpeak = withoutEmoji || text.trim();
@@ -115,6 +134,8 @@ export function useWebSocket(
           text: toSpeak,
           includeBase64: true,
         });
+        // Re-check after async gap — stop may have been pressed during the request
+        if (shouldSpeakRef.current?.() === false) return;
         if (res.ok && res.payload?.audioBase64) {
           const format = res.payload.outputFormat ?? 'audio/mp3';
           onAudioRef.current?.(res.payload.audioBase64, format);
@@ -125,6 +146,7 @@ export function useWebSocket(
       }
 
       // Fallback: device TTS
+      if (shouldSpeakRef.current?.() === false) return;
       try {
         void Speech.stop();
         Speech.speak(toSpeak);
@@ -141,6 +163,9 @@ export function useWebSocket(
     (frame: EventFrame) => {
       switch (frame.event) {
         case 'connect.challenge': {
+          // Guard: only send one connect request per WebSocket connection
+          if (handshakeSentRef.current) break;
+          handshakeSentRef.current = true;
           // Step 2: respond to the challenge with our connect req
           const s = settingsRef.current;
           const params: ConnectParams = {
@@ -153,7 +178,7 @@ export function useWebSocket(
               mode: 'ui',
             },
             role: 'operator',
-            scopes: ['operator.read', 'operator.write'],
+            scopes: ['operator.admin', 'operator.read', 'operator.write'],
             auth: { token: s.authToken },
           };
           void sendReq<HelloOkPayload>('connect', params).then((res) => {
@@ -236,10 +261,11 @@ export function useWebSocket(
                 },
               ]);
             }
-            // Haptic + TTS for the final assistant message
+            // Haptic + TTS + notification for the final assistant message
             if (finalContent) {
               lightTap();
               void speakText(finalContent);
+              onFinalMessageRef.current?.(finalContent);
             }
           } else {
             const existing = streamingRef.current.get(runId);
@@ -305,6 +331,7 @@ export function useWebSocket(
     disconnect();
 
     const url = buildWsUrl(settingsRef.current);
+    handshakeSentRef.current = false;
     setStatus('connecting');
 
     const ws = new WebSocket(url);
@@ -361,17 +388,21 @@ export function useWebSocket(
 
   // ── Send a chat message ──────────────────────────────────────────────────
 
-  const sendMessage = useCallback(
-    (text: string) => {
-      if (status !== 'connected') return;
-
-      lightTap();
+  const sendMessageOnline = useCallback(
+    (text: string, existingMsgId?: string) => {
+      if (existingMsgId) {
+        // Mark previously pending message as no longer pending
+        setMessages((prev) =>
+          prev.map((m) => m.id === existingMsgId ? { ...m, pending: false } : m),
+        );
+      } else {
+        lightTap();
+        setMessages((prev) => [...prev, makeUserMsg(text)]);
+      }
       setIsTyping(true);
-      // Optimistically add user message to UI
-      setMessages((prev) => [...prev, makeUserMsg(text)]);
 
       const params: ChatSendParams = {
-        sessionKey: 'main',
+        sessionKey: sessionKeyRef.current,
         message: text,
         idempotencyKey: nextId(),
         attachments: [],
@@ -387,7 +418,22 @@ export function useWebSocket(
         }
       });
     },
-    [status, sendReq],
+    [sendReq],
+  );
+
+  const sendMessage = useCallback(
+    (text: string) => {
+      if (status === 'connected') {
+        sendMessageOnline(text);
+      } else {
+        // Queue message for later delivery
+        lightTap();
+        const msg = { ...makeUserMsg(text), pending: true };
+        offlineQueueRef.current.push({ text, msgId: msg.id });
+        setMessages((prev) => [...prev, msg]);
+      }
+    },
+    [status, sendMessageOnline],
   );
 
   // ── Retry a failed message ──────────────────────────────────────────────
@@ -405,6 +451,16 @@ export function useWebSocket(
     [messages, sendMessage],
   );
 
+  // ── Flush offline queue on reconnect ─────────────────────────────────────
+
+  useEffect(() => {
+    if (status !== 'connected') return;
+    const queue = offlineQueueRef.current.splice(0);
+    for (const { text, msgId } of queue) {
+      sendMessageOnline(text, msgId);
+    }
+  }, [status, sendMessageOnline]);
+
   // ── Cleanup on unmount ────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -418,5 +474,14 @@ export function useWebSocket(
     streamingRef.current.clear();
   }, []);
 
-  return { messages, status, reconnectIn, isTyping, sendMessage, retryMessage, connect, disconnect, clearMessages };
+  const deleteMessage = useCallback((msgId: string) => {
+    setMessages((prev) => prev.filter((m) => m.id !== msgId));
+  }, []);
+
+  const replaceMessages = useCallback((msgs: ChatMessage[]) => {
+    streamingRef.current.clear();
+    setMessages(msgs);
+  }, []);
+
+  return { messages, status, reconnectIn, isTyping, sendMessage, retryMessage, connect, disconnect, clearMessages, deleteMessage, replaceMessages };
 }

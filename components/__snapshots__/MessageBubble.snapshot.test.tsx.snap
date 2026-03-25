@@ -2,307 +2,475 @@
 
 exports[`MessageBubble snapshots assistant message 1`] = `
 <View
+  collapsable={false}
   style={
-    [
-      {
-        "flexDirection": "row",
-        "justifyContent": "flex-start",
-        "marginVertical": 4,
-        "paddingHorizontal": 16,
-      },
-      false,
-    ]
+    {
+      "flexDirection": "row",
+      "justifyContent": "flex-start",
+      "marginVertical": 4,
+      "paddingHorizontal": 16,
+    }
   }
 >
   <View
+    accessibilityLabel="Message actions"
+    accessibilityRole="button"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={false}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
     style={
-      [
-        {
-          "backgroundColor": "#1e1e2a",
-          "borderRadius": 20,
-          "maxWidth": "80%",
-          "paddingHorizontal": 16,
-          "paddingVertical": 10,
-        },
-        false,
-        false,
-      ]
+      {
+        "opacity": 1,
+      }
     }
   >
-    <Text
+    <View
       style={
-        {
-          "color": "#00d4aa",
-          "fontSize": 13,
-          "fontWeight": "600",
-          "marginBottom": 2,
+        [
+          {
+            "backgroundColor": "#1e1e2a",
+            "borderRadius": 20,
+            "maxWidth": "80%",
+            "paddingHorizontal": 16,
+            "paddingVertical": 10,
+          },
+          false,
+          false,
+          false,
+          undefined,
+        ]
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#00d4aa",
+            "fontSize": 13,
+            "fontWeight": "600",
+            "marginBottom": 2,
+          }
         }
-      }
-    >
-      OpenClaw
-    </Text>
-    <Text
-      style={
-        [
-          {
-            "color": "#e8e8ef",
-            "fontSize": 15,
-            "lineHeight": 22,
-          },
-          false,
-        ]
-      }
-    >
-      Hi! How can I help?
-    </Text>
-    <Text
-      style={
-        [
-          {
-            "alignSelf": "flex-end",
-            "color": "#55556a",
-            "fontSize": 11,
-            "marginTop": 4,
-          },
-          false,
-        ]
-      }
-    >
-      02:30 PM
-    </Text>
+      >
+        OpenClaw
+      </Text>
+      <View>
+        <View>
+          <Text
+            style={
+              [
+                {
+                  "color": "#e8e8ef",
+                  "fontSize": 15,
+                  "lineHeight": 22,
+                  "marginBottom": 4,
+                },
+                {
+                  "color": "#e8e8ef",
+                  "fontSize": 15,
+                  "lineHeight": 22,
+                },
+              ]
+            }
+          >
+            Hi! How can I help?
+          </Text>
+        </View>
+      </View>
+      <Text
+        style={
+          [
+            {
+              "alignSelf": "flex-end",
+              "color": "#55556a",
+              "fontSize": 11,
+              "marginTop": 4,
+            },
+            false,
+          ]
+        }
+      >
+        02:30 pm
+      </Text>
+    </View>
   </View>
 </View>
 `;
 
 exports[`MessageBubble snapshots streaming message 1`] = `
 <View
+  collapsable={false}
   style={
-    [
-      {
-        "flexDirection": "row",
-        "justifyContent": "flex-start",
-        "marginVertical": 4,
-        "paddingHorizontal": 16,
-      },
-      false,
-    ]
+    {
+      "flexDirection": "row",
+      "justifyContent": "flex-start",
+      "marginVertical": 4,
+      "paddingHorizontal": 16,
+    }
   }
 >
   <View
+    accessibilityLabel="Message actions"
+    accessibilityRole="button"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={false}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
     style={
-      [
-        {
-          "backgroundColor": "#1e1e2a",
-          "borderRadius": 20,
-          "maxWidth": "80%",
-          "paddingHorizontal": 16,
-          "paddingVertical": 10,
-        },
-        false,
-        false,
-      ]
+      {
+        "opacity": 1,
+      }
     }
   >
-    <Text
-      style={
-        {
-          "color": "#00d4aa",
-          "fontSize": 13,
-          "fontWeight": "600",
-          "marginBottom": 2,
-        }
-      }
-    >
-      OpenClaw
-    </Text>
-    <Text
+    <View
       style={
         [
           {
-            "color": "#e8e8ef",
-            "fontSize": 15,
-            "lineHeight": 22,
+            "backgroundColor": "#1e1e2a",
+            "borderRadius": 20,
+            "maxWidth": "80%",
+            "paddingHorizontal": 16,
+            "paddingVertical": 10,
           },
           false,
+          false,
+          false,
+          undefined,
         ]
       }
     >
-      Thinking...
       <Text
         style={
           {
             "color": "#00d4aa",
-            "fontWeight": "100",
+            "fontSize": 13,
+            "fontWeight": "600",
+            "marginBottom": 2,
           }
         }
       >
-        ▌
+        OpenClaw
       </Text>
-    </Text>
-    <Text
-      style={
-        [
-          {
-            "alignSelf": "flex-end",
-            "color": "#55556a",
-            "fontSize": 11,
-            "marginTop": 4,
-          },
-          false,
-        ]
-      }
-    >
-      02:30 PM
-    </Text>
+      <View>
+        <View>
+          <Text
+            style={
+              [
+                {
+                  "color": "#e8e8ef",
+                  "fontSize": 15,
+                  "lineHeight": 22,
+                  "marginBottom": 4,
+                },
+                {
+                  "color": "#e8e8ef",
+                  "fontSize": 15,
+                  "lineHeight": 22,
+                },
+              ]
+            }
+          >
+            Thinking...
+          </Text>
+        </View>
+        <Text
+          style={
+            {
+              "color": "#00d4aa",
+              "fontWeight": "100",
+            }
+          }
+        >
+          ▌
+        </Text>
+      </View>
+      <Text
+        style={
+          [
+            {
+              "alignSelf": "flex-end",
+              "color": "#55556a",
+              "fontSize": 11,
+              "marginTop": 4,
+            },
+            false,
+          ]
+        }
+      >
+        02:30 pm
+      </Text>
+    </View>
   </View>
 </View>
 `;
 
 exports[`MessageBubble snapshots system message 1`] = `
 <View
+  collapsable={false}
   style={
-    [
-      {
-        "flexDirection": "row",
-        "justifyContent": "flex-start",
-        "marginVertical": 4,
-        "paddingHorizontal": 16,
-      },
-      false,
-    ]
+    {
+      "flexDirection": "row",
+      "justifyContent": "flex-start",
+      "marginVertical": 4,
+      "paddingHorizontal": 16,
+    }
   }
 >
   <View
+    accessibilityLabel="Message actions"
+    accessibilityRole="button"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={false}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
     style={
-      [
-        {
-          "backgroundColor": "#1e1e2a",
-          "borderRadius": 20,
-          "maxWidth": "80%",
-          "paddingHorizontal": 16,
-          "paddingVertical": 10,
-        },
-        false,
-        {
-          "backgroundColor": "transparent",
-          "borderColor": "#ff4466",
-          "borderWidth": 1,
-        },
-      ]
+      {
+        "opacity": 1,
+      }
     }
   >
-    <Text
-      style={
-        {
-          "color": "#00d4aa",
-          "fontSize": 13,
-          "fontWeight": "600",
-          "marginBottom": 2,
-        }
-      }
-    >
-      System
-    </Text>
-    <Text
+    <View
       style={
         [
           {
-            "color": "#e8e8ef",
-            "fontSize": 15,
-            "lineHeight": 22,
-          },
-          {
-            "color": "#ff4466",
-            "fontStyle": "italic",
-          },
-        ]
-      }
-    >
-      Connection lost
-    </Text>
-    <Text
-      style={
-        [
-          {
-            "alignSelf": "flex-end",
-            "color": "#55556a",
-            "fontSize": 11,
-            "marginTop": 4,
+            "backgroundColor": "#1e1e2a",
+            "borderRadius": 20,
+            "maxWidth": "80%",
+            "paddingHorizontal": 16,
+            "paddingVertical": 10,
           },
           false,
+          {
+            "backgroundColor": "transparent",
+            "borderColor": "#ff4466",
+            "borderWidth": 1,
+          },
+          false,
+          undefined,
         ]
       }
     >
-      02:30 PM
-    </Text>
+      <Text
+        style={
+          {
+            "color": "#00d4aa",
+            "fontSize": 13,
+            "fontWeight": "600",
+            "marginBottom": 2,
+          }
+        }
+      >
+        System
+      </Text>
+      <Text
+        style={
+          [
+            {
+              "color": "#e8e8ef",
+              "fontSize": 15,
+              "lineHeight": 22,
+            },
+            {
+              "color": "#ff4466",
+              "fontStyle": "italic",
+            },
+            false,
+          ]
+        }
+      >
+        Connection lost
+      </Text>
+      <Text
+        style={
+          [
+            {
+              "alignSelf": "flex-end",
+              "color": "#55556a",
+              "fontSize": 11,
+              "marginTop": 4,
+            },
+            false,
+          ]
+        }
+      >
+        02:30 pm
+      </Text>
+    </View>
   </View>
 </View>
 `;
 
 exports[`MessageBubble snapshots user message 1`] = `
 <View
+  collapsable={false}
   style={
-    [
-      {
-        "flexDirection": "row",
-        "justifyContent": "flex-start",
-        "marginVertical": 4,
-        "paddingHorizontal": 16,
-      },
-      {
-        "justifyContent": "flex-end",
-      },
-    ]
+    {
+      "flexDirection": "row",
+      "justifyContent": "flex-end",
+      "marginVertical": 4,
+      "paddingHorizontal": 16,
+    }
   }
 >
   <View
+    accessibilityLabel="Message actions"
+    accessibilityRole="button"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={false}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
     style={
-      [
-        {
-          "backgroundColor": "#1e1e2a",
-          "borderRadius": 20,
-          "maxWidth": "80%",
-          "paddingHorizontal": 16,
-          "paddingVertical": 10,
-        },
-        {
-          "backgroundColor": "#6c63ff",
-        },
-        false,
-      ]
+      {
+        "opacity": 1,
+      }
     }
   >
-    <Text
+    <View
       style={
         [
           {
-            "color": "#e8e8ef",
-            "fontSize": 15,
-            "lineHeight": 22,
+            "backgroundColor": "#1e1e2a",
+            "borderRadius": 20,
+            "maxWidth": "80%",
+            "paddingHorizontal": 16,
+            "paddingVertical": 10,
+          },
+          {
+            "backgroundColor": "#6c63ff",
           },
           false,
+          false,
+          undefined,
         ]
       }
     >
-      Hello there!
-    </Text>
-    <Text
-      style={
-        [
-          {
-            "alignSelf": "flex-end",
-            "color": "#55556a",
-            "fontSize": 11,
-            "marginTop": 4,
-          },
-          {
-            "color": "rgba(255, 255, 255, 0.65)",
-          },
-        ]
-      }
-    >
-      02:30 PM
-    </Text>
+      <Text
+        style={
+          [
+            {
+              "color": "#e8e8ef",
+              "fontSize": 15,
+              "lineHeight": 22,
+            },
+            false,
+            {
+              "color": "#ffffff",
+            },
+          ]
+        }
+      >
+        Hello there!
+      </Text>
+      <Text
+        style={
+          [
+            {
+              "alignSelf": "flex-end",
+              "color": "#55556a",
+              "fontSize": 11,
+              "marginTop": 4,
+            },
+            {
+              "color": "rgba(255, 255, 255, 0.65)",
+            },
+          ]
+        }
+      >
+        02:30 pm
+      </Text>
+    </View>
   </View>
 </View>
 `;

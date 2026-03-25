@@ -47,6 +47,35 @@ export function formatDayLabel(timestamp: number, now?: number): string {
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
+/** Format a timestamp as a short time string */
+function formatTime(timestamp: number): string {
+  const d = new Date(timestamp);
+  const h = String(d.getHours()).padStart(2, '0');
+  const m = String(d.getMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+/** Format messages as a plain-text conversation export */
+export function formatConversationExport(messages: ChatMessage[], title?: string): string {
+  const lines: string[] = [];
+  if (title) {
+    lines.push(title);
+    lines.push('='.repeat(title.length));
+    lines.push('');
+  }
+
+  for (const msg of messages) {
+    if (msg.role === 'system') continue;
+    const label = msg.role === 'user' ? 'You' : 'OpenClaw';
+    const time = formatTime(msg.timestamp);
+    lines.push(`[${time}] ${label}:`);
+    lines.push(msg.content);
+    lines.push('');
+  }
+
+  return lines.join('\n').trimEnd();
+}
+
 /** Insert date separator items between messages from different days */
 export function insertDateSeparators(messages: ChatMessage[], now?: number): ChatListItem[] {
   const result: ChatListItem[] = [];

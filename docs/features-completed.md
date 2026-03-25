@@ -1,0 +1,41 @@
+- Scroll-to-bottom FAB (2026-03-23)
+- Markdown rendering for assistant messages (2026-03-23)
+- Code block copy button (2026-03-23)
+- Message actions (long-press menu: copy, retry, delete, share) (2026-03-23)
+- Message search (2026-03-23)
+- Character counter near input limit (2026-03-23)
+- Light theme toggle (2026-03-23)
+- Conversation management (2026-03-23)
+- Export conversation (2026-03-23)
+- Swipe-to-reply / message quoting (2026-03-23)
+- Notification support (2026-03-23)
+- Audio stop button FAB (2026-03-23)
+  - When audio is currently playing, show a floating stop button (FAB) on screen
+  - Tapping it stops the audio playback immediately and clears the audio queue
+  - FAB should be visually distinct (e.g. stop icon or "■") and positioned so it doesn't overlap the scroll-to-bottom FAB
+  - FAB disappears automatically when audio finishes playing and the queue is empty
+- Audio playback queue (2026-03-23)
+  - If audio is already playing when a new audio clip arrives, enqueue it instead of dropping or interrupting
+  - Play queued clips in order automatically once the current clip finishes
+  - The stop FAB (from the audio stop button feature) should stop current playback and clear the entire queue
+  - FAB should remain visible while there are queued clips, even between clips
+- Fix: audio stop button does not stop playback (2026-03-23)
+  - The stop FAB is visible correctly but tapping it does not stop the currently playing audio
+  - Investigate `useAudioPlayer` — ensure `stopAudio` is wired up and actually called on the active sound instance
+  - After fix, pressing the stop FAB must immediately halt playback and hide the FAB
+- Offline mode (2026-03-23)
+  - Queue outgoing messages when the device is offline
+  - Automatically send queued messages when connectivity is restored
+  - Show a visual indicator when the app is offline
+- Font size settings (2026-03-23)
+  - Allow users to adjust the chat text size for accessibility
+  - Persist the selected font size across sessions
+  - Provide a range of sizes (small, medium, large, extra-large)
+- Slash commands in chat (2026-03-23)
+  - Support commands like /clear, /model, /system typed directly in the chat input
+  - Parse input starting with "/" and handle recognized commands
+  - Show autocomplete suggestions when typing a slash command
+- Input history FAB (2026-03-23)
+  - Add a FAB button to cycle through previously sent messages
+  - Tapping the FAB populates the input field with the previous message
+  - Change the send button icon from "↑" to a send icon (e.g. ➤) to free up the arrow metaphor

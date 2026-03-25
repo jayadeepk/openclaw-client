@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Alert,
   ScrollView,
@@ -11,7 +11,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppSettings } from '../../types';
-import { theme } from '../../constants/theme';
+import { AppTheme } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface SettingsScreenProps {
   settings: AppSettings;
@@ -20,6 +21,9 @@ interface SettingsScreenProps {
 }
 
 export function SettingsScreen({ settings, onSave, onGoBack }: SettingsScreenProps) {
+  const { theme } = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   const insets = useSafeAreaInsets();
   const [host, setHost] = useState(settings.gatewayHost);
   const [port, setPort] = useState(settings.gatewayPort);
@@ -104,72 +108,74 @@ export function SettingsScreen({ settings, onSave, onGoBack }: SettingsScreenPro
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-  },
-  backBtn: {
-    paddingVertical: 6,
-    paddingRight: 8,
-  },
-  backText: {
-    color: theme.colors.primary,
-    fontSize: theme.fontSize.md,
-    fontWeight: '500',
-  },
-  title: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: '700',
-    color: theme.colors.text,
-  },
-  content: {
-    padding: theme.spacing.lg,
-  },
-  label: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: '600',
-    color: theme.colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: theme.spacing.xs,
-    marginTop: theme.spacing.md,
-  },
-  input: {
-    backgroundColor: theme.colors.surface,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm + 4,
-    color: theme.colors.text,
-    fontSize: theme.fontSize.md,
-  },
-  hint: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textMuted,
-    marginTop: theme.spacing.sm,
-    fontStyle: 'italic',
-  },
-  saveBtn: {
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.borderRadius.md,
-    paddingVertical: theme.spacing.md,
-    alignItems: 'center',
-    marginTop: theme.spacing.xl,
-  },
-  saveBtnText: {
-    color: '#fff',
-    fontSize: theme.fontSize.md,
-    fontWeight: '700',
-  },
-});
+function createStyles(t: AppTheme) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: t.colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: t.spacing.md,
+      paddingVertical: t.spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: t.colors.border,
+    },
+    backBtn: {
+      paddingVertical: 6,
+      paddingRight: 8,
+    },
+    backText: {
+      color: t.colors.primary,
+      fontSize: t.fontSize.md,
+      fontWeight: '500',
+    },
+    title: {
+      fontSize: t.fontSize.lg,
+      fontWeight: '700',
+      color: t.colors.text,
+    },
+    content: {
+      padding: t.spacing.lg,
+    },
+    label: {
+      fontSize: t.fontSize.sm,
+      fontWeight: '600',
+      color: t.colors.textSecondary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      marginBottom: t.spacing.xs,
+      marginTop: t.spacing.md,
+    },
+    input: {
+      backgroundColor: t.colors.surface,
+      borderWidth: 1,
+      borderColor: t.colors.border,
+      borderRadius: t.borderRadius.md,
+      paddingHorizontal: t.spacing.md,
+      paddingVertical: t.spacing.sm + 4,
+      color: t.colors.text,
+      fontSize: t.fontSize.md,
+    },
+    hint: {
+      fontSize: t.fontSize.sm,
+      color: t.colors.textMuted,
+      marginTop: t.spacing.sm,
+      fontStyle: 'italic',
+    },
+    saveBtn: {
+      backgroundColor: t.colors.primary,
+      borderRadius: t.borderRadius.md,
+      paddingVertical: t.spacing.md,
+      alignItems: 'center',
+      marginTop: t.spacing.xl,
+    },
+    saveBtnText: {
+      color: '#fff',
+      fontSize: t.fontSize.md,
+      fontWeight: '700',
+    },
+  });
+}

@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AudioStopFAB snapshots hidden state 1`] = `null`;
+
+exports[`AudioStopFAB snapshots visible state 1`] = `
+<View
+  collapsable={false}
+  pointerEvents="auto"
+  style={
+    {
+      "bottom": 130,
+      "opacity": 0,
+      "position": "absolute",
+      "right": 16,
+      "zIndex": 10,
+    }
+  }
+>
+  <View
+    accessibilityLabel="Stop audio"
+    accessibilityRole="button"
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "#ff4466",
+        "borderRadius": 20,
+        "height": 40,
+        "justifyContent": "center",
+        "opacity": 1,
+        "width": 40,
+      }
+    }
+  >
+    <View
+      collapsable={false}
+      style={
+        {
+          "backgroundColor": "#ffffff",
+          "borderRadius": 2,
+          "height": 16,
+          "width": 16,
+        }
+      }
+    />
+  </View>
+</View>
+`;

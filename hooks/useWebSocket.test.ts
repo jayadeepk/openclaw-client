@@ -174,17 +174,40 @@ describe('useWebSocket - connection lifecycle', () => {
     expect(result.current.status).toBe('error');
     expect(result.current.messages.some((m) => m.content.includes('Invalid token'))).toBe(true);
   });
+  it('ignores duplicate connect.challenge on the same connection', () => {
+    const { result } = renderHook(() => useWebSocket(defaultSettings));
+    act(() => {
+      result.current.connect();
+    });
+    const ws = getLastWs();
+    act(() => {
+      sendChallenge(ws);
+    });
+    // First challenge should have sent a connect request
+    const frames = getSentFrames(ws);
+    expect(frames).toHaveLength(1);
+    expect(frames[0].method).toBe('connect');
+
+    // Sending a second challenge on the same connection
+    act(() => {
+      sendChallenge(ws);
+    });
+    // Should NOT send another connect request
+    expect(getSentFrames(ws)).toHaveLength(1);
+  });
 });
 
 // ─── Sending Messages ────────────────────────────────────────────────────────
 
 describe('useWebSocket - sending messages', () => {
-  it('is no-op when not connected', () => {
+  it('queues message as pending when not connected', () => {
     const { result } = renderHook(() => useWebSocket(defaultSettings));
     act(() => {
       result.current.sendMessage('hello');
     });
-    expect(result.current.messages).toHaveLength(0);
+    expect(result.current.messages).toHaveLength(1);
+    expect(result.current.messages[0].content).toBe('hello');
+    expect(result.current.messages[0].pending).toBe(true);
   });
 
   it('adds user message optimistically', async () => {
@@ -497,6 +520,90 @@ describe('useWebSocket - TTS success path', () => {
 
     expect(onAudio).toHaveBeenCalledWith('data', 'audio/mp3');
   });
+
+  it('suppresses TTS when shouldSpeak returns false', async () => {
+    const shouldSpeak = jest.fn().mockReturnValue(false);
+    const hook = renderHook(() => useWebSocket(defaultSettings, { shouldSpeak }));
+    act(() => {
+      hook.result.current.connect();
+    });
+    const ws = getLastWs();
+    act(() => {
+      sendChallenge(ws);
+    });
+    const connectReq = getLastSentFrame(ws);
+    act(() => {
+      sendHelloOk(ws, connectReq.id);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    act(() => {
+      ws.serverSend({
+        type: 'event',
+        event: 'chat',
+        payload: { runId: 'run1', sessionKey: 'main', seq: 1, state: 'final', message: { role: 'assistant', content: 'Hello' } },
+      });
+    });
+
+    // No tts.convert request should be sent
+    const ttsReq = getSentFrames(ws).find((f: any) => f.method === 'tts.convert');
+    expect(ttsReq).toBeUndefined();
+    expect(Speech.speak).not.toHaveBeenCalled();
+  });
+
+  it('suppresses TTS after async gap when shouldSpeak becomes false', async () => {
+    let speakAllowed = true;
+    const shouldSpeak = () => speakAllowed;
+    const onAudio = jest.fn();
+    const hook = renderHook(() => useWebSocket(defaultSettings, { onAudioReceived: onAudio, shouldSpeak }));
+    act(() => {
+      hook.result.current.connect();
+    });
+    const ws = getLastWs();
+    act(() => {
+      sendChallenge(ws);
+    });
+    const connectReq = getLastSentFrame(ws);
+    act(() => {
+      sendHelloOk(ws, connectReq.id);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // Trigger TTS while shouldSpeak is true
+    act(() => {
+      ws.serverSend({
+        type: 'event',
+        event: 'chat',
+        payload: { runId: 'run1', sessionKey: 'main', seq: 1, state: 'final', message: { role: 'assistant', content: 'Hello' } },
+      });
+    });
+
+    const ttsReq = getSentFrames(ws).find((f: any) => f.method === 'tts.convert');
+    expect(ttsReq).toBeDefined();
+
+    // "Press stop" — shouldSpeak now returns false
+    speakAllowed = false;
+
+    // TTS response arrives after stop
+    act(() => {
+      ws.serverSend({
+        type: 'res',
+        id: ttsReq.id,
+        ok: true,
+        payload: { audioBase64: 'base64audio', outputFormat: 'audio/mp3' },
+      });
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // Audio callback should NOT have been called
+    expect(onAudio).not.toHaveBeenCalled();
+  });
 });
 
 // ─── Edge cases / branch coverage ───────────────────────────────────────────
@@ -759,5 +866,61 @@ describe('useWebSocket - event handling', () => {
       ws.onerror?.();
     });
     expect(result.current.status).toBe('error');
+  });
+});
+
+// ─── Offline Queue ──────────────────────────────────────────────────────────
+
+describe('useWebSocket - offline queue', () => {
+  it('queues multiple messages while disconnected', () => {
+    const { result } = renderHook(() => useWebSocket(defaultSettings));
+    act(() => {
+      result.current.sendMessage('first');
+      result.current.sendMessage('second');
+    });
+    expect(result.current.messages).toHaveLength(2);
+    expect(result.current.messages.every((m) => m.pending === true)).toBe(true);
+  });
+
+  it('flushes queued messages when connection is established', async () => {
+    const { result } = renderHook(() => useWebSocket(defaultSettings));
+    // Queue a message while disconnected
+    act(() => {
+      result.current.sendMessage('queued msg');
+    });
+    expect(result.current.messages[0].pending).toBe(true);
+
+    // Now connect
+    act(() => {
+      result.current.connect();
+    });
+    const ws = getLastWs();
+    act(() => {
+      sendChallenge(ws);
+    });
+    const connectReq = getLastSentFrame(ws);
+    act(() => {
+      sendHelloOk(ws, connectReq.id);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // The queued message should now be sent (pending: false) and a chat.send frame sent
+    expect(result.current.messages[0].pending).toBeFalsy();
+    const chatSend = getSentFrames(ws).find((f: any) => f.method === 'chat.send');
+    expect(chatSend).toBeDefined();
+    expect(chatSend.params.message).toBe('queued msg');
+  });
+
+  it('sends messages directly when already connected', async () => {
+    const { hook, ws } = await connectFull();
+    act(() => {
+      hook.result.current.sendMessage('online msg');
+    });
+    const userMsg = hook.result.current.messages.find((m) => m.role === 'user');
+    expect(userMsg?.pending).toBeUndefined();
+    const chatSend = getSentFrames(ws).find((f: any) => f.method === 'chat.send');
+    expect(chatSend).toBeDefined();
   });
 });
