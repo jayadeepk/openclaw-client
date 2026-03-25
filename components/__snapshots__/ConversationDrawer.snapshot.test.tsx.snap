@@ -315,7 +315,7 @@ exports[`ConversationDrawer matches snapshot 1`] = `
                     }
                   }
                 >
-                  Jan 1
+                  1 Jan
                 </Text>
               </View>
               <View
@@ -454,7 +454,7 @@ exports[`ConversationDrawer matches snapshot 1`] = `
                     }
                   }
                 >
-                  Jan 1
+                  1 Jan
                 </Text>
               </View>
               <View

@@ -113,7 +113,7 @@ exports[`MessageBubble snapshots assistant message 1`] = `
           ]
         }
       >
-        02:30 PM
+        02:30 pm
       </Text>
     </View>
   </View>
@@ -243,7 +243,7 @@ exports[`MessageBubble snapshots streaming message 1`] = `
           ]
         }
       >
-        02:30 PM
+        02:30 pm
       </Text>
     </View>
   </View>
@@ -343,6 +343,7 @@ exports[`MessageBubble snapshots system message 1`] = `
               "color": "#ff4466",
               "fontStyle": "italic",
             },
+            false,
           ]
         }
       >
@@ -361,7 +362,7 @@ exports[`MessageBubble snapshots system message 1`] = `
           ]
         }
       >
-        02:30 PM
+        02:30 pm
       </Text>
     </View>
   </View>
@@ -444,6 +445,9 @@ exports[`MessageBubble snapshots user message 1`] = `
               "lineHeight": 22,
             },
             false,
+            {
+              "color": "#ffffff",
+            },
           ]
         }
       >
@@ -464,7 +468,7 @@ exports[`MessageBubble snapshots user message 1`] = `
           ]
         }
       >
-        02:30 PM
+        02:30 pm
       </Text>
     </View>
   </View>

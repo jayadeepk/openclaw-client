@@ -114,7 +114,7 @@ export function MessageBubble({ message, onRetry, onLongPress, onSwipeReply, sea
         </Text>
       )}
       {isUser || isSystem ? (
-        <Text style={[styles.text, isSystem && styles.textSystem]}>
+        <Text style={[styles.text, isSystem && styles.textSystem, isUser && styles.textUser]}>
           {searchQuery ? highlightText(message.content, searchQuery) : message.content}
           {message.streaming ? <Text style={styles.cursor}>▌</Text> : null}
         </Text>
@@ -215,6 +215,9 @@ function createStyles(t: AppTheme) {
       fontSize: t.fontSize.md,
       color: t.colors.text,
       lineHeight: 22,
+    },
+    textUser: {
+      color: '#ffffff',
     },
     textSystem: {
       color: t.colors.error,
